@@ -5,21 +5,24 @@ import { notFound } from "next/navigation";
 
 /**
  * app/share/[id]/page.tsx
- * - KV에서 report:${id} 읽어서 결과 페이지 렌더
- * - UI는 Home 페이지의 "The Saju" 톤(핑크, 그라데이션, 카드)로 구성
- * - (중요) reportKey 규칙: 저장할 때 report:${id} 로 했으면 동일하게 읽어야 함
+ * - params가 Promise로 들어오는 현재 프로젝트 구조를 그대로 유지
+ * - KV에서 report:${id} 조회
+ * - Home 톤(핑크/그라데이션/카드)으로 결과 UI 렌더
  */
 
-// ✅ Next.js App Router에서는 보통 params가 Promise가 아니라 객체로 들어옵니다.
-export default async function SharePage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default async function SharePage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
 
   // ★ 중요: 저장할 때 'report:'를 붙였으므로, 찾을 때도 똑같이 붙여야 합니다!
   const reportKey = `report:${id}`;
   const data = await kv.get<any>(reportKey);
 
   if (!data) {
-    console.log("데이터를 찾지 못함:", reportKey);
+    console.log("데이터를 찾지 못함:", reportKey, "id:", id);
     return notFound();
   }
 
@@ -27,7 +30,9 @@ export default async function SharePage({ params }: { params: { id: string } }) 
   const score = toNumberSafe(data.score, 0);
   const insta = data.insta_card || {};
   const elemental = data.elemental_analysis || {};
-  const categories: any[] = Array.isArray(data.analysis_categories) ? data.analysis_categories : [];
+  const categories: any[] = Array.isArray(data.analysis_categories)
+    ? data.analysis_categories
+    : [];
 
   const personAEmoji = insta.person_a_emoji || "🌊";
   const personBEmoji = insta.person_b_emoji || "⛰️";
@@ -42,16 +47,24 @@ export default async function SharePage({ params }: { params: { id: string } }) 
 
   return (
     <div style={pageStyle}>
-      {/* Header (Home 페이지 톤 맞춤) */}
+      {/* Header */}
       <div style={headerStyle}>
         <div style={{ fontSize: 36, marginBottom: 5 }}>🔮</div>
-        <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: "-0.5px" }}>The Saju</h1>
+        <h1
+          style={{
+            margin: 0,
+            fontSize: 32,
+            fontWeight: 900,
+            letterSpacing: "-0.5px",
+          }}
+        >
+          The Saju
+        </h1>
         <p style={{ margin: "8px 0 0", fontSize: 14, opacity: 0.95, fontWeight: 500 }}>
           Korean Destiny & Love Chemistry
         </p>
       </div>
 
-      {/* Body */}
       <div style={containerStyle}>
         {/* Top Summary Card */}
         <div style={cardStyle}>
@@ -170,7 +183,6 @@ export default async function SharePage({ params }: { params: { id: string } }) 
           </div>
         </div>
 
-        {/* Spacer */}
         <div style={{ height: 40 }} />
       </div>
     </div>
@@ -178,7 +190,7 @@ export default async function SharePage({ params }: { params: { id: string } }) 
 }
 
 /* =========================
-   UI Components (긴 버전)
+   UI Components
    ========================= */
 
 function CategoryCard({ item, index }: { item: any; index: number }) {
@@ -209,7 +221,7 @@ function ProgressBar({ value }: { value: number }) {
 }
 
 /* =========================
-   Helpers (긴 버전)
+   Helpers
    ========================= */
 
 function toNumberSafe(v: any, fallback: number) {
@@ -224,7 +236,7 @@ function clamp(v: number, min: number, max: number) {
 }
 
 /* =========================
-   Styles (Home 톤 맞춤)
+   Styles
    ========================= */
 
 const pageStyle: React.CSSProperties = {
