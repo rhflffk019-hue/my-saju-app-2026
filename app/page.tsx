@@ -228,13 +228,40 @@ export default function Home() {
         )}
 
         {/* 로딩 */}
-        {step === 2 && (
-          <div style={{ textAlign: 'center', marginTop: '100px', animation: 'pulse 2s infinite' }}>
-            <div style={{ fontSize: '60px', marginBottom:'20px' }}>⚡️</div>
-            <h2 style={{ color: '#d63384', fontSize:'22px' }}>Connecting Energies...</h2>
-            <p style={{ color: '#666', fontSize:'15px' }}>Applying 1000-year-old formula...</p>
+      {step === 2 && (
+        <div style={{ textAlign: 'center', marginTop: '100px', animation: 'pulse 2s infinite' }}>
+          <div style={{ fontSize: '60px', marginBottom:'20px' }}>⚡️</div>
+          <h2 style={{ color: '#d63384', fontSize:'22px' }}>Connecting Energies...</h2>
+          <p style={{ color: '#666', fontSize:'15px' }}>Applying 1000-year-old formula...</p>
+
+          {/* ✅ 안내 문구 추가 */}
+          <div
+            style={{
+              margin: '22px auto 0',
+              maxWidth: 360,
+              background: '#f0f9ff',
+              border: '1px solid #bce3eb',
+              borderRadius: 14,
+              padding: '14px 14px',
+              color: '#0369a1',
+              textAlign: 'left',
+              lineHeight: 1.45,
+              boxShadow: '0 6px 18px rgba(0,0,0,0.06)',
+            }}
+          >
+            <div style={{ fontSize: 13, fontWeight: 900, marginBottom: 6 }}>
+              Important: Please stay on this page.
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
+              Please don’t leave or refresh this page.
+            </div>
+            <div style={{ fontSize: 12, fontWeight: 700 }}>
+              Your premium report is being generated and may take up to 5 minutes.
+            </div>
           </div>
-        )}
+        </div>
+      )}
+
 
         {/* Step 3 (결과 화면)는 삭제되지 않았지만, 리다이렉트 되므로 사실상 안 보입니다. */}
       </div>
