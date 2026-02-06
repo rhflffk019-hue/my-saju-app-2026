@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     
     // ★★★ 모델 설정 (유료 계정이면 1.5-pro 추천) ★★★
     const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-pro", 
+      model: "gemini-2.5-flash", 
       generationConfig: { responseMimeType: "application/json" }
     });
 
