@@ -256,7 +256,7 @@ export default function Home() {
               Please don’t leave or refresh this page.
             </div>
             <div style={{ fontSize: 12, fontWeight: 700 }}>
-              Your premium report is being generated and may take up to 5 minutes.
+              Your premium report is being generated and may take up to 3 minutes.
             </div>
           </div>
         </div>
