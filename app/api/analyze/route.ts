@@ -150,8 +150,8 @@ function calculateSaju(data: any) {
 
   if (!data.unknownTime && data.birthTime) {
     [hour, minute] = data.birthTime.split(':').map(Number);
-    const offset = parseInt(data.timezone); 
-    const kstOffset = 9; 
+    const offset = parseInt(data.timezone);
+    const kstOffset = 9;
     const dateObj = new Date(year, month - 1, day, hour, minute);
     dateObj.setHours(dateObj.getHours() + (kstOffset - offset));
     year = dateObj.getFullYear(); month = dateObj.getMonth() + 1; day = dateObj.getDate(); hour = dateObj.getHours();
@@ -168,17 +168,28 @@ function calculateSaju(data: any) {
 
   const fullName = `${data.firstName} ${data.lastName}`.trim();
 
+  // ✅ PillarChart가 기대하는 shape로 맞춘 Unknown Hour Pillar
+  const unknownHourPillar = {
+    stem_hanja: "?",
+    stem_meaning: "Unknown",
+    stem_element: "unknown",
+    branch_hanja: "?",
+    branch_meaning: "Unknown",
+    branch_element: "unknown",
+    position: "Hour",
+  };
+
   return {
     name: fullName,
-    englishName: data.firstName, 
+    englishName: data.firstName,
     pillars: [
-      translatePillar(ganji.year, 'Year'),
-      translatePillar(ganji.month, 'Month'),
-      translatePillar(ganji.day, 'Day'),
-      data.unknownTime ? { hanja: "?", meaning: "Unknown", element: "Unknown", position: "Hour" } : translatePillar(ganji.time, 'Hour')
-    ]
+      translatePillar(ganji.year, "Year"),
+      translatePillar(ganji.month, "Month"),
+      translatePillar(ganji.day, "Day"),
+      data.unknownTime ? unknownHourPillar : translatePillar(ganji.time, "Hour"),
+    ],
   };
-};
+}
 
 function translatePillar(chineseChar: string, position: string) {
   const stem = chineseChar.charAt(0);
