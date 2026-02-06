@@ -143,7 +143,7 @@ export default function Home() {
       setStep(1); 
     } finally {
       // 페이지 이동이 일어나므로 로딩 해제는 필수가 아니지만 안전하게 처리
-      if (!data?.success) setLoading(false); 
+      setLoading(false); 
     }
   };
 
