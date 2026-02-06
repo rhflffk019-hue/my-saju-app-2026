@@ -170,9 +170,9 @@ export default function Home() {
         {step === 1 && (
           <div>
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '20px', marginBottom: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)', border: '1px solid #fff' }}>
-              <div style={{fontSize: '11px', fontWeight: 'bold', color: '#ff69b4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>Ancient Korean Secret 🇰🇷</div>
+              <div style={{fontSize: '11px', fontWeight: 'bold', color: '#ff69b4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>Ancient Korean Secret</div>
               <h3 style={{ margin:'0 0 15px 0', color:'#333', fontSize:'22px', lineHeight:'1.3', fontWeight:'800' }}>
-                "Love is Intuition,<br/>Saju is Science."
+                Love is Intuition,<br/>Saju is Science.
               </h3>
               <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#555' }}>
                 <p style={{ marginBottom: '15px' }}>
