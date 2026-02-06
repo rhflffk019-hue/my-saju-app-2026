@@ -3,6 +3,7 @@ export const dynamic = "force-dynamic";
 import React from "react";
 import { kv } from "@vercel/kv";
 import { notFound } from "next/navigation";
+import ShareButtons from "./ShareButtons";
 
 /**
  * app/share/[id]/page.tsx
@@ -10,6 +11,7 @@ import { notFound } from "next/navigation";
  * - KV에서 report:${id} 조회
  * - Home 톤(핑크/그라데이션/카드)으로 결과 UI 렌더
  * - ✅ saju_chart(my_info/partner_info) PillarChart 섹션 추가 (원래 Home 스타일 그대로)
+ * - ✅ ShareButtons 섹션 추가 (shareUrl 생성 포함)
  */
 
 export default async function SharePage({
@@ -51,6 +53,13 @@ export default async function SharePage({
   const sajuChart = data?.saju_chart || null;
   const myInfo = sajuChart?.my_info || null;
   const partnerInfo = sajuChart?.partner_info || null;
+
+  // ✅ Share URL 생성 (Server Component에서 window 사용 불가)
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
+  const shareUrl = `${baseUrl}/share/${id}`;
 
   return (
     <div style={pageStyle}>
@@ -325,6 +334,17 @@ export default async function SharePage({
             ))}
           </div>
         )}
+
+        {/* ✅ Share Buttons */}
+        <div style={{ marginTop: 16, ...panelStyle, textAlign: "center", background: "#fff" }}>
+          <div style={{ fontSize: 14, fontWeight: 900, color: "#333", marginBottom: 10 }}>
+            🔗 Share this result
+          </div>
+          <ShareButtons url={shareUrl} />
+          <div style={{ marginTop: 10, fontSize: 11, color: "#999", lineHeight: 1.4 }}>
+            Link: <code style={codeStyle}>{shareUrl}</code>
+          </div>
+        </div>
 
         {/* Footer CTA */}
         <div
