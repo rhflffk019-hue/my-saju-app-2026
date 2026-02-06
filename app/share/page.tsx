@@ -1,14 +1,17 @@
+export const dynamic = 'force-dynamic';
+
 import { kv } from '@vercel/kv';
 import { notFound } from 'next/navigation';
 
-export default async function SharePage({ params }: { params: { id: string } }) {
-  const { id } = params;
+// params를 Promise로 받도록 수정
+export default async function SharePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params; // ★ await 추가
   
   // KV 저장소에서 분석 결과 가져오기
   const result = await kv.get<{ result: string }>(id);
 
   if (!result) {
-    return notFound(); // 결과가 없으면 404 페이지 표시
+    return notFound();
   }
 
   return (
