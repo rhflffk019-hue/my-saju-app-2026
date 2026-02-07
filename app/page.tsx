@@ -73,41 +73,61 @@ export default function Home() {
     };
   };
 
-  // 결제 확인 로직
-  useEffect(() => {
-    const query = new URLSearchParams(window.location.search);
-    if (query.get('paid') === 'true') {
-      const savedMyData = localStorage.getItem('myData');
-      const savedPartnerData = localStorage.getItem('partnerData');
-      const savedRelType = localStorage.getItem('relationshipType');
+    // app/page.tsx 내 useEffect 수정
+    useEffect(() => {
+      const query = new URLSearchParams(window.location.search);
       
-      if (savedMyData && savedPartnerData) {
-        setMyData(JSON.parse(savedMyData));
-        setPartnerData(JSON.parse(savedPartnerData));
-        if(savedRelType) setRelationshipType(savedRelType);
-
-        requestAnalysis(JSON.parse(savedMyData), JSON.parse(savedPartnerData), savedRelType || 'lover');
-      } else {
-        alert("Session expired. Please enter details again.");
-        window.location.href = "/";
+      // 레몬 스퀴지에서 설정한 ?paid=true 주소로 돌아왔을 때
+      if (query.get('paid') === 'true') {
+        const sessionId = localStorage.getItem('currentSessionId');
+        
+        if (sessionId) {
+          // 분석은 이미 서버(웹훅)에서 진행 중이거나 완료되었을 것이므로
+          // 즉시 결과 공유 페이지로 보냅니다.
+          router.push(`/share/${sessionId}`);
+        } else {
+          // 만약 브라우저가 바뀌어서 ID가 없다면 메인으로 보냅니다.
+          alert("Session expired. Please try again.");
+          router.push("/");
+        }
       }
-    }
-  }, []);
+    }, [router]);
 
-  const handlePaymentClick = () => {
-    if (!myData.firstName || !partnerData.firstName) {
-      alert("Please enter First Names!");
-      return;
-    }
-    
-    localStorage.setItem('myData', JSON.stringify(myData));
-    localStorage.setItem('partnerData', JSON.stringify(partnerData));
-    localStorage.setItem('relationshipType', relationshipType);
+    // app/page.tsx 내 handlePaymentClick 수정
+    const handlePaymentClick = async () => {
+      if (!myData.firstName || !partnerData.firstName) {
+        alert("Please enter First Names!");
+        return;
+      }
 
-    // ★ 실제 출시 시 여기에 Stripe 링크 연결
-    // window.location.href = "https://buy.stripe.com/your_link"; 
-    requestAnalysis(myData, partnerData, relationshipType);
-  };
+      setLoading(true);
+
+      try {
+        // 1. 서버(KV)에 사용자 정보를 임시 저장하고 고유 세션 ID를 받아옵니다.
+        const res = await fetch('/api/reserve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ myData, partnerData, relationshipType }),
+        });
+        
+        if (!res.ok) throw new Error("Failed to reserve session");
+        const { sessionId } = await res.json();
+
+        // 2. 나중에 결제 후 돌아왔을 때를 대비해 로컬 스토리지에도 ID를 저장해둡니다.
+        localStorage.setItem('currentSessionId', sessionId);
+
+        // 3. 레몬 스퀴지 결제창으로 이동 (sessionId를 파라미터로 전달)
+        // ★ 예경님의 실제 상품 체크아웃 링크를 아래 주소 대신 넣으세요!
+        const LEMON_SQUEEZY_URL = "https://thesaju.lemonsqueezy.com/checkout/buy/your-product-id";
+        const checkoutUrl = `${LEMON_SQUEEZY_URL}?checkout[custom][session_id]=${sessionId}`;
+        
+        window.location.href = checkoutUrl;
+      } catch (e) {
+        console.error(e);
+        alert("Error starting payment. Please try again.");
+        setLoading(false);
+      }
+    };
 
   // ★★★ 핵심 수정: 서버 요청 후 페이지 이동 ★★★
   const requestAnalysis = async (dataA: any, dataB: any, relType: string) => {
