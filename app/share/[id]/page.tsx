@@ -1,14 +1,14 @@
 export const dynamic = "force-dynamic";
 
+// ✅ page.tsx에서도 metadata export 가능 (App Router)
 export const metadata = {
-  // 브라우저 탭에 뜨는 제목
   title: "The Saju | Love is Intuition, Saju is a Blueprint",
-  // ✅ 가격($3.99) 제거하여 가치 중심 문구로 수정
-  description: "Map your Five-Element energy with a 1,000-year-old Korean framework. Reveal your hidden dynamics.",
-  
+  description:
+    "Map your Five-Element energy with a 1,000-year-old Korean framework. Reveal your hidden dynamics.",
   openGraph: {
     title: "The Saju: Love is Intuition, Saju is a Blueprint",
-    description: "In Korea, fortune telling isn’t guesswork. Discover your deep love compatibility report in minutes.",
+    description:
+      "In Korea, fortune telling isn’t guesswork. Discover your deep love compatibility report in minutes.",
     url: "https://mythesaju.com",
     siteName: "The Saju",
     images: [
@@ -22,11 +22,9 @@ export const metadata = {
     locale: "en_US",
     type: "website",
   },
-  
   twitter: {
     card: "summary_large_image",
     title: "The Saju | Korean Love Compatibility",
-    // ✅ 트위터 요약에서도 가격 제거
     description: "Digitized 1,000-year-old Saju framework. Reveal your hidden dynamics.",
     images: ["/og-image.png"],
   },
@@ -34,12 +32,11 @@ export const metadata = {
 
 import React from "react";
 import { kv } from "@vercel/kv";
-import { notFound } from "next/navigation";
 import ShareButtons from "./ShareButtons";
-import PollingHandler from "./PollingHandler"; // ✅ 새로 고침 없는 사일런트 핸들러 추가
+import PollingHandler from "./PollingHandler";
 
 // =========================================================
-// 🔮 기다리는 동안 무작위로 노출될 사주 팁 (원본 보존)
+// 🔮 기다리는 동안 무작위로 노출될 사주 팁 (지루함 방지)
 // =========================================================
 const SAJU_TIPS = [
   "In Saju, your 'Day Master' represents your core essence—the sun you were born under.",
@@ -48,14 +45,16 @@ const SAJU_TIPS = [
   "Your birth hour reveals your hidden internal world and your future potential.",
   "Saju is not a fixed fate, but a weather forecast for your journey through time.",
   "The 'Year' pillar represents your social circle and the legacy of your ancestors.",
-  "The 'Month' pillar governs your career potential and the environment of your youth."
+  "The 'Month' pillar governs your career potential and the environment of your youth.",
 ];
 
 /**
  * app/share/[id]/page.tsx
- * - 717줄 원본 로직과 스타일링을 100% 유지하며 수술한 최종본
+ * - params: Promise<{id}>
+ * - KV에서 report:${id} 조회
+ * - ✅ 하드 새로고침(meta/script) 제거
+ * - ✅ PollingHandler로 조용한 폴링(router.refresh) 적용
  */
-
 export default async function SharePage({
   params,
 }: {
@@ -67,17 +66,17 @@ export default async function SharePage({
   const data = await kv.get<any>(reportKey);
 
   // =========================================================
-  // ⚡ [자동 전환] 데이터가 아직 없을 때 사일런트 폴링 로딩 UI
+  // ⚡ [로딩 화면] - PollingHandler로 "조용히" 갱신
   // =========================================================
   if (!data) {
     const randomTip = SAJU_TIPS[Math.floor(Math.random() * SAJU_TIPS.length)];
 
     return (
       <div style={pageStyle}>
-        {/* ✅ [수정] 배경에서 조용히 데이터를 확인하여 즉시 화면을 교체합니다. */}
-        <PollingHandler />
+        {/* ✅ 하드 리로드 제거, soft polling 적용 */}
+        <PollingHandler intervalMs={7000} maxMinutes={4} />
 
-        {/* Header - 원본 스타일 보존 */}
+        {/* Header - 원본 스타일 그대로 */}
         <div style={headerStyle}>
           <div style={{ fontSize: 36, marginBottom: 5 }}>🔮</div>
           <h1
@@ -102,68 +101,114 @@ export default async function SharePage({
           </p>
         </div>
 
-        <div style={{ ...containerStyle, textAlign: 'center', marginTop: '100px' }}>
-          <div style={{ fontSize: '60px', marginBottom: '20px', animation: 'pulse 2s infinite' }}>⚡️</div>
-          <h2 style={{ color: '#d63384', fontSize: '24px', fontWeight: 900 }}>Connecting Energies...</h2>
-          <p style={{ color: '#666', fontSize: '15px', marginBottom: '30px' }}>Applying 1,000-year-old formula...</p>
+        <div style={{ ...containerStyle, textAlign: "center", marginTop: "100px" }}>
+          {/* ⚡️ 로딩 애니메이션 */}
+          <div style={{ fontSize: "60px", marginBottom: "20px", animation: "pulse 2s infinite" }}>
+            ⚡️
+          </div>
+          <h2 style={{ color: "#d63384", fontSize: "24px", fontWeight: 900 }}>
+            Connecting Energies...
+          </h2>
+          <p style={{ color: "#666", fontSize: "15px", marginBottom: "30px" }}>
+            Applying 1,000-year-old formula...
+          </p>
 
-          <div style={{ marginBottom: '30px', padding: '0 20px' }}>
-            <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#ff69b4', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '1px' }}>Master's Note</div>
-            <p style={{ fontSize: '15px', color: '#333', fontWeight: '600', lineHeight: '1.6', margin: 0, fontStyle: 'italic' }}>
+          {/* ✨ 무작위 사주 팁 */}
+          <div style={{ marginBottom: "30px", padding: "0 20px" }}>
+            <div
+              style={{
+                fontSize: "11px",
+                fontWeight: "bold",
+                color: "#ff69b4",
+                textTransform: "uppercase",
+                marginBottom: "8px",
+                letterSpacing: "1px",
+              }}
+            >
+              Master's Note
+            </div>
+            <p
+              style={{
+                fontSize: "15px",
+                color: "#333",
+                fontWeight: "600",
+                lineHeight: "1.6",
+                margin: 0,
+                fontStyle: "italic",
+              }}
+            >
               "{randomTip}"
             </p>
           </div>
 
+          {/* 안내 박스 */}
           <div
             style={{
-              margin: '0 auto',
+              margin: "0 auto",
               maxWidth: 360,
-              background: '#f0f9ff',
-              border: '1px solid #bce3eb',
+              background: "#f0f9ff",
+              border: "1px solid #bce3eb",
               borderRadius: 14,
-              padding: '14px 14px',
-              color: '#0369a1',
-              textAlign: 'left',
+              padding: "14px 14px",
+              color: "#0369a1",
+              textAlign: "left",
               lineHeight: 1.45,
-              boxShadow: '0 6px 18px rgba(0,0,0,0.06)',
+              boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
             }}
           >
             <div style={{ fontSize: 13, fontWeight: 900, marginBottom: 6 }}>
               Important: Please stay on this page.
             </div>
             <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
-              Please don’t leave or refresh this page.
+              Please don’t leave this page.
             </div>
-            {/* ✅ 줄바꿈 적용 */}
             <div style={{ fontSize: 12, fontWeight: 700 }}>
-              Your premium report is being generated automatically.<br/>
-               It may take up to 3 minutes.
+              Your premium report is being generated automatically.
+              <br />
+              It may take up to 3 minutes.
             </div>
           </div>
 
-          <div style={{ marginTop: 40, fontSize: 11, color: '#aaa', fontStyle: 'italic' }}>
+          <div style={{ marginTop: 40, fontSize: 11, color: "#aaa", fontStyle: "italic" }}>
             The results will appear automatically once analysis is complete...
           </div>
         </div>
-        
-        <style dangerouslySetInnerHTML={{ __html: `
-          @keyframes pulse { 0% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.7; } 100% { transform: scale(1); opacity: 1; } }
-          body { margin: 0; }
-        `}} />
+
+        {/* 애니메이션 정의 */}
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
+              @keyframes pulse { 
+                0% { transform: scale(1); opacity: 1; } 
+                50% { transform: scale(1.1); opacity: 0.7; } 
+                100% { transform: scale(1); opacity: 1; } 
+              }
+              body { margin: 0; }
+            `,
+          }}
+        />
       </div>
     );
   }
 
   // =========================================================
-  // ✅ [데이터 로드 완료] 결과 화면 표시 (원본 로직 및 스타일 전체 보존)
+  // ✅ [결과 화면] - 원본 로직 유지
   // =========================================================
-
   const score = toNumberSafe(data.score, 0);
   const insta = data.insta_card || {};
   const elemental = data.elemental_analysis || {};
-  const categories: any[] = Array.isArray(data.analysis_categories)
-    ? data.analysis_categories
-    : [];
+  const categories: any[] = Array.isArray(data.analysis_categories) ? data.analysis_categories : [];
+
+  const personAEmoji = insta.person_a_emoji || "🌊";
+  const personBEmoji = insta.person_b_emoji || "⛰️";
+  const personANature = insta.person_a_nature || "Ocean";
+  const personBNature = insta.person_b_nature || "Mountain";
+  const instaTitle = insta.title || "The Unseen Destiny";
+  const instaCaption = insta.caption || "";
+  const hashtags: string[] = Array.isArray(insta.hashtags) ? insta.hashtags : [];
+
+  const balanceTitle = elemental.balance_title || "The Core Dynamic";
+  const elementalContent = elemental.content || "";
 
   const sajuChart = data?.saju_chart || null;
   const myInfo = sajuChart?.my_info || null;
@@ -174,26 +219,13 @@ export default async function SharePage({
 
   return (
     <div style={pageStyle}>
+      {/* Header */}
       <div style={headerStyle}>
         <div style={{ fontSize: 36, marginBottom: 5 }}>🔮</div>
-        <h1
-          style={{
-            margin: 0,
-            fontSize: 32,
-            fontWeight: 900,
-            letterSpacing: "-0.5px",
-          }}
-        >
+        <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: "-0.5px" }}>
           The Saju
         </h1>
-        <p
-          style={{
-            margin: "8px 0 0",
-            fontSize: 14,
-            opacity: 0.95,
-            fontWeight: 500,
-          }}
-        >
+        <p style={{ margin: "8px 0 0", fontSize: 14, opacity: 0.95, fontWeight: 500 }}>
           Korean Destiny & Love Chemistry
         </p>
       </div>
@@ -210,16 +242,9 @@ export default async function SharePage({
             }}
           >
             <div style={{ textAlign: "center", width: "35%" }}>
-              <div style={{ fontSize: 50, lineHeight: 1 }}>{insta.person_a_emoji || "🌊"}</div>
-              <div
-                style={{
-                  fontSize: 14,
-                  fontWeight: "bold",
-                  color: "#333",
-                  marginTop: 8,
-                }}
-              >
-                {insta.person_a_nature || "Ocean"}
+              <div style={{ fontSize: 50, lineHeight: 1 }}>{personAEmoji}</div>
+              <div style={{ fontSize: 14, fontWeight: "bold", color: "#333", marginTop: 8 }}>
+                {personANature}
               </div>
               <div style={{ fontSize: 10, color: "#888" }}>Energy</div>
             </div>
@@ -238,16 +263,9 @@ export default async function SharePage({
             </div>
 
             <div style={{ textAlign: "center", width: "35%" }}>
-              <div style={{ fontSize: 50, lineHeight: 1 }}>{insta.person_b_emoji || "⛰️"}</div>
-              <div
-                style={{
-                  fontSize: 14,
-                  fontWeight: "bold",
-                  color: "#333",
-                  marginTop: 8,
-                }}
-              >
-                {insta.person_b_nature || "Mountain"}
+              <div style={{ fontSize: 50, lineHeight: 1 }}>{personBEmoji}</div>
+              <div style={{ fontSize: 14, fontWeight: "bold", color: "#333", marginTop: 8 }}>
+                {personBNature}
               </div>
               <div style={{ fontSize: 10, color: "#888" }}>Energy</div>
             </div>
@@ -277,31 +295,73 @@ export default async function SharePage({
           </div>
 
           <div style={{ padding: "15px 25px 25px 25px", textAlign: "center" }}>
-            <div
-              style={{
-                fontSize: 13,
-                fontWeight: 800,
-                color: "#ff69b4",
-                marginBottom: 6,
-              }}
-            >
-              {insta.title || "The Unseen Destiny"}
+            <div style={{ fontSize: 13, fontWeight: 800, color: "#ff69b4", marginBottom: 6 }}>
+              {instaTitle}
             </div>
-            <p
-              style={{
-                color: "#444",
-                lineHeight: 1.4,
-                margin: 0,
-                fontSize: 15,
-                fontWeight: 600,
-                fontStyle: "italic",
-              }}
-            >
-              “{insta.caption || "Your premium destiny report is ready."}”
-            </p>
+
+            {instaCaption ? (
+              <p
+                style={{
+                  color: "#444",
+                  lineHeight: 1.4,
+                  margin: 0,
+                  fontSize: 15,
+                  fontWeight: 600,
+                  fontStyle: "italic",
+                }}
+              >
+                “{instaCaption}”
+              </p>
+            ) : (
+              <p style={{ color: "#666", lineHeight: 1.4, margin: 0, fontSize: 14 }}>
+                Your premium destiny report is ready.
+              </p>
+            )}
+
+            {hashtags.length > 0 && (
+              <div
+                style={{
+                  marginTop: 10,
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 8,
+                  justifyContent: "center",
+                }}
+              >
+                {hashtags.slice(0, 12).map((tag: string, idx: number) => (
+                  <span key={`${tag}-${idx}`} style={tagStyle}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
+        {/* Key Dynamic */}
+        {(balanceTitle || elementalContent) && (
+          <div style={{ ...panelStyle, borderLeft: "5px solid #60a5fa" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 18 }}>🔑</span>
+              <h3 style={{ margin: 0, fontSize: 17, color: "#333", fontWeight: 900 }}>
+                {balanceTitle}
+              </h3>
+            </div>
+            <p
+              style={{
+                lineHeight: 1.7,
+                color: "#555",
+                fontSize: 15,
+                margin: "10px 0 0 0",
+                whiteSpace: "pre-wrap",
+              }}
+            >
+              {elementalContent}
+            </p>
+          </div>
+        )}
+
+        {/* SAJU CHART Section */}
         {myInfo && partnerInfo && (
           <div style={{ ...panelStyle, padding: "24px", marginTop: 18 }}>
             <div
@@ -323,6 +383,7 @@ export default async function SharePage({
           </div>
         )}
 
+        {/* Deep Dive Title */}
         <div
           style={{
             marginTop: 18,
@@ -332,35 +393,41 @@ export default async function SharePage({
             alignItems: "center",
           }}
         >
-          <h3
-            style={{
-              margin: 0,
-              color: "#d63384",
-              fontSize: 18,
-              fontWeight: 900,
-            }}
-          >
+          <h3 style={{ margin: 0, color: "#d63384", fontSize: 18, fontWeight: 900 }}>
             📋 Premium Deep Dive
           </h3>
           <div style={{ fontSize: 12, color: "#888", fontWeight: 700 }}>
-            {categories.length} sections
+            {categories.length > 0 ? `${categories.length} sections` : "0 sections"}
           </div>
         </div>
-        {categories.map((item: any, index: number) => (
-          <CategoryCard key={index} item={item} index={index} />
-        ))}
 
+        {/* Deep Dive List */}
+        {categories.length === 0 ? (
+          <div style={{ ...panelStyle, border: "1px solid #eee" }}>
+            <p style={{ margin: 0, color: "#666", lineHeight: 1.6, fontSize: 14 }}>
+              분석 결과가 비어있습니다.
+            </p>
+          </div>
+        ) : (
+          <div>
+            {categories.map((item: any, index: number) => (
+              <CategoryCard key={index} item={item} index={index} />
+            ))}
+          </div>
+        )}
+
+        {/* Share Buttons */}
         <div style={{ marginTop: 16, ...panelStyle, textAlign: "center", background: "#fff" }}>
           <div style={{ fontSize: 14, fontWeight: 900, color: "#333", marginBottom: 10 }}>
             🔗 Share this result
           </div>
           <ShareButtons url={shareUrl} />
-          <div style={{ marginTop: 10, fontSize: 11, color: "#999" }}>
+          <div style={{ marginTop: 10, fontSize: 11, color: "#999", lineHeight: 1.4 }}>
             Link: <code style={codeStyle}>{shareUrl}</code>
           </div>
         </div>
 
-        {/* ✅ [논리 수정] 결과 하단 CTA: 다른 사람과의 궁합 보기 (가격 제거) */}
+        {/* Footer CTA */}
         <div
           style={{
             marginTop: 30,
@@ -383,19 +450,10 @@ export default async function SharePage({
               textDecoration: "none",
             }}
           >
-            {/* ✅ 가격 제거하여 메인 이동에 어색하지 않게 수정 */}
-            ❤️ Check Compatibility
+            ❤️ Discover a New Match
           </a>
 
-          <div style={{ marginTop: 12, textAlign: 'center' }}>
-            <div style={{ fontSize: '10px', color: '#ff69b4', fontWeight: '800', textTransform: 'uppercase' }}>
-              Limited-time launch offer ends Feb 28.
-            </div>
-            <div style={{ fontSize: '9px', color: '#aaa', marginTop: '4px' }}>
-              Analyze your destiny with 1,000-year Korean framework.
-            </div>
-          </div>
-          <div style={{ marginTop: 12, fontSize: 11, color: "#eee" }}>
+          <div style={{ marginTop: 12, fontSize: 11, color: "#aaa" }}>
             Share ID: <span style={{ fontFamily: "monospace" }}>{id}</span>
           </div>
         </div>
@@ -406,7 +464,7 @@ export default async function SharePage({
   );
 }
 
-// ---------------- UI Components (원본 100% 보존 - 한 줄씩 풀어서 작성) ----------------
+// ---------------- UI Components ----------------
 
 function CategoryCard({ item, index }: { item: any; index: number }) {
   const icon = item?.icon ?? "✨";
@@ -421,7 +479,15 @@ function CategoryCard({ item, index }: { item: any; index: number }) {
           {title}
         </h4>
       </div>
-      <p style={{ margin: 0, color: "#444", lineHeight: 1.85, fontSize: 15, whiteSpace: "pre-wrap" }}>
+      <p
+        style={{
+          margin: 0,
+          color: "#444",
+          lineHeight: 1.85,
+          fontSize: 15,
+          whiteSpace: "pre-wrap",
+        }}
+      >
         {content}
       </p>
     </div>
@@ -432,12 +498,7 @@ function ProgressBar({ value }: { value: number }) {
   const v = clamp(value, 0, 100);
   return (
     <div style={progressWrapStyle}>
-      <div
-        style={{
-          ...progressFillStyle,
-          width: `${v}%`,
-        }}
-      />
+      <div style={{ ...progressFillStyle, width: `${v}%` }} />
     </div>
   );
 }
@@ -467,6 +528,7 @@ function PillarChart({ info, getElementColor }: any) {
       >
         {info.name}
       </div>
+
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "4px" }}>
         {["YEAR", "MONTH", "DAY", "HOUR"].map((label) => (
           <div
@@ -482,6 +544,7 @@ function PillarChart({ info, getElementColor }: any) {
             {label}
           </div>
         ))}
+
         {sortedPillars.map((p: any, i: number) => (
           <div key={i} style={{ textAlign: "center" }}>
             <div
@@ -493,12 +556,13 @@ function PillarChart({ info, getElementColor }: any) {
               }}
             >
               <div style={{ fontSize: "18px", fontWeight: "bold" }}>
-                {p.stem_han_ja || p.hanja}
+                {p.stem_hanja || p.hanja}
               </div>
               <div style={{ fontSize: "9px", fontWeight: "500", marginTop: "2px" }}>
                 {p.stem_meaning || p.meaning}
               </div>
             </div>
+
             <div
               style={{
                 backgroundColor: getElementColor(p.branch_element || p.element),
@@ -509,7 +573,7 @@ function PillarChart({ info, getElementColor }: any) {
               }}
             >
               <div style={{ fontSize: "18px", fontWeight: "bold" }}>
-                {p.branch_han_ja || p.hanja}
+                {p.branch_hanja || p.hanja}
               </div>
               <div style={{ fontSize: "9px", fontWeight: "500", marginTop: "2px" }}>
                 {p.branch_meaning || p.meaning}
@@ -522,7 +586,7 @@ function PillarChart({ info, getElementColor }: any) {
   );
 }
 
-// ---------------- Helpers (원본 유지) ----------------
+// ---------------- Helpers ----------------
 
 function toNumberSafe(v: any, fallback: number) {
   const n = typeof v === "number" ? v : Number(v);
@@ -535,7 +599,7 @@ function clamp(v: number, min: number, max: number) {
   return v;
 }
 
-// ---------------- Styles (원본 717줄 분량의 모든 상세 스타일 객체 보존) ----------------
+// ---------------- Styles ----------------
 
 const pageStyle: React.CSSProperties = {
   minHeight: "100vh",
@@ -633,7 +697,6 @@ const ctaButtonStyle: React.CSSProperties = {
   fontWeight: "bold",
   cursor: "pointer",
   boxShadow: "0 6px 15px rgba(255,105,180,0.4)",
-  textAlign: "center",
 };
 
 const codeStyle: React.CSSProperties = {
@@ -641,4 +704,5 @@ const codeStyle: React.CSSProperties = {
   borderRadius: 6,
   backgroundColor: "#f3f4f6",
   border: "1px solid #e5e7eb",
+  fontFamily: "monospace",
 };
