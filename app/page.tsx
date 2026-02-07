@@ -287,12 +287,22 @@ const PersonInput = ({ label, data, setData }: any) => (
       <input placeholder="Last Name" value={data.lastName} onChange={(e) => setData({...data, lastName: e.target.value})} style={{...inputStyle, flex: 1, minWidth: 0}} />
     </div>
 
-    {/* ✅ mobile placeholder 문제 해결: date/time에 명확한 안내 텍스트 추가 */}
+    {/* ✅ mobile에서도 빈칸처럼 안 보이게: date/time 위에 안내 라벨 추가 */}
+    <div style={{ display: 'flex', gap: '8px', marginBottom: '6px', marginTop: '4px' }}>
+      <div style={{ flex: 2, minWidth: 0, fontSize: 11, fontWeight: 900, color: '#999', letterSpacing: '0.5px' }}>
+        Birth Date
+      </div>
+      {!data.unknownTime && (
+        <div style={{ flex: 1, minWidth: 0, fontSize: 11, fontWeight: 900, color: '#999', letterSpacing: '0.5px' }}>
+          Birth Time
+        </div>
+      )}
+    </div>
+
     <div style={{ display: 'flex', gap: '8px' }}>
       <input
         type="date"
         lang="en-US"
-        placeholder="Birth date (YYYY-MM-DD)"
         aria-label="Birth date"
         value={data.birthDate}
         onChange={(e) => setData({...data, birthDate: e.target.value})}
@@ -302,7 +312,6 @@ const PersonInput = ({ label, data, setData }: any) => (
         <input
           type="time"
           lang="en-US"
-          placeholder="Birth time (HH:MM)"
           aria-label="Birth time"
           value={data.birthTime}
           onChange={(e) => setData({...data, birthTime: e.target.value})}
@@ -312,16 +321,9 @@ const PersonInput = ({ label, data, setData }: any) => (
     </div>
 
     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', alignItems:'center' }}>
-      <div style={{ display:'flex', flexDirection:'column', gap: 4 }}>
-        <label style={{ fontSize: '13px', color: '#666', display: 'flex', alignItems: 'center', cursor:'pointer' }}>
-          <input type="checkbox" checked={data.unknownTime} onChange={(e) => setData({...data, unknownTime: e.target.checked})} style={{ marginRight: '6px', width:'16px', height:'16px' }} /> Time Unknown
-        </label>
-
-        {/* ✅ 불안 제거 문구 추가 */}
-        <div style={{ fontSize: 11, color: '#999', lineHeight: 1.2 }}>
-          Not sure? We can still analyze without an exact time.
-        </div>
-      </div>
+      <label style={{ fontSize: '13px', color: '#666', display: 'flex', alignItems: 'center', cursor:'pointer' }}>
+        <input type="checkbox" checked={data.unknownTime} onChange={(e) => setData({...data, unknownTime: e.target.checked})} style={{ marginRight: '6px', width:'16px', height:'16px' }} /> Time Unknown
+      </label>
 
       <select value={data.timezone} onChange={(e) => setData({...data, timezone: e.target.value})} style={{ fontSize: '12px', padding: '8px', borderRadius: '8px', border: '1px solid #ddd', color: '#555', backgroundColor:'#fff', maxWidth:'140px' }}>
         <option value="-5">New York (UTC-5)</option><option value="-8">LA (UTC-8)</option><option value="0">London (UTC+0)</option><option value="9">Seoul (UTC+9)</option><option value="1">Paris (UTC+1)</option>
