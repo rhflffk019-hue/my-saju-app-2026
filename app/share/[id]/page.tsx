@@ -38,6 +38,19 @@ import { kv } from "@vercel/kv";
 import { notFound } from "next/navigation";
 import ShareButtons from "./ShareButtons";
 
+// =========================================================
+// 🔮 기다리는 동안 무작위로 노출될 사주 팁 (지루함 방지)
+// =========================================================
+const SAJU_TIPS = [
+  "In Saju, your 'Day Master' represents your core essence—the sun you were born under.",
+  "The Four Pillars map not just your personality, but the flow of your life's seasons.",
+  "Balance between the Five Elements (Wood, Fire, Earth, Metal, Water) brings true harmony.",
+  "Your birth hour reveals your hidden internal world and your future potential.",
+  "Saju is not a fixed fate, but a weather forecast for your journey through time.",
+  "The 'Year' pillar represents your social circle and the legacy of your ancestors.",
+  "The 'Month' pillar governs your career potential and the environment of your youth."
+];
+
 /**
  * app/share/[id]/page.tsx
  * - params가 Promise로 들어오는 현재 프로젝트 구조를 그대로 유지
@@ -59,12 +72,15 @@ export default async function SharePage({
   const data = await kv.get<any>(reportKey);
 
   // =========================================================
-  // ⚡ [자동 전환 로직] 데이터가 없을 때 7초마다 강제 새로고침
+  // ⚡ [자동 전환 로직] 데이터가 아직 없을 때 예경님의 로딩 화면 표시
   // =========================================================
   if (!data) {
+    // 무작위 팁 선택
+    const randomTip = SAJU_TIPS[Math.floor(Math.random() * SAJU_TIPS.length)];
+
     return (
       <div style={pageStyle}>
-        {/* [핵심 수정] 브라우저 표준 meta 태그와 JS 스크립트 이중 설치로 7초마다 무조건 새로고침 유도 */}
+        {/* [핵심] 7초마다 자동으로 분석 결과를 다시 확인하여 결과가 나오면 즉시 화면을 전환합니다. */}
         <meta httpEquiv="refresh" content="7" />
         <script
           dangerouslySetInnerHTML={{
@@ -103,10 +119,18 @@ export default async function SharePage({
           <h2 style={{ color: '#d63384', fontSize: '24px', fontWeight: 900 }}>Connecting Energies...</h2>
           <p style={{ color: '#666', fontSize: '15px', marginBottom: '30px' }}>Applying 1,000-year-old formula...</p>
 
+          {/* ✨ 무작위 사주 팁 섹션 (사용자 경험 개선) */}
+          <div style={{ marginBottom: '30px', padding: '0 20px' }}>
+            <div style={{ fontSize: '11px', fontWeight: 'bold', color: '#ff69b4', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '1px' }}>Master's Note</div>
+            <p style={{ fontSize: '15px', color: '#333', fontWeight: '600', lineHeight: '1.6', margin: 0, fontStyle: 'italic' }}>
+              "{randomTip}"
+            </p>
+          </div>
+
           {/* 예경님의 핵심 안내 문구 박스 - 원본 그대로 */}
           <div
             style={{
-              margin: '22px auto 0',
+              margin: '0 auto',
               maxWidth: 360,
               background: '#f0f9ff',
               border: '1px solid #bce3eb',
@@ -129,8 +153,8 @@ export default async function SharePage({
             </div>
           </div>
 
-          <div style={{ marginTop: 40, fontSize: 12, color: '#aaa', fontStyle: 'italic' }}>
-            Wait for just a moment. Results will appear automatically...
+          <div style={{ marginTop: 40, fontSize: 11, color: '#aaa', fontStyle: 'italic' }}>
+            The results will appear automatically once analysis is complete...
           </div>
         </div>
         
@@ -171,11 +195,8 @@ export default async function SharePage({
   const myInfo = sajuChart?.my_info || null;
   const partnerInfo = sajuChart?.partner_info || null;
 
-  // ✅ Share URL 생성 (Server Component에서 window 사용 불가)
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL ||
-    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
-
+  // ✅ [수정] 도메인 실제 주소로 완전 고정
+  const baseUrl = "https://www.mythesaju.com";
   const shareUrl = `${baseUrl}/share/${id}`;
 
   return (
@@ -481,7 +502,7 @@ export default async function SharePage({
   );
 }
 
-// ---------------- UI Components (원본 유지) ----------------
+// ---------------- UI Components (예경님 원본 그대로) ----------------
 
 function CategoryCard({ item, index }: { item: any; index: number }) {
   const icon = item?.icon ?? "✨";
