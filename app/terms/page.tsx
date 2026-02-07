@@ -6,10 +6,10 @@ export default function Terms() {
       <p>Last updated: February 7, 2026</p>
       
       <h2 style={{ marginTop: '30px' }}>1. Service Description</h2>
-      <p>The Saju provides personalized compatibility reports based on traditional Korean Saju frameworks and AI analysis.</p>
+      <p>The Saju provides personalized compatibility reports based on traditional Korean Saju frameworks and our <b>modern digitized analysis system</b>.</p>
       
       <h2 style={{ marginTop: '30px', color: '#ff4d4d' }}>2. Entertainment Disclaimer (Important)</h2>
-      <p><b>This service is for entertainment purposes only.</b> Saju analysis is not a substitute for professional, legal, medical, or financial advice. The results are based on cultural traditions and AI interpretations.</p>
+      <p><b>This service is for entertainment purposes only.</b> Saju analysis is not a substitute for professional, legal, medical, or financial advice. The results are based on cultural traditions and <b>systematic interpretations</b>.</p>
       
       <h2 style={{ marginTop: '30px' }}>3. Payments and Refunds</h2>
       <p>All sales are processed via Lemon Squeezy. Due to the digital nature of the reports, refunds are generally not provided once the analysis has been generated.</p>
