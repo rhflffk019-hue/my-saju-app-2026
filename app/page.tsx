@@ -4,39 +4,7 @@ import { useRouter } from 'next/navigation'; // ★ 페이지 이동 기능 추�
 import html2canvas from 'html2canvas'; // 기존 기능 유지
 import { Solar, Lunar } from 'lunar-javascript'; // 기존 기능 유지
 
-// app/layout.tsx 또는 app/page.tsx
 
-export const metadata = {
-  // 브라우저 탭에 뜨는 제목
-  title: "The Saju | Love is Intuition, Saju is a Blueprint",
-  // 검색 결과나 공유 시 나오는 요약 문구
-  description: "Map your Five-Element energy with a 1,000-year-old Korean framework. Reveal your hidden dynamics for just $3.99.",
-  
-  openGraph: {
-    title: "The Saju: Love is Intuition, Saju is a Blueprint",
-    description: "In Korea, fortune telling isn’t guesswork. Discover your deep love compatibility report in minutes.",
-    url: "https://mythesaju.com",
-    siteName: "The Saju",
-    images: [
-      {
-        url: "/og-image.png", // public 폴더에 저장한 이미지 파일명
-        width: 1200,
-        height: 630,
-        alt: "The Saju - Korean Destiny & Love Chemistry",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  
-  // 트위터(X) 등 다른 플랫폼 대응
-  twitter: {
-    card: "summary_large_image",
-    title: "The Saju | Korean Love Compatibility",
-    description: "Digitized 1,000-year-old Saju framework. Get your $3.99 destiny report.",
-    images: ["/og-image.png"],
-  },
-};
 export default function Home() {
   const router = useRouter(); // ★ 라우터 사용
   const [step, setStep] = useState(1);
