@@ -255,7 +255,7 @@ const handlePaymentClick = async () => {
               {/* ✅ 결제 버튼: 런칭 전략 반영 */}
               <button onClick={handlePaymentClick} style={buttonStyle}>
                 <div style={{ fontSize: '17px', fontWeight: '900' }}>
-                  {loading ? "Checking details..." : "Generate Full Compatibility Report — $3.99"}
+                  {loading ? "Checking details..." : "Get My Compatibility Report — $3.99"}
                 </div>
                 {!loading && (
                   <div style={{ fontSize: '12px', fontWeight: '500', opacity: 0.9, marginTop: '3px' }}>
