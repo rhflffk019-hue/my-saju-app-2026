@@ -93,41 +93,39 @@ export default function Home() {
       }
     }, [router]);
 
-    // app/page.tsx 내 handlePaymentClick 수정
-    const handlePaymentClick = async () => {
-      if (!myData.firstName || !partnerData.firstName) {
-        alert("Please enter First Names!");
-        return;
-      }
+// app/page.tsx
+const handlePaymentClick = async () => {
+  if (!myData.firstName || !partnerData.firstName) {
+    alert("Please enter First Names!");
+    return;
+  }
 
-      setLoading(true);
+  setLoading(true);
 
-      try {
-        // 1. 서버(KV)에 사용자 정보를 임시 저장하고 고유 세션 ID를 받아옵니다.
-        const res = await fetch('/api/reserve', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ myData, partnerData, relationshipType }),
-        });
-        
-        if (!res.ok) throw new Error("Failed to reserve session");
-        const { sessionId } = await res.json();
+  try {
+    // 1. 서버(KV)에 데이터 임시 저장 및 세션 ID 발급
+    const res = await fetch('/api/reserve', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ myData, partnerData, relationshipType }),
+    });
+    const { sessionId } = await res.json();
 
-        // 2. 나중에 결제 후 돌아왔을 때를 대비해 로컬 스토리지에도 ID를 저장해둡니다.
-        localStorage.setItem('currentSessionId', sessionId);
+    // 2. 브라우저 로컬 스토리지에 세션 ID 저장 (결제 후 복귀용)
+    localStorage.setItem('currentSessionId', sessionId);
 
-        // 3. 레몬 스퀴지 결제창으로 이동 (sessionId를 파라미터로 전달)
-        // ★ 예경님의 실제 상품 체크아웃 링크를 아래 주소 대신 넣으세요!
-        const LEMON_SQUEEZY_URL = "https://thesaju.lemonsqueezy.com/checkout/buy/your-product-id";
-        const checkoutUrl = `${LEMON_SQUEEZY_URL}?checkout[custom][session_id]=${sessionId}`;
-        
-        window.location.href = checkoutUrl;
-      } catch (e) {
-        console.error(e);
-        alert("Error starting payment. Please try again.");
-        setLoading(false);
-      }
-    };
+    // 3. 레몬 스퀴지 결제창으로 이동 (ID를 파라미터로 포함)
+    // ★ 복사한 실제 Checkout 주소를 여기에 넣으세요!
+    const PRODUCT_URL = "https://thesaju.lemonsqueezy.com/checkout/buy/131da000-c59f-4267-aa53-7747c2b3c5b0";
+    
+    // 중요: 뒤에 ?checkout[custom][session_id]=... 가 붙어야 웹훅이 인식합니다!
+    window.location.href = `${PRODUCT_URL}?checkout[custom][session_id]=${sessionId}`;
+  } catch (e) {
+    console.error(e);
+    alert("Payment initialization failed.");
+    setLoading(false);
+  }
+};
 
   // ★★★ 핵심 수정: 서버 요청 후 페이지 이동 ★★★
   const requestAnalysis = async (dataA: any, dataB: any, relType: string) => {
