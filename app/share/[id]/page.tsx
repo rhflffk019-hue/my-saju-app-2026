@@ -149,7 +149,8 @@ export default async function SharePage({
               Please don’t leave or refresh this page.
             </div>
             <div style={{ fontSize: 12, fontWeight: 700 }}>
-              Your premium report is being generated automatically. It may take up to 3 minutes.
+              Your premium report is being generated automatically.<br/>
+               It may take up to 3 minutes.
             </div>
           </div>
 
