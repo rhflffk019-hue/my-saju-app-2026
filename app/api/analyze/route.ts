@@ -30,13 +30,13 @@ export async function POST(request: Request) {
     // 3. 구글 AI 부르기
     const genAI = new GoogleGenerativeAI(API_KEY);
     
-    // ★★★ 모델 설정 (유료 계정이면 1.5-pro 추천) ★★★
+    // ★★★ 모델 설정 (Gemini 2.5 Flash) ★★★
     const model = genAI.getGenerativeModel({ 
       model: "gemini-2.5-flash", 
       generationConfig: { responseMimeType: "application/json" }
     });
 
-    // 4. 관계별 13개 항목 정의 (기존 내용 유지)
+    // 4. 관계별 13개 항목 정의 (원본 유지)
     let categories: string[] = [];
     if (relationshipType === 'lover') {
       categories = [
@@ -68,23 +68,24 @@ export async function POST(request: Request) {
       ];
     }
 
-    // 5. ★★★ 강력한 작가 모드 프롬프트 (기존 내용 유지) ★★★
+    // 5. ★★★ 성별(Gender)이 반영된 강력한 작가 모드 프롬프트 ★★★
     const prompt = `
       You are a Grand Master of Korean Saju (Destiny Analysis). 
       This is a **PREMIUM PAID CONSULTATION ($50 Value)**. The user expects **deep, emotional, and detailed storytelling**.
 
       **RELATIONSHIP TYPE:** ${relationshipType.toUpperCase()}
-      **CLIENTS:**
-      1. ${mySaju.englishName} (Data: ${JSON.stringify(mySaju.pillars)})
-      2. ${partnerSaju.englishName} (Data: ${JSON.stringify(partnerSaju.pillars)})
+      
+      **CLIENTS (ESSENTIAL GENDER-SPECIFIC ANALYSIS):**
+      1. ${mySaju.englishName}: [Gender: ${myData.gender}] (Saju Pillars: ${JSON.stringify(mySaju.pillars)})
+      2. ${partnerSaju.englishName}: [Gender: ${partnerData.gender}] (Saju Pillars: ${JSON.stringify(partnerSaju.pillars)})
 
       **CRITICAL WRITING RULES (DO NOT SKIP):**
-      1. **LENGTH & DEPTH:** For EACH category, write **2-3 detailed paragraphs**. Separate paragraphs with a blank line (\\n\\n). Do NOT write short summaries.
-      2. **TONE:** Warm, empathetic, mystical, yet logical. Use metaphors like "Just as the ocean embraces the rock...".
-      3. **REAL NAMES:** Use "${mySaju.englishName}" and "${partnerSaju.englishName}" constantly. **NEVER** use "Person A" or "Person B".
-      4. **NO HANJA:** Do NOT use Chinese characters. English ONLY.
-      5. **NO ROMANIZATION:** Do not use "Gap", "Eul", "In", "Myo". Use "Tree", "Flower", "Tiger", "Rabbit".
-      6. **LOGIC:** Explain *why* based on their elements (e.g., "Because ${mySaju.englishName} is strong Metal...").
+      1. **GENDER REFLECTION:** In Korean Saju, gender dictates the direction of the Life Cycles (Daewun). Use their genders to provide a precise and professional interpretation of their cosmic flow.
+      2. **LENGTH & DEPTH:** For EACH category, write **2-3 detailed paragraphs**. Separate paragraphs with a blank line (\\n\\n). Do NOT write short summaries.
+      3. **TONE:** Warm, mystical, yet logical. Use metaphors like "The way the moonlight hits the moving river...".
+      4. **REAL NAMES:** Use "${mySaju.englishName}" and "${partnerSaju.englishName}" constantly. NEVER use "Person A".
+      5. **NO HANJA / NO ROMANIZATION:** Use English element terms like "Big Tree", "Rain", "Jewelry".
+      6. **LOGIC:** Explain the *why* based on the interaction of their elements and gender-specific energies.
 
       **Categories to Analyze:**
       ${JSON.stringify(categories)}
@@ -110,7 +111,7 @@ export async function POST(request: Request) {
       }
     `;
 
-    console.log("🚀 Sending request to Gemini...");
+    console.log("🚀 Sending request to Gemini with Gender data...");
     const result = await model.generateContent(prompt);
     const text = result.response.text();
     console.log("✅ Gemini Response received");
@@ -118,19 +119,17 @@ export async function POST(request: Request) {
     const cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
     const parsedResult = JSON.parse(cleanText);
 
-    // ★★★ [새로 추가된 부분] 결과를 저장소(KV)에 저장하고 ID 발급 ★★★
-    const resultId = uuidv4(); // 고유 ID 생성 (예: "a1b2-c3d4...")
+    // ★★★ [원본 로직] 결과 저장 및 ID 발급 ★★★
+    const resultId = uuidv4();
     
-    // Vercel KV에 데이터 저장 (유효기간 30일: 60*60*24*30 초)
     await kv.set(`report:${resultId}`, {
       ...parsedResult,
       saju_chart: { my_info: mySaju, partner_info: partnerSaju },
       createdAt: new Date().toISOString()
-    }, { ex: 2592000 }); // 30일 후 자동 삭제 (서버 용량 관리)
+    }, { ex: 2592000 }); 
 
     console.log(`💾 Report Saved! ID: ${resultId}`);
 
-    // ★ 프론트엔드에 "성공! 이 ID로 이동하세요" 라고 응답
     return NextResponse.json({ 
       success: true, 
       redirectId: resultId 
@@ -168,7 +167,6 @@ function calculateSaju(data: any) {
 
   const fullName = `${data.firstName} ${data.lastName}`.trim();
 
-  // ✅ PillarChart가 기대하는 shape로 맞춘 Unknown Hour Pillar
   const unknownHourPillar = {
     stem_hanja: "?",
     stem_meaning: "Unknown",
@@ -182,6 +180,7 @@ function calculateSaju(data: any) {
   return {
     name: fullName,
     englishName: data.firstName,
+    gender: data.gender, // ✅ 객체에 성별 보존
     pillars: [
       translatePillar(ganji.year, "Year"),
       translatePillar(ganji.month, "Month"),

@@ -28,7 +28,7 @@ export async function POST(req: Request) {
       if (tempStore) {
         console.log(`🚀 [Webhook] 분석 시작: Session ID: ${sessionId}`);
 
-        // 아래의 performAIAnalysis 함수가 예경님의 220줄 원본 로직을 그대로 수행합니다.
+        // 아래의 performAIAnalysis 함수가 예경님의 원본 로직을 그대로 수행하며, 성별 데이터를 반영합니다.
         const analysisResult = await performAIAnalysis(tempStore as any);
 
         // 분석 결과를 영구 저장 (ID를 결제 세션 ID와 동일하게 설정)
@@ -52,20 +52,20 @@ export async function POST(req: Request) {
 }
 
 // =========================================================
-// 🧠 예경님의 원본 로직 (수정/삭제 없이 그대로 이식)
+// 🧠 예경님의 원본 로직 (성별 데이터 반영 및 무삭제 이식)
 // =========================================================
 async function performAIAnalysis(dataFromKV: any) {
   // 키 확인
   if (!API_KEY) throw new Error("API Key not found in server");
 
-  // 데이터 구조 확인 (myData가 없는 경우를 대비한 안전장치)
+  // 데이터 구조 확인
   const { myData, partnerData, relationshipType } = dataFromKV;
   if (!myData || !partnerData) {
     console.error("❌ 데이터 구조 오류:", dataFromKV);
     throw new Error("Missing required saju data (myData or partnerData)");
   }
 
-  // 2. 서버에서 사주 계산 (로직 보호)
+  // 2. 서버에서 사주 계산 (성별 정보 포함)
   const mySaju = calculateSaju(myData);
   const partnerSaju = calculateSaju(partnerData);
 
@@ -80,7 +80,7 @@ async function performAIAnalysis(dataFromKV: any) {
     generationConfig: { responseMimeType: "application/json" }
   });
 
-  // 4. 관계별 13개 항목 정의 (예경님 원본 그대로)
+  // 4. 관계별 13개 항목 정의 (예경님 원본 그대로 100% 보존)
   let categories: string[] = [];
   if (relationshipType === 'lover') {
     categories = [
@@ -112,23 +112,24 @@ async function performAIAnalysis(dataFromKV: any) {
     ];
   }
 
-  // 5. ★★★ 강력한 작가 모드 프롬프트 (예경님 원본 그대로) ★★★
+  // 5. ★★★ 성별 데이터가 반영된 강력한 작가 모드 프롬프트 ★★★
   const prompt = `
       You are a Grand Master of Korean Saju (Destiny Analysis). 
       This is a **PREMIUM PAID CONSULTATION ($50 Value)**. The user expects **deep, emotional, and detailed storytelling**.
 
       **RELATIONSHIP TYPE:** ${relationshipType.toUpperCase()}
       **CLIENTS:**
-      1. ${mySaju.englishName} (Data: ${JSON.stringify(mySaju.pillars)})
-      2. ${partnerSaju.englishName} (Data: ${JSON.stringify(partnerSaju.pillars)})
+      1. ${mySaju.englishName} (Gender: ${myData.gender}, Data: ${JSON.stringify(mySaju.pillars)})
+      2. ${partnerSaju.englishName} (Gender: ${partnerData.gender}, Data: ${JSON.stringify(partnerSaju.pillars)})
 
       **CRITICAL WRITING RULES (DO NOT SKIP):**
-      1. **LENGTH & DEPTH:** For EACH category, write **2-3 detailed paragraphs**. Separate paragraphs with a blank line (\\n\\n). Do NOT write short summaries.
-      2. **TONE:** Warm, empathetic, mystical, yet logical. Use metaphors like "Just as the ocean embraces the rock...".
-      3. **REAL NAMES:** Use "${mySaju.englishName}" and "${partnerSaju.englishName}" constantly. **NEVER** use "Person A" or "Person B".
-      4. **NO HANJA:** Do NOT use Chinese characters. English ONLY.
-      5. **NO ROMANIZATION:** Do not use "Gap", "Eul", "In", "Myo". Use "Tree", "Flower", "Tiger", "Rabbit".
-      6. **LOGIC:** Explain *why* based on their elements (e.g., "Because ${mySaju.englishName} is strong Metal...").
+      1. **GENDER REFLECTION:** In Korean Saju, gender dictates the direction of the Life Cycles (Daewun). Use their genders to provide a precise interpretation of their cosmic flow.
+      2. **LENGTH & DEPTH:** For EACH category, write **2-3 detailed paragraphs**. Separate paragraphs with a blank line (\\n\\n). Do NOT write short summaries.
+      3. **TONE:** Warm, empathetic, mystical, yet logical. Use metaphors like "Just as the ocean embraces the rock...".
+      4. **REAL NAMES:** Use "${mySaju.englishName}" and "${partnerSaju.englishName}" constantly. **NEVER** use "Person A" or "Person B".
+      5. **NO HANJA:** Do NOT use Chinese characters. English ONLY.
+      6. **NO ROMANIZATION:** Do not use "Gap", "Eul", "In", "Myo". Use "Tree", "Flower", "Tiger", "Rabbit".
+      7. **LOGIC:** Explain *why* based on their elements and gender-specific energy flow (e.g., "Because ${mySaju.englishName} is strong Metal...").
 
       **Categories to Analyze:**
       ${JSON.stringify(categories)}
@@ -154,7 +155,7 @@ async function performAIAnalysis(dataFromKV: any) {
       }
     `;
 
-  console.log("🚀 Sending request to Gemini...");
+  console.log("🚀 [Webhook] Sending request to Gemini...");
   const result = await model.generateContent(prompt);
   const text = result.response.text();
   console.log("✅ Gemini Response received");
@@ -168,7 +169,7 @@ async function performAIAnalysis(dataFromKV: any) {
   };
 }
 
-// --- 서버 내부용 헬퍼 함수들 (예경님 원본 그대로) ---
+// --- 서버 내부용 헬퍼 함수들 (원본 100% 보존 및 성별 필드 추가) ---
 function calculateSaju(data: any) {
   if (!data.birthDate) return null;
   let [year, month, day] = data.birthDate.split('-').map(Number);
@@ -207,6 +208,7 @@ function calculateSaju(data: any) {
   return {
     name: fullName,
     englishName: data.firstName,
+    gender: data.gender, // ✅ 성별 정보 보존
     pillars: [
       translatePillar(ganji.year, "Year"),
       translatePillar(ganji.month, "Month"),
