@@ -369,7 +369,7 @@ export default async function SharePage({
               textDecoration: "none",
             }}
           >
-            ❤️ Check Another Match ($1.00)
+            ❤️ Check Compatibility for $1
           </a>
 
           <div style={{ marginTop: 12, fontSize: 11, color: "#aaa" }}>
