@@ -1,6 +1,6 @@
 "use client";
 import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; // ★ 페이지 이동 기능 추가
+import { useRouter } from 'next/navigation'; // ★ 페이지 이동 기능 유지
 import html2canvas from 'html2canvas'; // 기존 기능 유지
 import { Solar, Lunar } from 'lunar-javascript'; // 기존 기능 유지
 
@@ -12,21 +12,21 @@ export default function Home() {
 
   const [relationshipType, setRelationshipType] = useState('lover'); 
   const [myData, setMyData] = useState({ 
-    firstName: '', lastName: '', 
+    firstName: '', lastName: '', gender: '', // ✅ 성별 데이터 필드 추가
     birthDate: '', birthTime: '', unknownTime: false, timezone: '-5' 
   });
   const [partnerData, setPartnerData] = useState({ 
-    firstName: '', lastName: '', 
+    firstName: '', lastName: '', gender: '', // ✅ 성별 데이터 필드 추가
     birthDate: '', birthTime: '', unknownTime: false, timezone: '-5' 
   });
   
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  // ✅ [신규 추가] 에러 상태 관리 (빨간색 문구 표시를 위한 상태값)
+  // ✅ [신규 추가] 에러 상태 관리 (성별 포함하여 빨간색 문구 표시용)
   const [errors, setErrors] = useState<any>({
-    my: { firstName: false, birthDate: false, birthTime: false },
-    partner: { firstName: false, birthDate: false, birthTime: false }
+    my: { firstName: false, gender: false, birthDate: false, birthTime: false },
+    partner: { firstName: false, gender: false, birthDate: false, birthTime: false }
   });
 
   // 1. 이미지 저장 함수 (원본 유지)
@@ -96,17 +96,19 @@ export default function Home() {
       }
     }, [router]);
 
-// ✅ handlePaymentClick: 결제 전 데이터 검증 로직 추가
+// ✅ handlePaymentClick: 결제 전 데이터 검증(성별 포함) 로직 추가
 const handlePaymentClick = async () => {
   // 1. 에러 체크 수행
   const newErrors = {
     my: {
       firstName: !myData.firstName,
+      gender: !myData.gender, // ✅ 성별 선택 여부 체크
       birthDate: !myData.birthDate,
       birthTime: !myData.unknownTime && !myData.birthTime
     },
     partner: {
       firstName: !partnerData.firstName,
+      gender: !partnerData.gender, // ✅ 성별 선택 여부 체크
       birthDate: !partnerData.birthDate,
       birthTime: !partnerData.unknownTime && !partnerData.birthTime
     }
@@ -116,8 +118,8 @@ const handlePaymentClick = async () => {
 
   // 하나라도 비어있는 값이 있으면 중단
   const hasError = 
-    newErrors.my.firstName || newErrors.my.birthDate || newErrors.my.birthTime ||
-    newErrors.partner.firstName || newErrors.partner.birthDate || newErrors.partner.birthTime;
+    newErrors.my.firstName || newErrors.my.gender || newErrors.my.birthDate || newErrors.my.birthTime ||
+    newErrors.partner.firstName || newErrors.partner.gender || newErrors.partner.birthDate || newErrors.partner.birthTime;
 
   if (hasError) {
     // 유저가 에러를 확인할 수 있도록 상단으로 부드럽게 스크롤
@@ -128,7 +130,7 @@ const handlePaymentClick = async () => {
   setLoading(true);
 
   try {
-    // 1. 서버(KV)에 데이터 임시 저장 및 세션 ID 발급
+    // 1. 서버(KV)에 데이터 임시 저장 및 세션 ID 발급 (성별 데이터가 포함되어 서버로 전달됨)
     const res = await fetch('/api/reserve', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -238,7 +240,7 @@ const handlePaymentClick = async () => {
                 </select>
               </div>
 
-              {/* ✅ PersonInput 컴포넌트에 검증 결과(errorState) 전달 */}
+              {/* ✅ PersonInput 컴포넌트에 성별 데이터 및 검증 결과 전달 */}
               <PersonInput label="YOU" data={myData} setData={setMyData} errorState={errors.my} />
               <div style={{ height: '20px' }}></div>
               <PersonInput label="THE OTHER PERSON" data={partnerData} setData={setPartnerData} errorState={errors.partner} />
@@ -253,6 +255,23 @@ const handlePaymentClick = async () => {
               <button onClick={handlePaymentClick} style={buttonStyle}>
                 {loading ? "Checking details..." : "Reveal Our Destiny ($3.99)"}
               </button>
+            </div>
+          </div>
+        )}
+
+        {/* 결제 모달 (Step 1.5 - 원본 유지) */}
+        {step === 1.5 && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, backdropFilter: 'blur(5px)' }}>
+            <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '25px', width: '85%', maxWidth: '350px', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.4)', animation: 'popIn 0.3s ease' }}>
+              <div style={{ fontSize: '40px', marginBottom: '15px' }}>💎</div>
+              <h2 style={{ margin: '0 0 10px 0', color: '#333', fontSize:'20px' }}>Unlock The Future</h2>
+              <p style={{ color: '#666', fontSize: '14px', marginBottom: '25px', lineHeight:'1.5' }}>Get your <b>Compatibility Score</b> & <b>Premium Analysis</b>.</p>
+              <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '12px', marginBottom: '20px', display:'flex', justifyContent:'space-between', alignItems:'center', border:'1px solid #eee' }}>
+                <span style={{ fontWeight: 'bold', color: '#333', fontSize:'14px' }}>The Saju Premium Report</span>
+                <span style={{ fontWeight: 'bold', color: '#d63384', fontSize:'16px' }}>$3.99</span>
+              </div>
+              <button onClick={() => handlePaymentClick()} style={{ ...buttonStyle, marginTop: 0, backgroundColor: '#000', color: '#fff', boxShadow:'none', fontSize:'15px' }}> Pay with Apple Pay</button>
+              <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: '#999', marginTop: '15px', fontSize: '13px', cursor: 'pointer', fontWeight:'500', textDecoration:'underline' }}>Cancel</button>
             </div>
           </div>
         )}
@@ -291,7 +310,7 @@ const handlePaymentClick = async () => {
         </div>
       )}
 
-        {/* ✅ [신규 추가] Footer 섹션 (문의 메일 및 약관 링크) */}
+        {/* Footer 섹션 (원본 유지) */}
         <footer style={{ marginTop: '50px', padding: '30px 20px', textAlign: 'center', borderTop: '1px solid #ffe4ef' }}>
           <div style={{ marginBottom: '15px' }}>
             <a href="/privacy" style={footerLinkStyle}>Privacy Policy</a>
@@ -300,7 +319,7 @@ const handlePaymentClick = async () => {
           </div>
           
           <div style={{ fontSize: '13px', color: '#999', lineHeight: '1.6' }}>
-            <p style={{ margin: '5px 0' }}>Support: <a href="mailto:mythesaju@gmail.com" style={{ color: '#ff69b4', textDecoration: 'none' }}>mythesaju@gmail.com</a></p>
+            <p style={{ margin: '5px 0' }}>Support: <a href="mailto:rhflffk019@gmail.com" style={{ color: '#ff69b4', textDecoration: 'none' }}>rhflffk019@gmail.com</a></p>
             <p style={{ margin: '5px 0' }}>© 2026 The Saju. All rights reserved.</p>
             <p style={{ fontSize: '11px', marginTop: '10px', opacity: 0.8 }}>
               This service is for entertainment purposes only.
@@ -318,13 +337,34 @@ const handlePaymentClick = async () => {
   );
 }
 
-// ---------------- Helper Components (검증 문구 표시 로직 추가) ----------------
+// ---------------- Helper Components (성별 선택 UI 및 에러 문구 추가) ----------------
 
 const PersonInput = ({ label, data, setData, errorState }: any) => (
   <div style={{ marginBottom: '20px' }}>
     <label style={{display:'block', fontSize:'11px', fontWeight:'bold', color:'#999', marginBottom:'8px', letterSpacing:'1px', textTransform:'uppercase'}}>{label}</label>
+    
+    {/* 성별 선택 버튼 추가 (Male / Female) */}
+    <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+      <button 
+        onClick={() => setData({...data, gender: 'male'})}
+        style={{
+          flex: 1, padding: '12px', borderRadius: '10px', border: data.gender === 'male' ? '2px solid #ff69b4' : '1px solid #e0e0e0',
+          backgroundColor: data.gender === 'male' ? '#fff0f5' : '#fcfcfc', color: data.gender === 'male' ? '#ff69b4' : '#666',
+          fontSize: '14px', fontWeight: 'bold', cursor: 'pointer'
+        }}
+      >♂ Male</button>
+      <button 
+        onClick={() => setData({...data, gender: 'female'})}
+        style={{
+          flex: 1, padding: '12px', borderRadius: '10px', border: data.gender === 'female' ? '2px solid #ff69b4' : '1px solid #e0e0e0',
+          backgroundColor: data.gender === 'female' ? '#fff0f5' : '#fcfcfc', color: data.gender === 'female' ? '#ff69b4' : '#666',
+          fontSize: '14px', fontWeight: 'bold', cursor: 'pointer'
+        }}
+      >♀ Female</button>
+    </div>
+    {errorState.gender && <div style={errorTextStyle}>⚠️ Please select gender.</div>}
+
     <div style={{ display: 'flex', gap: '8px', marginBottom: '4px' }}>
-      {/* 검증 에러 시 테두리 색상을 빨간색(#ff4d4d)으로 변경 */}
       <input 
         placeholder="First Name" 
         value={data.firstName} 
@@ -333,10 +373,9 @@ const PersonInput = ({ label, data, setData, errorState }: any) => (
       />
       <input placeholder="Last Name" value={data.lastName} onChange={(e) => setData({...data, lastName: e.target.value})} style={{...inputStyle, flex: 1, minWidth: 0}} />
     </div>
-    {/* 이름 미입력 시 에러 문구 */}
     {errorState.firstName && <div style={errorTextStyle}>⚠️ First name is required.</div>}
 
-    <div style={{ display: 'flex', gap: '8px', marginBottom: '4px', marginTop: '12px' }}>
+    <div style={{ display: 'flex', gap: '8px', marginBottom: '6px', marginTop: '4px' }}>
       <div style={{ flex: 2, minWidth: 0, fontSize: 11, fontWeight: 900, color: '#999', letterSpacing: '0.5px' }}>Birth Date</div>
       {!data.unknownTime && <div style={{ flex: 1, minWidth: 0, fontSize: 11, fontWeight: 900, color: '#999', letterSpacing: '0.5px' }}>Birth Time</div>}
     </div>
@@ -361,9 +400,7 @@ const PersonInput = ({ label, data, setData, errorState }: any) => (
         />
       )}
     </div>
-    {/* 날짜 미입력 시 에러 문구 */}
     {errorState.birthDate && <div style={errorTextStyle}>⚠️ Please enter birth date.</div>}
-    {/* 시간 미입력 및 체크박스 미선택 시 에러 문구 */}
     {errorState.birthTime && !data.unknownTime && (
       <div style={errorTextStyle}>
         ⚠️ Enter time OR check "Time Unknown".
@@ -394,7 +431,7 @@ function translatePillar(chineseChar: string, position: string) {
   };
 }
 
-// ---------------- 원본 맵 데이터 및 스타일 객체 (전부 보존) ----------------
+// ---------------- 원본 맵 데이터 및 스타일 객체 (원본 100% 보존) ----------------
 
 const STEM_MAP: any = {
   "甲": { metaphor: "Big Tree", element: "wood" }, "乙": { metaphor: "Flower", element: "wood" },
@@ -439,7 +476,6 @@ function PillarChart({ info, getElementColor }: any) {
   );
 }
 
-// 스타일 정의 (원본 유지 및 신규 추가)
 const inputStyle = { padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '16px', outline: 'none', backgroundColor:'#fcfcfc', color:'#333', transition: 'border 0.2s' };
 const buttonStyle = { width: '100%', padding: '16px', backgroundColor: '#d63384', color: 'white', border: 'none', borderRadius: '15px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px', boxShadow:'0 8px 20px rgba(214, 51, 132, 0.25)', transition: 'transform 0.1s' };
 const actionButtonStyle = { width: '100%', padding: '15px', backgroundColor: 'white', color: '#444', border: '1px solid #ddd', borderRadius: '12px', fontSize: '15px', cursor: 'pointer', fontWeight: '600', display:'flex', justifyContent:'center', alignItems:'center', gap:'8px', boxShadow:'0 2px 5px rgba(0,0,0,0.05)' };
