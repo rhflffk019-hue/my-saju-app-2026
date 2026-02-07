@@ -182,7 +182,7 @@ export default function Home() {
                   In Korea, <b>fortune telling</b> isn’t guesswork. For generations, people have relied on <b>Korean Saju readings</b> for love, marriage, and life decisions.
                 </p>
                 <p style={{ margin: 0, fontWeight:'600', color:'#333' }}>
-                  We digitized this <b>1,000-year-old framework</b> into a modern, shareable <b>love compatibility report</b>—so you can get a deep reading in minutes. Reveal your match for just <b>$1.00</b>.
+                  We digitized this <b>1,000-year-old framework</b> into a modern, shareable <b>love compatibility report</b>—so you can get a deep reading in minutes. Reveal your match for just <b>$3.99</b>.
                 </p>
               </div>
             </div>
@@ -208,7 +208,7 @@ export default function Home() {
                 </span>
               </div>
 
-              <button onClick={handlePaymentClick} style={buttonStyle}>Reveal Our Destiny ($1.00)</button>
+              <button onClick={handlePaymentClick} style={buttonStyle}>Reveal Our Destiny ($3.99)</button>
             </div>
           </div>
         )}
