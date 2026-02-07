@@ -5,7 +5,7 @@ export const metadata = {
   // 브라우저 탭에 뜨는 제목
   title: "The Saju | Love is Intuition, Saju is a Blueprint",
   // 검색 결과나 공유 시 나오는 요약 문구
-  description: "Map your Five-Element energy with a 1,000-year-old Korean framework. Reveal your hidden dynamics for just $3.99.",
+  description: "Map your Five-Element energy with a 1,000-year-old Korean framework. Reveal your hidden dynamics.",
   
   openGraph: {
     title: "The Saju: Love is Intuition, Saju is a Blueprint",
@@ -28,7 +28,7 @@ export const metadata = {
   twitter: {
     card: "summary_large_image",
     title: "The Saju | Korean Love Compatibility",
-    description: "Digitized 1,000-year-old Saju framework. Get your $3.99 destiny report.",
+    description: "Digitized 1,000-year-old Saju framework. Get your destiny report.",
     images: ["/og-image.png"],
   },
 };
@@ -489,7 +489,7 @@ export default async function SharePage({
               textDecoration: "none",
             }}
           >
-            ❤️ Check Compatibility for $3.99
+            ❤️ Discover a New Match
           </a>
 
           <div style={{ marginTop: 12, fontSize: 11, color: "#aaa" }}>

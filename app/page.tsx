@@ -96,7 +96,7 @@ export default function Home() {
       }
     }, [router]);
 
-// ✅ handlePaymentClick: 결제 전 데이터 검증(성별 포함) 로직 추가 (원본 유지)
+// ✅ handlePaymentClick: 결제 전 데이터 검증(성별 포함) 로직 추가
 const handlePaymentClick = async () => {
   // 1. 에러 체크 수행
   const newErrors = {
@@ -210,7 +210,7 @@ const handlePaymentClick = async () => {
         
         {step === 1 && (
           <div>
-            {/* 원본 안내 문구 카드 (100% 보존) */}
+            {/* 원본 안내 문구 카드 (✅ 3.99 부분 수정됨) */}
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '20px', marginBottom: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)', border: '1px solid #fff' }}>
               <div style={{fontSize: '11px', fontWeight: 'bold', color: '#ff69b4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>Ancient Korean Secret</div>
               <h3 style={{ margin:'0 0 15px 0', color:'#333', fontSize:'22px', lineHeight:'1.3', fontWeight:'800' }}>
@@ -224,7 +224,7 @@ const handlePaymentClick = async () => {
                   In Korea, <b>fortune telling</b> isn’t guesswork. For generations, people have relied on <b>Korean Saju readings</b> for love, marriage, and life decisions.
                 </p>
                 <p style={{ margin: 0, fontWeight:'600', color:'#333' }}>
-                  We digitized this <b>1,000-year-old framework</b> into a modern, shareable <b>love compatibility report</b>—so you can get a deep reading in minutes. Reveal your match for just <b>$3.99</b>.
+                  We digitized this <b>1,000-year-old framework</b> into a modern, shareable <b>love compatibility report</b>. Reveal your match for a limited-time launch price of <b>$3.99</b> (Regular $4.99).
                 </p>
               </div>
             </div>
@@ -252,25 +252,32 @@ const handlePaymentClick = async () => {
                 </span>
               </div>
 
-              {/* ✅ 결제 버튼: 마케팅 문구 반영 (Short & Clear + 앵커링) */}
+              {/* ✅ 결제 버튼: 런칭 전략 반영 */}
               <button onClick={handlePaymentClick} style={buttonStyle}>
-                <div style={{ fontSize: '18px' }}>{loading ? "Checking details..." : "Reveal Our Destiny — $3.99"}</div>
+                <div style={{ fontSize: '17px', fontWeight: '900' }}>
+                  {loading ? "Checking details..." : "Unlock Full Compatibility Report — $3.99"}
+                </div>
                 {!loading && (
-                  <div style={{ fontSize: '12px', fontWeight: '500', opacity: 0.9, marginTop: '2px' }}>
+                  <div style={{ fontSize: '12px', fontWeight: '500', opacity: 0.9, marginTop: '3px' }}>
                     Launch price (Regular $4.99)
                   </div>
                 )}
               </button>
               {!loading && (
-                <div style={{ textAlign: 'center', fontSize: '11px', color: '#ff69b4', fontWeight: '700', marginTop: '8px' }}>
-                  ⚡ Limited time offer. Ends soon.
+                <div style={{ textAlign: 'center', marginTop: '12px' }}>
+                  <div style={{ fontSize: '11px', color: '#ff69b4', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Limited-time launch offer ends Feb 28.
+                  </div>
+                  <div style={{ fontSize: '10px', color: '#999', marginTop: '4px', fontWeight: '500' }}>
+                    Delivered instantly after payment • Secure checkout
+                  </div>
                 </div>
               )}
             </div>
           </div>
         )}
 
-        {/* 결제 모달 (Step 1.5 - 원본 유지) */}
+        {/* ✅ 결제 모달 (Step 1.5 - 가격 앵커링 반영) */}
         {step === 1.5 && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, backdropFilter: 'blur(5px)' }}>
             <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '25px', width: '85%', maxWidth: '350px', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.4)', animation: 'popIn 0.3s ease' }}>
@@ -278,8 +285,11 @@ const handlePaymentClick = async () => {
               <h2 style={{ margin: '0 0 10px 0', color: '#333', fontSize:'20px' }}>Unlock The Future</h2>
               <p style={{ color: '#666', fontSize: '14px', marginBottom: '25px', lineHeight:'1.5' }}>Get your <b>Compatibility Score</b> & <b>Premium Analysis</b>.</p>
               <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '12px', marginBottom: '20px', display:'flex', justifyContent:'space-between', alignItems:'center', border:'1px solid #eee' }}>
-                <span style={{ fontWeight: 'bold', color: '#333', fontSize:'14px' }}>The Saju Premium Report</span>
-                <span style={{ fontWeight: 'bold', color: '#d63384', fontSize:'16px' }}>$3.99</span>
+                <span style={{ fontWeight: 'bold', color: '#333', fontSize:'14px' }}>Launch Offer</span>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontWeight: 'bold', color: '#d63384', fontSize:'18px' }}>$3.99</div>
+                  <div style={{ fontSize: '10px', color: '#999', textDecoration: 'line-through' }}>Regular $4.99</div>
+                </div>
               </div>
               <button onClick={() => handlePaymentClick()} style={{ ...buttonStyle, marginTop: 0, backgroundColor: '#000', color: '#fff', boxShadow:'none', fontSize:'15px' }}> Pay with Apple Pay</button>
               <button onClick={() => setStep(1)} style={{ background: 'none', border: 'none', color: '#999', marginTop: '15px', fontSize: '13px', cursor: 'pointer', fontWeight:'500', textDecoration:'underline' }}>Cancel</button>
@@ -287,7 +297,7 @@ const handlePaymentClick = async () => {
           </div>
         )}
 
-        {/* ✅ 로딩 화면 (Step 2): 'It' 앞 줄바꿈 반영 */}
+        {/* 로딩 화면 (✅ 'It' 앞 줄바꿈 반영) */}
       {step === 2 && (
         <div style={{ textAlign: 'center', marginTop: '100px', animation: 'pulse 2s infinite' }}>
           <div style={{ fontSize: '60px', marginBottom:'20px' }}>⚡️</div>
@@ -314,7 +324,6 @@ const handlePaymentClick = async () => {
             <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
               Please don’t leave or refresh this page.
             </div>
-            {/* ✅ 줄바꿈 태그(<br/>) 추가 */}
             <div style={{ fontSize: 12, fontWeight: 700 }}>
               Your premium report is being generated automatically.<br/>
               It may take up to 3 minutes.
@@ -350,7 +359,7 @@ const handlePaymentClick = async () => {
   );
 }
 
-// ---------------- Helper Components (성별 선택 UI 및 에러 문구 유지) ----------------
+// ---------------- Helper Components (성별 선택 UI 및 에러 문구 추가) ----------------
 
 const PersonInput = ({ label, data, setData, errorState }: any) => (
   <div style={{ marginBottom: '20px' }}>
@@ -437,8 +446,8 @@ function translatePillar(chineseChar: string, position: string) {
   const stemData = STEM_MAP[stem] || { metaphor: "Unknown", element: "Unknown" };
   const branchData = BRANCH_MAP[branch] || { metaphor: "Unknown", element: "Unknown" };
   return {
-    stem_hanja: stem, stem_meaning: stemData.metaphor, stem_element: stemData.element,
-    branch_hanja: branch, branch_meaning: branchData.metaphor, branch_element: branchData.element,
+    stem_han_ja: stem, stem_meaning: stemData.metaphor, stem_element: stemData.element,
+    branch_han_ja: branch, branch_meaning: branchData.metaphor, branch_element: branchData.element,
     position: position
   };
 }
@@ -474,11 +483,11 @@ function PillarChart({ info, getElementColor }: any) {
         {sortedPillars.map((p: any, i: number) => (
           <div key={i} style={{ textAlign: 'center' }}>
             <div style={{ backgroundColor: getElementColor(p.stem_element), color: 'white', padding: '8px 2px', borderRadius: '8px 8px 0 0' }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{p.stem_hanja}</div>
+              <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{p.stem_han_ja}</div>
               <div style={{ fontSize: '9px', fontWeight:'500', marginTop:'2px' }}>{p.stem_meaning}</div>
             </div>
             <div style={{ backgroundColor: getElementColor(p.branch_element), color: 'white', padding: '8px 2px', borderRadius: '0 0 8px 8px', opacity: 0.9 }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{p.branch_hanja}</div>
+              <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{p.branch_han_ja}</div>
               <div style={{ fontSize: '9px', fontWeight:'500', marginTop:'2px' }}>{p.branch_meaning}</div>
             </div>
           </div>
@@ -490,6 +499,5 @@ function PillarChart({ info, getElementColor }: any) {
 
 const inputStyle = { padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '16px', outline: 'none', backgroundColor:'#fcfcfc', color:'#333', transition: 'border 0.2s' };
 const buttonStyle = { width: '100%', padding: '16px', backgroundColor: '#d63384', color: 'white', border: 'none', borderRadius: '15px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px', boxShadow:'0 8px 20px rgba(214, 51, 132, 0.25)', transition: 'transform 0.1s' };
-const actionButtonStyle = { width: '100%', padding: '15px', backgroundColor: 'white', color: '#444', border: '1px solid #ddd', borderRadius: '12px', fontSize: '15px', cursor: 'pointer', fontWeight: '600', display:'flex', justifyContent:'center', alignItems:'center', gap:'8px', boxShadow:'0 2px 5px rgba(0,0,0,0.05)' };
 const errorTextStyle = { color: '#ff4d4d', fontSize: '11px', marginTop: '4px', fontWeight: '600' as const };
 const footerLinkStyle = { fontSize: '13px', color: '#666', textDecoration: 'none', fontWeight: '500' as const };
