@@ -201,7 +201,7 @@ const handlePaymentClick = async () => {
       
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #ff69b4, #ff8da1)', padding: '30px 20px', textAlign: 'center', color: 'white', borderRadius: '0 0 30px 30px', boxShadow: '0 4px 20px rgba(255,105,180,0.3)' }}>
-        <div style={{ fontSize: '36px', marginBottom: '5px' }}>📄</div>
+        <div style={{ fontSize: '36px', marginBottom: '5px' }}>💗</div>
         <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '900', letterSpacing: '-0.5px' }}>The Saju</h1>
         <p style={{ margin: '8px 0 0', fontSize: '14px', opacity: 0.95, fontWeight: '500' }}>Korean Compatibility Report</p>
       </div>
@@ -221,7 +221,7 @@ const handlePaymentClick = async () => {
                   Your story begins at birth. We analyze your <b>Birth Year, Month, Day, and Time</b> using <b>Korean Saju (Four Pillars)</b> patterns to map your <b>Five-Element energy</b>—and highlight relationship dynamics you can explore together.
                 </p>
                 <p style={{ marginBottom: '15px' }}>
-                  Saju is a traditional cultural framework in Korea. This experience generates a <b>personalized compatibility report</b> designed for <b>fun, reflection, and conversation</b>—not for making life decisions.
+                  Saju is a traditional cultural framework in Korea. This experience generates a <b>personalized compatibility report</b> for <b>fun, reflection, and conversation</b>.
                 </p>
                 <p style={{ margin: 0, fontWeight:'600', color:'#333' }}>
                   We digitized this long-standing framework into a modern, shareable <b>compatibility report</b>. Get your report for a limited-time launch price of <b>$3.99</b> (Regular $4.99).
@@ -344,7 +344,7 @@ const handlePaymentClick = async () => {
             <p style={{ margin: '5px 0' }}>Support: <a href="mailto:rhflffk019@gmail.com" style={{ color: '#ff69b4', textDecoration: 'none' }}>rhflffk019@gmail.com</a></p>
             <p style={{ margin: '5px 0' }}>© 2026 The Saju. All rights reserved.</p>
             <p style={{ fontSize: '11px', marginTop: '10px', opacity: 0.8 }}>
-              This service is for entertainment and self-reflection purposes only. Not medical, legal, or financial advice.
+              This service is for entertainment purposes only.
             </p>
           </div>
         </footer>
