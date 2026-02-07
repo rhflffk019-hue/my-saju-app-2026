@@ -37,7 +37,6 @@ export const metadata = {
     images: ["/og-image.png"],
   },
 };
-
 export default function Home() {
   const router = useRouter(); // ★ 라우터 사용
   const [step, setStep] = useState(1);
