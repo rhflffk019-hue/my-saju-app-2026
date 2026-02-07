@@ -172,17 +172,17 @@ export default function Home() {
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '20px', marginBottom: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)', border: '1px solid #fff' }}>
               <div style={{fontSize: '11px', fontWeight: 'bold', color: '#ff69b4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>Ancient Korean Secret</div>
               <h3 style={{ margin:'0 0 15px 0', color:'#333', fontSize:'22px', lineHeight:'1.3', fontWeight:'800' }}>
-                Love is Intuition,<br/>Saju is Science.
+                Love is Intuition,<br/>Saju is a Blueprint.
               </h3>
               <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#555' }}>
                 <p style={{ marginBottom: '15px' }}>
-                  Your destiny was written the moment you were born. We analyze your <b>Birth Year, Month, Day, and Time</b> to decode the <b>Cosmic Energy (Qi)</b> between you two.
+                  Your story begins at birth. We analyze your <b>Birth Year, Month, Day, and Time</b> using <b>Korean Saju compatibility</b> to map your <b>Five-Element energy</b>—and reveal the hidden dynamics between you two.
                 </p>
                 <p style={{ marginBottom: '15px' }}>
-                  In Korea, compatibility isn't a guessing game. Locals pay <b>$50+</b> to consult masters before marriage or business.
+                  In Korea, <b>fortune telling</b> isn’t guesswork. For generations, people have relied on <b>Korean Saju readings</b> for love, marriage, and life decisions.
                 </p>
                 <p style={{ margin: 0, fontWeight:'600', color:'#333' }}>
-                  We digitized this <b>1,000-year-old formula</b>. Don't leave your future to chance. Reveal your true destiny for just <b>$1.00</b>.
+                  We digitized this <b>1,000-year-old framework</b> into a modern, shareable <b>love compatibility report</b>—so you can get a deep reading in minutes. Reveal your match for just <b>$1.00</b>.
                 </p>
               </div>
             </div>
@@ -202,7 +202,10 @@ export default function Home() {
               <PersonInput label="THE OTHER PERSON" data={partnerData} setData={setPartnerData} />
               
               <div style={{ marginTop: '20px', padding: '12px', backgroundColor: '#f0f9ff', borderRadius: '10px', fontSize: '12px', color: '#0369a1', display: 'flex', gap: '8px', lineHeight:'1.4', border:'1px solid #bce3eb' }}>
-                <span style={{fontSize:'16px'}}>🗓️</span><span><b>Precision Matters:</b> We automatically align your birth time to the <b>Korean Zodiac Calendar (KST)</b>.</span>
+                <span style={{fontSize:'16px'}}>🗓️</span>
+                <span>
+                  <b>Precision matters.</b> We automatically convert your time to the <b>Korean Zodiac calendar (KST)</b> for accuracy.
+                </span>
               </div>
 
               <button onClick={handlePaymentClick} style={buttonStyle}>Reveal Our Destiny ($1.00)</button>
@@ -256,7 +259,7 @@ export default function Home() {
               Please don’t leave or refresh this page.
             </div>
             <div style={{ fontSize: 12, fontWeight: 700 }}>
-              Your premium report is being generated and may take up to 3 minutes.
+              Your premium report is being generated and may take up to 5 minutes.
             </div>
           </div>
         </div>
@@ -283,16 +286,43 @@ const PersonInput = ({ label, data, setData }: any) => (
       <input placeholder="First Name" value={data.firstName} onChange={(e) => setData({...data, firstName: e.target.value})} style={{...inputStyle, flex: 1, minWidth: 0}} />
       <input placeholder="Last Name" value={data.lastName} onChange={(e) => setData({...data, lastName: e.target.value})} style={{...inputStyle, flex: 1, minWidth: 0}} />
     </div>
+
+    {/* ✅ mobile placeholder 문제 해결: date/time에 명확한 안내 텍스트 추가 */}
     <div style={{ display: 'flex', gap: '8px' }}>
-      <input type="date" lang="en-US" value={data.birthDate} onChange={(e) => setData({...data, birthDate: e.target.value})} style={{...inputStyle, flex: 2, minWidth: 0}} />
+      <input
+        type="date"
+        lang="en-US"
+        placeholder="Birth date (YYYY-MM-DD)"
+        aria-label="Birth date"
+        value={data.birthDate}
+        onChange={(e) => setData({...data, birthDate: e.target.value})}
+        style={{...inputStyle, flex: 2, minWidth: 0}}
+      />
       {!data.unknownTime && (
-        <input type="time" lang="en-US" value={data.birthTime} onChange={(e) => setData({...data, birthTime: e.target.value})} style={{...inputStyle, flex: 1, minWidth: 0}} />
+        <input
+          type="time"
+          lang="en-US"
+          placeholder="Birth time (HH:MM)"
+          aria-label="Birth time"
+          value={data.birthTime}
+          onChange={(e) => setData({...data, birthTime: e.target.value})}
+          style={{...inputStyle, flex: 1, minWidth: 0}}
+        />
       )}
     </div>
+
     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', alignItems:'center' }}>
-      <label style={{ fontSize: '13px', color: '#666', display: 'flex', alignItems: 'center', cursor:'pointer' }}>
-        <input type="checkbox" checked={data.unknownTime} onChange={(e) => setData({...data, unknownTime: e.target.checked})} style={{ marginRight: '6px', width:'16px', height:'16px' }} /> Time Unknown
-      </label>
+      <div style={{ display:'flex', flexDirection:'column', gap: 4 }}>
+        <label style={{ fontSize: '13px', color: '#666', display: 'flex', alignItems: 'center', cursor:'pointer' }}>
+          <input type="checkbox" checked={data.unknownTime} onChange={(e) => setData({...data, unknownTime: e.target.checked})} style={{ marginRight: '6px', width:'16px', height:'16px' }} /> Time Unknown
+        </label>
+
+        {/* ✅ 불안 제거 문구 추가 */}
+        <div style={{ fontSize: 11, color: '#999', lineHeight: 1.2 }}>
+          Not sure? We can still analyze without an exact time.
+        </div>
+      </div>
+
       <select value={data.timezone} onChange={(e) => setData({...data, timezone: e.target.value})} style={{ fontSize: '12px', padding: '8px', borderRadius: '8px', border: '1px solid #ddd', color: '#555', backgroundColor:'#fff', maxWidth:'140px' }}>
         <option value="-5">New York (UTC-5)</option><option value="-8">LA (UTC-8)</option><option value="0">London (UTC+0)</option><option value="9">Seoul (UTC+9)</option><option value="1">Paris (UTC+1)</option>
       </select>
