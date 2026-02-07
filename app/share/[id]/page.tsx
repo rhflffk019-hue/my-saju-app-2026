@@ -59,12 +59,13 @@ export default async function SharePage({
   const data = await kv.get<any>(reportKey);
 
   // =========================================================
-  // ⚡ [자동 전환 로직] 데이터가 아직 없을 때 예경님의 로딩 화면 표시
+  // ⚡ [자동 전환 로직] 데이터가 없을 때 7초마다 강제 새로고침
   // =========================================================
   if (!data) {
     return (
       <div style={pageStyle}>
-        {/* 분석이 완료될 때까지 7초마다 자동으로 페이지를 새로고침하여 데이터를 확인합니다. */}
+        {/* [핵심 수정] 브라우저 표준 meta 태그와 JS 스크립트 이중 설치로 7초마다 무조건 새로고침 유도 */}
+        <meta httpEquiv="refresh" content="7" />
         <script
           dangerouslySetInnerHTML={{
             __html: `setTimeout(() => { window.location.reload(); }, 7000);`,
@@ -74,24 +75,38 @@ export default async function SharePage({
         {/* Header - 원본 스타일 그대로 */}
         <div style={headerStyle}>
           <div style={{ fontSize: 36, marginBottom: 5 }}>🔮</div>
-          <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: "-0.5px" }}>
+          <h1
+            style={{
+              margin: 0,
+              fontSize: 32,
+              fontWeight: 900,
+              letterSpacing: "-0.5px",
+            }}
+          >
             The Saju
           </h1>
-          <p style={{ margin: "8px 0 0", fontSize: 14, opacity: 0.95, fontWeight: 500 }}>
+          <p
+            style={{
+              margin: "8px 0 0",
+              fontSize: 14,
+              opacity: 0.95,
+              fontWeight: 500,
+            }}
+          >
             Korean Destiny & Love Chemistry
           </p>
         </div>
 
         <div style={{ ...containerStyle, textAlign: 'center', marginTop: '100px' }}>
-          {/* 예경님의 원본 로딩 애니메이션 */}
+          {/* 예경님의 원본 로딩 애니메이션 - ⚡️ */}
           <div style={{ fontSize: '60px', marginBottom: '20px', animation: 'pulse 2s infinite' }}>⚡️</div>
           <h2 style={{ color: '#d63384', fontSize: '24px', fontWeight: 900 }}>Connecting Energies...</h2>
           <p style={{ color: '#666', fontSize: '15px', marginBottom: '30px' }}>Applying 1,000-year-old formula...</p>
 
-          {/* 예경님의 핵심 안내 문구 박스 */}
+          {/* 예경님의 핵심 안내 문구 박스 - 원본 그대로 */}
           <div
             style={{
-              margin: '0 auto',
+              margin: '22px auto 0',
               maxWidth: 360,
               background: '#f0f9ff',
               border: '1px solid #bce3eb',
@@ -115,7 +130,7 @@ export default async function SharePage({
           </div>
 
           <div style={{ marginTop: 40, fontSize: 12, color: '#aaa', fontStyle: 'italic' }}>
-            The results will appear automatically once analysis is complete...
+            Wait for just a moment. Results will appear automatically...
           </div>
         </div>
         
@@ -129,7 +144,7 @@ export default async function SharePage({
   }
 
   // =========================================================
-  // ✅ [원본 유지] 데이터가 있을 때의 결과 화면 (예경님의 700줄 로직)
+  // ✅ [데이터가 있을 때] 결과 화면 표시 (예경님의 원본 로직 100% 유지)
   // =========================================================
 
   // --- 안전 처리 ---
