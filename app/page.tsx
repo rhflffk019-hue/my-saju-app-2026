@@ -96,7 +96,7 @@ export default function Home() {
       }
     }, [router]);
 
-// ✅ handlePaymentClick: 결제 전 데이터 검증(성별 포함) 로직 추가
+// ✅ handlePaymentClick: 결제 전 데이터 검증(성별 포함) 로직 추가 (원본 유지)
 const handlePaymentClick = async () => {
   // 1. 에러 체크 수행
   const newErrors = {
@@ -252,9 +252,20 @@ const handlePaymentClick = async () => {
                 </span>
               </div>
 
+              {/* ✅ 결제 버튼: 마케팅 문구 반영 (Short & Clear + 앵커링) */}
               <button onClick={handlePaymentClick} style={buttonStyle}>
-                {loading ? "Checking details..." : "Reveal Our Destiny ($3.99)"}
+                <div style={{ fontSize: '18px' }}>{loading ? "Checking details..." : "Reveal Our Destiny — $3.99"}</div>
+                {!loading && (
+                  <div style={{ fontSize: '12px', fontWeight: '500', opacity: 0.9, marginTop: '2px' }}>
+                    Launch price (Regular $4.99)
+                  </div>
+                )}
               </button>
+              {!loading && (
+                <div style={{ textAlign: 'center', fontSize: '11px', color: '#ff69b4', fontWeight: '700', marginTop: '8px' }}>
+                  ⚡ Limited time offer. Ends soon.
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -276,7 +287,7 @@ const handlePaymentClick = async () => {
           </div>
         )}
 
-        {/* 로딩 화면 (원본 유지) */}
+        {/* ✅ 로딩 화면 (Step 2): 'It' 앞 줄바꿈 반영 */}
       {step === 2 && (
         <div style={{ textAlign: 'center', marginTop: '100px', animation: 'pulse 2s infinite' }}>
           <div style={{ fontSize: '60px', marginBottom:'20px' }}>⚡️</div>
@@ -303,8 +314,10 @@ const handlePaymentClick = async () => {
             <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
               Please don’t leave or refresh this page.
             </div>
+            {/* ✅ 줄바꿈 태그(<br/>) 추가 */}
             <div style={{ fontSize: 12, fontWeight: 700 }}>
-              Your premium report is being generated and may take up to 3 minutes.
+              Your premium report is being generated automatically.<br/>
+              It may take up to 3 minutes.
             </div>
           </div>
         </div>
@@ -337,13 +350,12 @@ const handlePaymentClick = async () => {
   );
 }
 
-// ---------------- Helper Components (성별 선택 UI 및 에러 문구 추가) ----------------
+// ---------------- Helper Components (성별 선택 UI 및 에러 문구 유지) ----------------
 
 const PersonInput = ({ label, data, setData, errorState }: any) => (
   <div style={{ marginBottom: '20px' }}>
     <label style={{display:'block', fontSize:'11px', fontWeight:'bold', color:'#999', marginBottom:'8px', letterSpacing:'1px', textTransform:'uppercase'}}>{label}</label>
     
-    {/* 성별 선택 버튼 추가 (Male / Female) */}
     <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
       <button 
         onClick={() => setData({...data, gender: 'male'})}
