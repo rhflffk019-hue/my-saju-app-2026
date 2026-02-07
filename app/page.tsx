@@ -23,6 +23,12 @@ export default function Home() {
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
+  // ✅ [추가] 에러 상태 관리 (빨간색 문구 표시용)
+  const [errors, setErrors] = useState<any>({
+    my: { firstName: false, birthDate: false, birthTime: false },
+    partner: { firstName: false, birthDate: false, birthTime: false }
+  });
+
   // 1. 이미지 저장 함수 (삭제 안 함, 유지)
   const downloadResultImage = async () => {
     if (resultRef.current) {
@@ -73,7 +79,7 @@ export default function Home() {
     };
   };
 
-    // app/page.tsx 내 useEffect 수정
+    // app/page.tsx 내 useEffect 수정 (유지)
     useEffect(() => {
       const query = new URLSearchParams(window.location.search);
       
@@ -82,21 +88,40 @@ export default function Home() {
         const sessionId = localStorage.getItem('currentSessionId');
         
         if (sessionId) {
-          // 분석은 이미 서버(웹훅)에서 진행 중이거나 완료되었을 것이므로
-          // 즉시 결과 공유 페이지로 보냅니다.
           router.push(`/share/${sessionId}`);
         } else {
-          // 만약 브라우저가 바뀌어서 ID가 없다면 메인으로 보냅니다.
           alert("Session expired. Please try again.");
           router.push("/");
         }
       }
     }, [router]);
 
-// app/page.tsx
+// ✅ handlePaymentClick (검증 로직 추가)
 const handlePaymentClick = async () => {
-  if (!myData.firstName || !partnerData.firstName) {
-    alert("Please enter First Names!");
+  // 1. 데이터 검증 시작
+  const newErrors = {
+    my: {
+      firstName: !myData.firstName,
+      birthDate: !myData.birthDate,
+      birthTime: !myData.unknownTime && !myData.birthTime
+    },
+    partner: {
+      firstName: !partnerData.firstName,
+      birthDate: !partnerData.birthDate,
+      birthTime: !partnerData.unknownTime && !partnerData.birthTime
+    }
+  };
+
+  setErrors(newErrors);
+
+  // 하나라도 비어있으면 실행 중단
+  const hasError = 
+    newErrors.my.firstName || newErrors.my.birthDate || newErrors.my.birthTime ||
+    newErrors.partner.firstName || newErrors.partner.birthDate || newErrors.partner.birthTime;
+
+  if (hasError) {
+    // 유저가 에러를 볼 수 있게 상단으로 부드럽게 스크롤
+    window.scrollTo({ top: 150, behavior: 'smooth' });
     return;
   }
 
@@ -115,10 +140,7 @@ const handlePaymentClick = async () => {
     localStorage.setItem('currentSessionId', sessionId);
 
     // 3. 레몬 스퀴지 결제창으로 이동 (ID를 파라미터로 포함)
-    // ★ 복사한 실제 Checkout 주소를 여기에 넣으세요!
     const PRODUCT_URL = "https://thesaju.lemonsqueezy.com/checkout/buy/131da000-c59f-4267-aa53-7747c2b3c5b0";
-    
-    // 중요: 뒤에 ?checkout[custom][session_id]=... 가 붙어야 웹훅이 인식합니다!
     window.location.href = `${PRODUCT_URL}?checkout[custom][session_id]=${sessionId}`;
   } catch (e) {
     console.error(e);
@@ -127,7 +149,7 @@ const handlePaymentClick = async () => {
   }
 };
 
-  // ★★★ 핵심 수정: 서버 요청 후 페이지 이동 ★★★
+  // requestAnalysis (유지)
   const requestAnalysis = async (dataA: any, dataB: any, relType: string) => {
     setLoading(true);
     setStep(2); // 로딩 화면
@@ -149,7 +171,6 @@ const handlePaymentClick = async () => {
         throw new Error(data.error || 'Analysis failed');
       }
 
-      // ★ 서버가 준 ID(redirectId)가 있으면 결과 페이지로 이동!
       if (data.success && data.redirectId) {
         router.push(`/share/${data.redirectId}`);
       } else {
@@ -161,7 +182,6 @@ const handlePaymentClick = async () => {
       alert("Error: " + error.message);
       setStep(1); 
     } finally {
-      // 페이지 이동이 일어나므로 로딩 해제는 필수가 아니지만 안전하게 처리
       setLoading(false); 
     }
   };
@@ -177,7 +197,7 @@ const handlePaymentClick = async () => {
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#fff0f5', fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif', paddingBottom: '80px', boxSizing: 'border-box' }}>
       
-      {/* Header */}
+      {/* Header (유지) */}
       <div style={{ background: 'linear-gradient(135deg, #ff69b4, #ff8da1)', padding: '30px 20px', textAlign: 'center', color: 'white', borderRadius: '0 0 30px 30px', boxShadow: '0 4px 20px rgba(255,105,180,0.3)' }}>
         <div style={{ fontSize: '36px', marginBottom: '5px' }}>🔮</div>
         <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '900', letterSpacing: '-0.5px' }}>The Saju</h1>
@@ -188,6 +208,7 @@ const handlePaymentClick = async () => {
         
         {step === 1 && (
           <div>
+            {/* 원본 안내 문구 카드 (100% 보존) */}
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '20px', marginBottom: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)', border: '1px solid #fff' }}>
               <div style={{fontSize: '11px', fontWeight: 'bold', color: '#ff69b4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>Ancient Korean Secret</div>
               <h3 style={{ margin:'0 0 15px 0', color:'#333', fontSize:'22px', lineHeight:'1.3', fontWeight:'800' }}>
@@ -216,9 +237,11 @@ const handlePaymentClick = async () => {
                   <option value="business">💼 Business Partner</option>
                 </select>
               </div>
-              <PersonInput label="YOU" data={myData} setData={setMyData} />
+
+              {/* ✅ PersonInput에 에러 상태 전달 */}
+              <PersonInput label="YOU" data={myData} setData={setMyData} errorState={errors.my} />
               <div style={{ height: '20px' }}></div>
-              <PersonInput label="THE OTHER PERSON" data={partnerData} setData={setPartnerData} />
+              <PersonInput label="THE OTHER PERSON" data={partnerData} setData={setPartnerData} errorState={errors.partner} />
               
               <div style={{ marginTop: '20px', padding: '12px', backgroundColor: '#f0f9ff', borderRadius: '10px', fontSize: '12px', color: '#0369a1', display: 'flex', gap: '8px', lineHeight:'1.4', border:'1px solid #bce3eb' }}>
                 <span style={{fontSize:'16px'}}>🗓️</span>
@@ -227,12 +250,14 @@ const handlePaymentClick = async () => {
                 </span>
               </div>
 
-              <button onClick={handlePaymentClick} style={buttonStyle}>Reveal Our Destiny ($3.99)</button>
+              <button onClick={handlePaymentClick} style={buttonStyle}>
+                {loading ? "Checking details..." : "Reveal Our Destiny ($3.99)"}
+              </button>
             </div>
           </div>
         )}
 
-        {/* 결제 모달 */}
+        {/* 결제 모달 (유지) */}
         {step === 1.5 && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, backdropFilter: 'blur(5px)' }}>
             <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '25px', width: '85%', maxWidth: '350px', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.4)', animation: 'popIn 0.3s ease' }}>
@@ -249,14 +274,13 @@ const handlePaymentClick = async () => {
           </div>
         )}
 
-        {/* 로딩 */}
+        {/* 로딩 화면 (유지) */}
       {step === 2 && (
         <div style={{ textAlign: 'center', marginTop: '100px', animation: 'pulse 2s infinite' }}>
           <div style={{ fontSize: '60px', marginBottom:'20px' }}>⚡️</div>
           <h2 style={{ color: '#d63384', fontSize:'22px' }}>Connecting Energies...</h2>
           <p style={{ color: '#666', fontSize:'15px' }}>Applying 1000-year-old formula...</p>
 
-          {/* ✅ 안내 문구 추가 */}
           <div
             style={{
               margin: '22px auto 0',
@@ -284,8 +308,6 @@ const handlePaymentClick = async () => {
         </div>
       )}
 
-
-        {/* Step 3 (결과 화면)는 삭제되지 않았지만, 리다이렉트 되므로 사실상 안 보입니다. */}
       </div>
       
       <style jsx global>{`
@@ -296,26 +318,26 @@ const handlePaymentClick = async () => {
   );
 }
 
-// ---------------- Helper Components & Styles (삭제된 것 없이 전부 포함) ----------------
+// ---------------- Helper Components (검증 로직 추가) ----------------
 
-const PersonInput = ({ label, data, setData }: any) => (
+const PersonInput = ({ label, data, setData, errorState }: any) => (
   <div style={{ marginBottom: '20px' }}>
     <label style={{display:'block', fontSize:'11px', fontWeight:'bold', color:'#999', marginBottom:'8px', letterSpacing:'1px', textTransform:'uppercase'}}>{label}</label>
-    <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-      <input placeholder="First Name" value={data.firstName} onChange={(e) => setData({...data, firstName: e.target.value})} style={{...inputStyle, flex: 1, minWidth: 0}} />
+    <div style={{ display: 'flex', gap: '8px', marginBottom: '4px' }}>
+      <input 
+        placeholder="First Name" 
+        value={data.firstName} 
+        onChange={(e) => setData({...data, firstName: e.target.value})} 
+        style={{...inputStyle, flex: 1, minWidth: 0, borderColor: errorState.firstName ? '#ff4d4d' : '#e0e0e0'}} 
+      />
       <input placeholder="Last Name" value={data.lastName} onChange={(e) => setData({...data, lastName: e.target.value})} style={{...inputStyle, flex: 1, minWidth: 0}} />
     </div>
+    {/* 이름 에러 문구 */}
+    {errorState.firstName && <div style={{ color: '#ff4d4d', fontSize: '11px', marginBottom: '8px', fontWeight: '600' }}>⚠️ First name is required.</div>}
 
-    {/* ✅ mobile에서도 빈칸처럼 안 보이게: date/time 위에 안내 라벨 추가 */}
     <div style={{ display: 'flex', gap: '8px', marginBottom: '6px', marginTop: '4px' }}>
-      <div style={{ flex: 2, minWidth: 0, fontSize: 11, fontWeight: 900, color: '#999', letterSpacing: '0.5px' }}>
-        Birth Date
-      </div>
-      {!data.unknownTime && (
-        <div style={{ flex: 1, minWidth: 0, fontSize: 11, fontWeight: 900, color: '#999', letterSpacing: '0.5px' }}>
-          Birth Time
-        </div>
-      )}
+      <div style={{ flex: 2, minWidth: 0, fontSize: 11, fontWeight: 900, color: '#999', letterSpacing: '0.5px' }}>Birth Date</div>
+      {!data.unknownTime && <div style={{ flex: 1, minWidth: 0, fontSize: 11, fontWeight: 900, color: '#999', letterSpacing: '0.5px' }}>Birth Time</div>}
     </div>
 
     <div style={{ display: 'flex', gap: '8px' }}>
@@ -325,7 +347,7 @@ const PersonInput = ({ label, data, setData }: any) => (
         aria-label="Birth date"
         value={data.birthDate}
         onChange={(e) => setData({...data, birthDate: e.target.value})}
-        style={{...inputStyle, flex: 2, minWidth: 0}}
+        style={{...inputStyle, flex: 2, minWidth: 0, borderColor: errorState.birthDate ? '#ff4d4d' : '#e0e0e0'}}
       />
       {!data.unknownTime && (
         <input
@@ -334,10 +356,17 @@ const PersonInput = ({ label, data, setData }: any) => (
           aria-label="Birth time"
           value={data.birthTime}
           onChange={(e) => setData({...data, birthTime: e.target.value})}
-          style={{...inputStyle, flex: 1, minWidth: 0}}
+          style={{...inputStyle, flex: 1, minWidth: 0, borderColor: errorState.birthTime ? '#ff4d4d' : '#e0e0e0'}}
         />
       )}
     </div>
+    {/* 날짜/시간 에러 문구 */}
+    {errorState.birthDate && <div style={{ color: '#ff4d4d', fontSize: '11px', marginTop: '4px', fontWeight: '600' }}>⚠️ Please enter birth date.</div>}
+    {errorState.birthTime && !data.unknownTime && (
+      <div style={{ color: '#ff4d4d', fontSize: '11px', marginTop: '4px', fontWeight: '600' }}>
+        ⚠️ Enter birth time OR check "Time Unknown".
+      </div>
+    )}
 
     <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', alignItems:'center' }}>
       <label style={{ fontSize: '13px', color: '#666', display: 'flex', alignItems: 'center', cursor:'pointer' }}>
@@ -363,7 +392,7 @@ function translatePillar(chineseChar: string, position: string) {
   };
 }
 
-// 기존 맵 데이터 (삭제 안 함)
+// 기존 맵 데이터 (100% 보존)
 const STEM_MAP: any = {
   "甲": { metaphor: "Big Tree", element: "wood" }, "乙": { metaphor: "Flower", element: "wood" },
   "丙": { metaphor: "The Sun", element: "fire" }, "丁": { metaphor: "Candle", element: "fire" },
@@ -407,7 +436,7 @@ function PillarChart({ info, getElementColor }: any) {
   );
 }
 
-// 스타일 정의 (삭제 안 함)
+// 스타일 정의 (100% 보존)
 const inputStyle = { padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '16px', outline: 'none', backgroundColor:'#fcfcfc', color:'#333', transition: 'border 0.2s' };
 const buttonStyle = { width: '100%', padding: '16px', backgroundColor: '#d63384', color: 'white', border: 'none', borderRadius: '15px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px', boxShadow:'0 8px 20px rgba(214, 51, 132, 0.25)', transition: 'transform 0.1s' };
 const actionButtonStyle = { width: '100%', padding: '15px', backgroundColor: 'white', color: '#444', border: '1px solid #ddd', borderRadius: '12px', fontSize: '15px', cursor: 'pointer', fontWeight: '600', display:'flex', justifyContent:'center', alignItems:'center', gap:'8px', boxShadow:'0 2px 5px rgba(0,0,0,0.05)' };
