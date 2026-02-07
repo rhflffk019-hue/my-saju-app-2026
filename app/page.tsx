@@ -201,9 +201,9 @@ const handlePaymentClick = async () => {
       
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #ff69b4, #ff8da1)', padding: '30px 20px', textAlign: 'center', color: 'white', borderRadius: '0 0 30px 30px', boxShadow: '0 4px 20px rgba(255,105,180,0.3)' }}>
-        <div style={{ fontSize: '36px', marginBottom: '5px' }}>🔮</div>
+        <div style={{ fontSize: '36px', marginBottom: '5px' }}>📄</div>
         <h1 style={{ margin: 0, fontSize: '32px', fontWeight: '900', letterSpacing: '-0.5px' }}>The Saju</h1>
-        <p style={{ margin: '8px 0 0', fontSize: '14px', opacity: 0.95, fontWeight: '500' }}>Korean Destiny & Love Chemistry</p>
+        <p style={{ margin: '8px 0 0', fontSize: '14px', opacity: 0.95, fontWeight: '500' }}>Korean Compatibility Report</p>
       </div>
 
       <div style={{ maxWidth: '480px', margin: '0 auto', padding: '20px', marginTop: '-25px' }}>
@@ -212,19 +212,19 @@ const handlePaymentClick = async () => {
           <div>
             {/* 원본 안내 문구 카드 (✅ 3.99 부분 수정됨) */}
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '20px', marginBottom: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)', border: '1px solid #fff' }}>
-              <div style={{fontSize: '11px', fontWeight: 'bold', color: '#ff69b4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>Ancient Korean Secret</div>
+              <div style={{fontSize: '11px', fontWeight: 'bold', color: '#ff69b4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>Korean Tradition • Modern Report</div>
               <h3 style={{ margin:'0 0 15px 0', color:'#333', fontSize:'22px', lineHeight:'1.3', fontWeight:'800' }}>
                 Love is Intuition,<br/>Saju is a Blueprint.
               </h3>
               <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#555' }}>
                 <p style={{ marginBottom: '15px' }}>
-                  Your story begins at birth. We analyze your <b>Birth Year, Month, Day, and Time</b> using <b>Korean Saju compatibility</b> to map your <b>Five-Element energy</b>—and reveal the hidden dynamics between you two.
+                  Your story begins at birth. We analyze your <b>Birth Year, Month, Day, and Time</b> using <b>Korean Saju (Four Pillars)</b> patterns to map your <b>Five-Element energy</b>—and highlight relationship dynamics you can explore together.
                 </p>
                 <p style={{ marginBottom: '15px' }}>
-                  In Korea, <b>fortune telling</b> isn’t guesswork. For generations, people have relied on <b>Korean Saju readings</b> for love, marriage, and life decisions.
+                  Saju is a traditional cultural framework in Korea. This experience generates a <b>personalized compatibility report</b> designed for <b>fun, reflection, and conversation</b>—not for making life decisions.
                 </p>
                 <p style={{ margin: 0, fontWeight:'600', color:'#333' }}>
-                  We digitized this <b>1,000-year-old framework</b> into a modern, shareable <b>love compatibility report</b>. Reveal your match for a limited-time launch price of <b>$3.99</b> (Regular $4.99).
+                  We digitized this long-standing framework into a modern, shareable <b>compatibility report</b>. Get your report for a limited-time launch price of <b>$3.99</b> (Regular $4.99).
                 </p>
               </div>
             </div>
@@ -248,14 +248,14 @@ const handlePaymentClick = async () => {
               <div style={{ marginTop: '20px', padding: '12px', backgroundColor: '#f0f9ff', borderRadius: '10px', fontSize: '12px', color: '#0369a1', display: 'flex', gap: '8px', lineHeight:'1.4', border:'1px solid #bce3eb' }}>
                 <span style={{fontSize:'16px'}}>🗓️</span>
                 <span>
-                  <b>Precision matters.</b> We automatically convert your time to the <b>Korean Zodiac calendar (KST)</b> for accuracy.
+                  <b>Precision matters.</b> We automatically convert your time to <b>KST</b> for consistent calculations.
                 </span>
               </div>
 
               {/* ✅ 결제 버튼: 런칭 전략 반영 */}
               <button onClick={handlePaymentClick} style={buttonStyle}>
                 <div style={{ fontSize: '17px', fontWeight: '900' }}>
-                  {loading ? "Checking details..." : "Unlock Full Compatibility Report — $3.99"}
+                  {loading ? "Checking details..." : "Generate Full Compatibility Report — $3.99"}
                 </div>
                 {!loading && (
                   <div style={{ fontSize: '12px', fontWeight: '500', opacity: 0.9, marginTop: '3px' }}>
@@ -282,8 +282,8 @@ const handlePaymentClick = async () => {
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, backdropFilter: 'blur(5px)' }}>
             <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '25px', width: '85%', maxWidth: '350px', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.4)', animation: 'popIn 0.3s ease' }}>
               <div style={{ fontSize: '40px', marginBottom: '15px' }}>💎</div>
-              <h2 style={{ margin: '0 0 10px 0', color: '#333', fontSize:'20px' }}>Unlock The Future</h2>
-              <p style={{ color: '#666', fontSize: '14px', marginBottom: '25px', lineHeight:'1.5' }}>Get your <b>Compatibility Score</b> & <b>Premium Analysis</b>.</p>
+              <h2 style={{ margin: '0 0 10px 0', color: '#333', fontSize:'20px' }}>Get Your Full Report</h2>
+              <p style={{ color: '#666', fontSize: '14px', marginBottom: '25px', lineHeight:'1.5' }}>Generate your <b>Compatibility Score</b> & <b>Premium Analysis</b>.</p>
               <div style={{ backgroundColor: '#f8f9fa', padding: '15px', borderRadius: '12px', marginBottom: '20px', display:'flex', justifyContent:'space-between', alignItems:'center', border:'1px solid #eee' }}>
                 <span style={{ fontWeight: 'bold', color: '#333', fontSize:'14px' }}>Launch Offer</span>
                 <div style={{ textAlign: 'right' }}>
@@ -301,8 +301,8 @@ const handlePaymentClick = async () => {
       {step === 2 && (
         <div style={{ textAlign: 'center', marginTop: '100px', animation: 'pulse 2s infinite' }}>
           <div style={{ fontSize: '60px', marginBottom:'20px' }}>⚡️</div>
-          <h2 style={{ color: '#d63384', fontSize:'22px' }}>Connecting Energies...</h2>
-          <p style={{ color: '#666', fontSize:'15px' }}>Applying 1000-year-old formula...</p>
+          <h2 style={{ color: '#d63384', fontSize:'22px' }}>Generating Your Report...</h2>
+          <p style={{ color: '#666', fontSize:'15px' }}>Running the compatibility calculation...</p>
 
           <div
             style={{
@@ -344,7 +344,7 @@ const handlePaymentClick = async () => {
             <p style={{ margin: '5px 0' }}>Support: <a href="mailto:rhflffk019@gmail.com" style={{ color: '#ff69b4', textDecoration: 'none' }}>rhflffk019@gmail.com</a></p>
             <p style={{ margin: '5px 0' }}>© 2026 The Saju. All rights reserved.</p>
             <p style={{ fontSize: '11px', marginTop: '10px', opacity: 0.8 }}>
-              This service is for entertainment purposes only.
+              This service is for entertainment and self-reflection purposes only. Not medical, legal, or financial advice.
             </p>
           </div>
         </footer>
