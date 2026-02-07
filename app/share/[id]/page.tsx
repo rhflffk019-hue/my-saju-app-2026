@@ -59,53 +59,47 @@ export default async function SharePage({
   const data = await kv.get<any>(reportKey);
 
   // =========================================================
-  // ⚡ [수정 부분] 데이터가 아직 없을 때 예경님의 로딩(Step 2) 화면 표시
+  // ⚡ [자동 전환 로직] 데이터가 아직 없을 때 예경님의 로딩 화면 표시
   // =========================================================
   if (!data) {
     return (
       <div style={pageStyle}>
+        {/* 분석이 완료될 때까지 7초마다 자동으로 페이지를 새로고침하여 데이터를 확인합니다. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `setTimeout(() => { window.location.reload(); }, 7000);`,
+          }}
+        />
+
         {/* Header - 원본 스타일 그대로 */}
         <div style={headerStyle}>
           <div style={{ fontSize: 36, marginBottom: 5 }}>🔮</div>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: 32,
-              fontWeight: 900,
-              letterSpacing: "-0.5px",
-            }}
-          >
+          <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: "-0.5px" }}>
             The Saju
           </h1>
-          <p
-            style={{
-              margin: "8px 0 0",
-              fontSize: 14,
-              opacity: 0.95,
-              fontWeight: 500,
-            }}
-          >
+          <p style={{ margin: "8px 0 0", fontSize: 14, opacity: 0.95, fontWeight: 500 }}>
             Korean Destiny & Love Chemistry
           </p>
         </div>
 
-        <div style={{ ...containerStyle, textAlign: 'center', marginTop: '60px' }}>
-          {/* 로딩 애니메이션 - 홈 화면 step 2 로직 그대로 */}
+        <div style={{ ...containerStyle, textAlign: 'center', marginTop: '100px' }}>
+          {/* 예경님의 원본 로딩 애니메이션 */}
           <div style={{ fontSize: '60px', marginBottom: '20px', animation: 'pulse 2s infinite' }}>⚡️</div>
           <h2 style={{ color: '#d63384', fontSize: '24px', fontWeight: 900 }}>Connecting Energies...</h2>
           <p style={{ color: '#666', fontSize: '15px', marginBottom: '30px' }}>Applying 1,000-year-old formula...</p>
 
-          {/* 예경님의 핵심 안내 문구 박스 - 원본 그대로 */}
+          {/* 예경님의 핵심 안내 문구 박스 */}
           <div
             style={{
               margin: '0 auto',
+              maxWidth: 360,
               background: '#f0f9ff',
               border: '1px solid #bce3eb',
               borderRadius: 14,
-              padding: '20px',
+              padding: '14px 14px',
               color: '#0369a1',
               textAlign: 'left',
-              lineHeight: 1.5,
+              lineHeight: 1.45,
               boxShadow: '0 6px 18px rgba(0,0,0,0.06)',
             }}
           >
@@ -116,28 +110,13 @@ export default async function SharePage({
               Please don’t leave or refresh this page.
             </div>
             <div style={{ fontSize: 12, fontWeight: 700 }}>
-              Your premium report is being generated and may take up to 3 minutes.
+              Your premium report is being generated automatically. It may take up to 3 minutes.
             </div>
           </div>
 
-          {/* 수동 확인 버튼 */}
-          <a 
-            href={`/share/${id}`} 
-            style={{ 
-              ...ctaButtonStyle, 
-              marginTop: '35px', 
-              display: 'inline-block', 
-              textDecoration: 'none', 
-              maxWidth: '280px',
-              textAlign: 'center'
-            }}
-          >
-            🔄 Reveal My Destiny Now
-          </a>
-          
-          <p style={{ marginTop: 20, fontSize: 11, color: '#aaa' }}>
-            Click the button above if the page doesn't load in 30 seconds.
-          </p>
+          <div style={{ marginTop: 40, fontSize: 12, color: '#aaa', fontStyle: 'italic' }}>
+            The results will appear automatically once analysis is complete...
+          </div>
         </div>
         
         {/* 서버 사이드 애니메이션 정의 */}
@@ -150,7 +129,7 @@ export default async function SharePage({
   }
 
   // =========================================================
-  // ✅ [데이터가 있을 때] 결과 화면 표시 (예경님의 원본 로직 100% 유지)
+  // ✅ [원본 유지] 데이터가 있을 때의 결과 화면 (예경님의 700줄 로직)
   // =========================================================
 
   // --- 안전 처리 ---
@@ -487,7 +466,7 @@ export default async function SharePage({
   );
 }
 
-// ---------------- UI Components (예경님 원본 그대로) ----------------
+// ---------------- UI Components (원본 유지) ----------------
 
 function CategoryCard({ item, index }: { item: any; index: number }) {
   const icon = item?.icon ?? "✨";
@@ -580,7 +559,7 @@ function PillarChart({ info, getElementColor }: any) {
   );
 }
 
-// ---------------- Helpers (예경님 원본 그대로) ----------------
+// ---------------- Helpers (원본 유지) ----------------
 
 function toNumberSafe(v: any, fallback: number) {
   const n = typeof v === "number" ? v : Number(v);
@@ -593,7 +572,7 @@ function clamp(v: number, min: number, max: number) {
   return v;
 }
 
-// ---------------- Styles (예경님 원본 640줄 분량의 모든 스타일 보존) ----------------
+// ---------------- Styles (원본 700줄 분량의 모든 스타일 보존) ----------------
 
 const pageStyle: React.CSSProperties = {
   minHeight: "100vh",
