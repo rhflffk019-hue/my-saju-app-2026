@@ -1,75 +1,119 @@
-import { NextResponse } from 'next/server';
+import { kv } from "@vercel/kv";
+import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Solar, Lunar } from 'lunar-javascript';
-import { kv } from '@vercel/kv'; // ★ 추가됨: 저장소
-import { v4 as uuidv4 } from 'uuid'; // ★ 추가됨: 고유번호 생성기
 
-// 1. 금고에서 키 꺼내기
+// 1. API 키 설정 (Vercel Environment Variables에서 불러옴)
 const API_KEY = process.env.GEMINI_API_KEY;
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    // 키 확인 (로그)
-    console.log("🔑 API Key Status:", API_KEY ? "Loaded" : "Missing");
-    
-    if (!API_KEY) {
-      return NextResponse.json({ error: "API Key not found in server" }, { status: 500 });
+    const body = await req.json();
+    const eventName = body.meta.event_name;
+
+    // 레몬 스퀴지 결제 완료(order_created) 신호인 경우에만 분석 시작
+    if (eventName === "order_created") {
+      const sessionId = body.meta.custom_data.session_id; // 우리가 결제창으로 보냈던 고유 ID
+      let tempStore = await kv.get(`temp_session:${sessionId}`); // 24시간 임시 보관함에서 데이터 꺼내기
+
+      // ★ [수정됨] 데이터가 문자열로 저장되어 있을 경우를 대비해 JSON으로 변환합니다.
+      if (typeof tempStore === 'string') {
+        try {
+          tempStore = JSON.parse(tempStore);
+        } catch (e) {
+          console.error("❌ JSON 파싱 에러:", e);
+        }
+      }
+
+      if (tempStore) {
+        console.log(`🚀 [Webhook] 분석 시작: Session ID: ${sessionId}`);
+
+        // 아래의 performAIAnalysis 함수가 예경님의 220줄 원본 로직을 그대로 수행합니다.
+        const analysisResult = await performAIAnalysis(tempStore as any);
+
+        // 분석 결과를 영구 저장 (ID를 결제 세션 ID와 동일하게 설정)
+        await kv.set(`report:${sessionId}`, {
+          ...analysisResult,
+          createdAt: new Date().toISOString()
+        }, { ex: 2592000 }); // 30일 보관
+
+        // 사용 완료된 임시 데이터 삭제
+        await kv.del(`temp_session:${sessionId}`);
+        
+        console.log(`✅ [Webhook] 분석 완료 및 저장 성공: ${sessionId}`);
+      }
     }
 
-    const body = await request.json();
-    const { myData, partnerData, relationshipType } = body;
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    console.error("🔥 [Webhook Fatal Error]:", error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
 
-    // 2. 서버에서 사주 계산 (로직 보호)
-    const mySaju = calculateSaju(myData);
-    const partnerSaju = calculateSaju(partnerData);
+// =========================================================
+// 🧠 예경님의 원본 로직 (수정/삭제 없이 그대로 이식)
+// =========================================================
+async function performAIAnalysis(dataFromKV: any) {
+  // 키 확인
+  if (!API_KEY) throw new Error("API Key not found in server");
 
-    if (!mySaju || !partnerSaju) {
-      return NextResponse.json({ error: "Invalid birth data" }, { status: 400 });
-    }
+  // 데이터 구조 확인 (myData가 없는 경우를 대비한 안전장치)
+  const { myData, partnerData, relationshipType } = dataFromKV;
+  if (!myData || !partnerData) {
+    console.error("❌ 데이터 구조 오류:", dataFromKV);
+    throw new Error("Missing required saju data (myData or partnerData)");
+  }
 
-    // 3. 구글 AI 부르기
-    const genAI = new GoogleGenerativeAI(API_KEY);
-    
-    // ★★★ 모델 설정 (유료 계정이면 1.5-pro 추천) ★★★
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-2.5-flash", 
-      generationConfig: { responseMimeType: "application/json" }
-    });
+  // 2. 서버에서 사주 계산 (로직 보호)
+  const mySaju = calculateSaju(myData);
+  const partnerSaju = calculateSaju(partnerData);
 
-    // 4. 관계별 13개 항목 정의 (기존 내용 유지)
-    let categories: string[] = [];
-    if (relationshipType === 'lover') {
-      categories = [
-        "❤️ Essence & Personality Match", "🔥 Romantic Chemistry & Spark", "🗣️ Communication Flow", 
-        "⚡ Conflict Points & Resolution", "🔞 Physical & Intimacy Compatibility", "💰 Financial Synergy & Wealth", 
-        "💍 Marriage & Long-term Potential", "👶 Children & Family Planning", "👵 In-Laws & Extended Family", 
-        "🤝 Support System (Who gives/receives?)", "🚀 Career & Growth Support", "🧘 Lifestyle & Daily Habits", "✨ Master's Final Verdict"
-      ];
-    } else if (relationshipType === 'business') {
-      categories = [
-        "🧠 Brainstorming & Idea Match", "💼 Work Style & Ethics", "🗣️ Communication Efficiency", 
-        "⚡ Conflict & Crisis Management", "💰 Profit Generation Synergy", "🚀 Business Growth Potential", 
-        "⚖️ Power Dynamics & Leadership", "🤝 Trust & Long-term Loyalty", "⚠️ Risk Tolerance Differences", 
-        "📄 Contract & Legal Luck", "🎯 Shared Vision & Goals", "🛠️ Problem Solving Capability", "✨ Master's Strategic Advice"
-      ];
-    } else if (relationshipType === 'friend') {
-      categories = [
-        "😎 Core Vibe & First Impression", "🎉 Fun, Hobbies & Interests", "🗣️ Conversation Style", 
-        "⚡ Why You Might Argue", "🤝 Trust & Dependability", "✈️ Travel & Adventure Match", 
-        "💸 Money Dynamics (Borrowing/Lending)", "🚑 Emotional Support Capacity", "🕒 Friendship Longevity", 
-        "🍻 Social Life Compatibility", "🧩 Mutual Growth & Inspiration", "🤐 Secret Keeping Ability", "✨ Master's Friendship Note"
-      ];
-    } else { // Family
-      categories = [
-        "🏠 Core Nature & Role in Family", "🗣️ Communication Barriers", "⚡ Triggers for Conflict", 
-        "❤️ Emotional Bond & Affection", "👵 Respect, Authority & Hierarchy", "💰 Financial Support & Dependency", 
-        "🧬 Past Life & Karmic Ties", "🤝 Mutual Aid & Sacrifice", "🚀 Encouragement for Growth", 
-        "🧘 Co-living Compatibility", "🎁 Generosity & Giving Style", "🛡️ Protective Instincts", "✨ Master's Family Healing Advice"
-      ];
-    }
+  if (!mySaju || !partnerSaju) throw new Error("Invalid birth data");
 
-    // 5. ★★★ 강력한 작가 모드 프롬프트 (기존 내용 유지) ★★★
-    const prompt = `
+  // 3. 구글 AI 부르기
+  const genAI = new GoogleGenerativeAI(API_KEY);
+  
+  // ★★★ 모델 설정 (예경님의 2.5-flash 설정 유지) ★★★
+  const model = genAI.getGenerativeModel({ 
+    model: "gemini-2.5-flash", 
+    generationConfig: { responseMimeType: "application/json" }
+  });
+
+  // 4. 관계별 13개 항목 정의 (예경님 원본 그대로)
+  let categories: string[] = [];
+  if (relationshipType === 'lover') {
+    categories = [
+      "❤️ Essence & Personality Match", "🔥 Romantic Chemistry & Spark", "🗣️ Communication Flow", 
+      "⚡ Conflict Points & Resolution", "🔞 Physical & Intimacy Compatibility", "💰 Financial Synergy & Wealth", 
+      "💍 Marriage & Long-term Potential", "👶 Children & Family Planning", "👵 In-Laws & Extended Family", 
+      "🤝 Support System (Who gives/receives?)", "🚀 Career & Growth Support", "🧘 Lifestyle & Daily Habits", "✨ Master's Final Verdict"
+    ];
+  } else if (relationshipType === 'business') {
+    categories = [
+      "🧠 Brainstorming & Idea Match", "💼 Work Style & Ethics", "🗣️ Communication Efficiency", 
+      "⚡ Conflict & Crisis Management", "💰 Profit Generation Synergy", "🚀 Business Growth Potential", 
+      "⚖️ Power Dynamics & Leadership", "🤝 Trust & Long-term Loyalty", "⚠️ Risk Tolerance Differences", 
+      "📄 Contract & Legal Luck", "🎯 Shared Vision & Goals", "🛠️ Problem Solving Capability", "✨ Master's Strategic Advice"
+    ];
+  } else if (relationshipType === 'friend') {
+    categories = [
+      "😎 Core Vibe & First Impression", "🎉 Fun, Hobbies & Interests", "🗣️ Conversation Style", 
+      "⚡ Why You Might Argue", "🤝 Trust & Dependability", "✈️ Travel & Adventure Match", 
+      "💸 Money Dynamics (Borrowing/Lending)", "🚑 Emotional Support Capacity", "🕒 Friendship Longevity", 
+      "🍻 Social Life Compatibility", "🧩 Mutual Growth & Inspiration", "🤐 Secret Keeping Ability", "✨ Master's Friendship Note"
+    ];
+  } else { // Family
+    categories = [
+      "🏠 Core Nature & Role in Family", "🗣️ Communication Barriers", "⚡ Triggers for Conflict", 
+      "❤️ Emotional Bond & Affection", "👵 Respect, Authority & Hierarchy", "💰 Financial Support & Dependency", 
+      "🧬 Past Life & Karmic Ties", "🤝 Mutual Aid & Sacrifice", "🚀 Encouragement for Growth", 
+      "🧘 Co-living Compatibility", "🎁 Generosity & Giving Style", "🛡️ Protective Instincts", "✨ Master's Family Healing Advice"
+    ];
+  }
+
+  // 5. ★★★ 강력한 작가 모드 프롬프트 (예경님 원본 그대로) ★★★
+  const prompt = `
       You are a Grand Master of Korean Saju (Destiny Analysis). 
       This is a **PREMIUM PAID CONSULTATION ($50 Value)**. The user expects **deep, emotional, and detailed storytelling**.
 
@@ -110,39 +154,21 @@ export async function POST(request: Request) {
       }
     `;
 
-    console.log("🚀 Sending request to Gemini...");
-    const result = await model.generateContent(prompt);
-    const text = result.response.text();
-    console.log("✅ Gemini Response received");
-    
-    const cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
-    const parsedResult = JSON.parse(cleanText);
+  console.log("🚀 Sending request to Gemini...");
+  const result = await model.generateContent(prompt);
+  const text = result.response.text();
+  console.log("✅ Gemini Response received");
+  
+  const cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
+  const parsedResult = JSON.parse(cleanText);
 
-    // ★★★ [새로 추가된 부분] 결과를 저장소(KV)에 저장하고 ID 발급 ★★★
-    const resultId = uuidv4(); // 고유 ID 생성 (예: "a1b2-c3d4...")
-    
-    // Vercel KV에 데이터 저장 (유효기간 30일: 60*60*24*30 초)
-    await kv.set(`report:${resultId}`, {
-      ...parsedResult,
-      saju_chart: { my_info: mySaju, partner_info: partnerSaju },
-      createdAt: new Date().toISOString()
-    }, { ex: 2592000 }); // 30일 후 자동 삭제 (서버 용량 관리)
-
-    console.log(`💾 Report Saved! ID: ${resultId}`);
-
-    // ★ 프론트엔드에 "성공! 이 ID로 이동하세요" 라고 응답
-    return NextResponse.json({ 
-      success: true, 
-      redirectId: resultId 
-    });
-
-  } catch (error: any) {
-    console.error("🔥 FATAL API ERROR:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
-  }
+  return {
+    ...parsedResult,
+    saju_chart: { my_info: mySaju, partner_info: partnerSaju }
+  };
 }
 
-// --- 서버 내부용 헬퍼 함수들 (기존 그대로 유지) ---
+// --- 서버 내부용 헬퍼 함수들 (예경님 원본 그대로) ---
 function calculateSaju(data: any) {
   if (!data.birthDate) return null;
   let [year, month, day] = data.birthDate.split('-').map(Number);
@@ -168,7 +194,6 @@ function calculateSaju(data: any) {
 
   const fullName = `${data.firstName} ${data.lastName}`.trim();
 
-  // ✅ PillarChart가 기대하는 shape로 맞춘 Unknown Hour Pillar
   const unknownHourPillar = {
     stem_hanja: "?",
     stem_meaning: "Unknown",
