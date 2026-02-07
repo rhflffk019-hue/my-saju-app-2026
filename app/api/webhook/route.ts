@@ -13,7 +13,7 @@ export async function POST(req: Request) {
 
     // 레몬 스퀴지 결제 완료(order_created) 신호인 경우에만 분석 시작
     if (eventName === "order_created") {
-      const sessionId = body.meta.custom_data.session_id; // 우리가 결제창으로 보냈던 고유 ID
+      const sessionId = body.meta.custom_data.id; // 우리가 결제창으로 보냈던 고유 ID
       let tempStore = await kv.get(`temp_session:${sessionId}`); // 24시간 임시 보관함에서 데이터 꺼내기
 
       // ★ [수정됨] 데이터가 문자열로 저장되어 있을 경우를 대비해 JSON으로 변환합니다.

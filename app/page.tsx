@@ -143,7 +143,7 @@ const handlePaymentClick = async () => {
 
     // 3. 레몬 스퀴지 결제창으로 이동 (ID를 파라미터로 포함)
     const PRODUCT_URL = "https://thesaju.lemonsqueezy.com/checkout/buy/131da000-c59f-4267-aa53-7747c2b3c5b0";
-    window.location.href = `${PRODUCT_URL}?checkout[custom_data]=${sessionId}`;
+    window.location.href = `${PRODUCT_URL}?checkout[custom_data][id]=${sessionId}`;
   } catch (e) {
     console.error(e);
     alert("Payment initialization failed.");
