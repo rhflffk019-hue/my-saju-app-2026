@@ -131,12 +131,11 @@ export default function Home() {
 
       // 3. ✅ 검로드 상품 주소 설정 (가장 중요한 부분!)
       // TODO: 아래 주소를 준수님의 실제 검로드 상품 URL로 교체하세요.
-      // 예: https://rhflffk019.gumroad.com/l/abcde
       const GUMROAD_PRODUCT_URL = "https://rhflffk.gumroad.com/l/ixxuyp"; 
 
       // 4. 검로드 오버레이 실행
       // ?wanted=true: 즉시 구매창 띄우기
-      // &id=... : 웹훅으로 전달할 커스텀 데이터 (session_id 역할)
+      // &saju_id=... : 웹훅으로 전달할 커스텀 데이터 (session_id 역할)
       const checkoutUrl = `${GUMROAD_PRODUCT_URL}?wanted=true&saju_id=${sessionId}`;
       
       // layout.tsx에 스크립트가 있다면, 이 코드가 실행될 때 자동으로 팝업이 뜹니다.
@@ -221,8 +220,16 @@ export default function Home() {
                   </div>
                 )}
               </button>
+
+              {/* ✅ [추가됨] 이메일 발송 안내 문구 (결제 버튼 바로 아래) */}
+              <div style={{ marginTop: '15px', textAlign: 'center', fontSize: '12px', color: '#666', lineHeight: '1.5', padding: '10px', backgroundColor: '#fafafa', borderRadius: '10px', border: '1px dashed #e0e0e0' }}>
+                <span style={{ fontSize: '14px', marginRight: '5px' }}>📧</span>
+                <b>We'll email you the results!</b><br/>
+                A secure link to your premium report will be sent to your email automatically after payment.
+              </div>
+
               {!loading && (
-                <div style={{ textAlign: 'center', marginTop: '12px' }}>
+                <div style={{ textAlign: 'center', marginTop: '15px' }}>
                   <div style={{ fontSize: '11px', color: '#ff69b4', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                     Limited-time launch offer ends Feb 28.
                   </div>
@@ -285,6 +292,10 @@ export default function Home() {
               <div style={{ fontSize: 12, fontWeight: 700 }}>
                 Your premium report is being generated automatically.<br/>
                 It may take up to 3 minutes.
+              </div>
+              {/* ✅ [추가됨] 로딩 중 이메일 안내 추가 */}
+              <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed #bce3eb', fontSize: 12, fontWeight: 500, color: '#0284c7' }}>
+                 📧 <b>Don't worry!</b> A permanent link to the result will also be sent to your email.
               </div>
             </div>
           </div>
