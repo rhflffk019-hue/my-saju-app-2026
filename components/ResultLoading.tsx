@@ -56,7 +56,7 @@ export default function ResultLoading() {
         {/* 안내 박스 */}
         <div style={{ margin: "0 auto", maxWidth: 360, background: "#f0f9ff", border: "1px solid #bce3eb", borderRadius: 14, padding: "14px", color: "#0369a1", textAlign: "left", lineHeight: 1.45, boxShadow: "0 6px 18px rgba(0,0,0,0.06)" }}>
           <div style={{ fontSize: 13, fontWeight: 900, marginBottom: 6 }}>Important: Please stay on this page.</div>
-          <div style={{ fontSize: 12, fontWeight: 700 }}>Your premium report is being generated automatically.<br />It usually takes about 1 minute.</div>
+          <div style={{ fontSize: 12, fontWeight: 700 }}>Your premium report is being generated automatically.<br />It usually takes about 3 minute.</div>
           <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed #bce3eb', fontSize: 12, fontWeight: 500, color: '#0284c7' }}>
             📧 <b>Don't worry!</b> A permanent link has also been sent to your email.
           </div>
