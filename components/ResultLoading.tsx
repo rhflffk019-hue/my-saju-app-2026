@@ -40,7 +40,7 @@ export default function ResultLoading() {
         <p style={{ margin: "8px 0 0", fontSize: 14, opacity: 0.95, fontWeight: 500 }}>Korean Destiny & Love Chemistry</p>
       </div>
 
-      <div style={{ maxWidth: "480px", margin: "0 auto", padding: "20px", marginTop: "100px", textAlign: "center" }}>
+      <div style={{ maxWidth: "480px", margin: "0 auto", padding: "20px", marginTop: "40px", textAlign: "center" }}>
         <div style={{ fontSize: "60px", marginBottom: "20px", animation: "pulse 2s infinite" }}>⚡️</div>
         
         <h2 style={{ color: "#d63384", fontSize: "24px", fontWeight: 900 }}>Connecting Energies...</h2>
