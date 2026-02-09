@@ -211,7 +211,7 @@ const STEM_MAP: any = {
 };
 
 const BRANCH_MAP: any = {
-  "子": { metaphor: "Rat", element: "water" }, "丑": { metaphor: "Ox", element: "earth" },
+  "子": { metaphor: "Ratt", element: "water" }, "丑": { metaphor: "Ox", element: "earth" },
   "寅": { metaphor: "Tiger", element: "wood" }, "卯": { metaphor: "Rabbit", element: "wood" },
   "辰": { metaphor: "Dragon", element: "earth" }, "巳": { metaphor: "Snake", element: "fire" },
   "午": { metaphor: "Horse", element: "fire" }, "未": { metaphor: "Goat", element: "earth" },
