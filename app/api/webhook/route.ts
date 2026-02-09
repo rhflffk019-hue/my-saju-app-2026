@@ -11,7 +11,7 @@ const API_KEY = process.env.GEMINI_API_KEY;
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'rhflffk019@gmail.com', // 준수님 이메일
+    user: 'mythesaju@gmail.com', // 준수님 이메일
     pass: process.env.GMAIL_APP_PASSWORD // ⚠️ Vercel 환경변수에 설정해야 함
   }
 });
