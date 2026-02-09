@@ -2,7 +2,7 @@ import { kv } from "@vercel/kv";
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Solar, Lunar } from 'lunar-javascript';
-import nodemailer from 'nodemailer'; // 📧 이메일 모듈 추가
+import nodemailer from 'nodemailer'; // 📧 이메일 모듈
 
 // 1. API 키 설정
 const API_KEY = process.env.GEMINI_API_KEY;
@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
     user: 'mythesaju@gmail.com', // 준수님 이메일
-    pass: process.env.GMAIL_APP_PASSWORD // ⚠️ Vercel 환경변수에 설정해야 함
+    pass: process.env.GMAIL_APP_PASSWORD // ⚠️ Vercel 환경변수
   }
 });
 
@@ -28,8 +28,7 @@ export async function POST(req: Request) {
 
     console.log("🚀 [Gumroad Webhook] 전체 데이터 수신:", data);
 
-    // ✅ [ID 찾기] saju_id 우선 탐색 (URL 파라미터가 가장 중요)
-    // 입력칸을 지웠으므로 url_params[saju_id]가 핵심입니다.
+    // ✅ [ID 찾기] saju_id 우선 탐색
     const sessionId = data.saju_id || 
                       data['custom_fields[saju_id]'] || 
                       data['url_params[saju_id]'] || 
@@ -80,7 +79,7 @@ export async function POST(req: Request) {
                 const resultLink = `https://www.mythesaju.com/?paid=true&saju_id=${sessionId}`;
                 
                 const mailOptions = {
-                    from: '"The Saju Master" <rhflffk019@gmail.com>',
+                    from: '"The Saju Master" <mythesaju@gmail.com>',
                     to: userEmail,
                     subject: '🔮 [The Saju] Your Premium Destiny Report is Ready!',
                     html: `
@@ -107,7 +106,6 @@ export async function POST(req: Request) {
 
         } catch (aiError) {
             console.error("🔥 [AI Analysis Failed]:", aiError);
-            // AI 실패 시 로그만 남기고 웹훅은 성공 처리 (재시도 방지)
         }
       } else {
          console.error(`❌ [Gumroad Webhook] 만료되었거나 없는 세션입니다: ${sessionId}`);
@@ -124,7 +122,7 @@ export async function POST(req: Request) {
 }
 
 // =========================================================
-// 🧠 준수님의 원본 로직 (100% 무삭제 보존 + JSON 에러 해결)
+// 🧠 AI 분석 로직 (프롬프트 업데이트됨)
 // =========================================================
 async function performAIAnalysis(dataFromKV: any) {
   // 키 확인
@@ -184,43 +182,50 @@ async function performAIAnalysis(dataFromKV: any) {
     ];
   }
 
-  // 5. ★★★ 성별 데이터가 반영된 강력한 작가 모드 프롬프트 ★★★
+  // 5. ★★★ 성별 데이터가 반영된 "전문가 모드" 프롬프트 ★★★
+  // 점수 기준: 나쁨(40대) / 보통(50대) / 좋음(70-80대) / 완벽(90-100)
   const prompt = `
       You are a Grand Master of Korean Saju (Destiny Analysis). 
-      This is a **PREMIUM PAID CONSULTATION ($50 Value)**. The user expects **deep, emotional, and detailed storytelling**.
+      This is a **PREMIUM PAID CONSULTATION**. The user expects **realistic, honest, and constructive analysis**.
 
       **RELATIONSHIP TYPE:** ${relationshipType.toUpperCase()}
       **CLIENTS:**
       1. ${mySaju.englishName} (Gender: ${myData.gender}, Data: ${JSON.stringify(mySaju.pillars)})
       2. ${partnerSaju.englishName} (Gender: ${partnerData.gender}, Data: ${JSON.stringify(partnerSaju.pillars)})
 
-      **CRITICAL WRITING RULES (DO NOT SKIP):**
+      **🚨 SCORING RULES (STRICT BUT FAIR):**
+      - **Perfect Match (90-100):** Give this ONLY if their elements mutually nourish and protect each other perfectly.
+      - **Great Match (70-89):** If they generally support each other with minor manageable clashes.
+      - **Average Match (50-69):** This is the most common score. If they have mixed dynamics (some good, some bad).
+      - **Challenging/Bad Match (30-49):** If their elements strongly clash (e.g., Fire vs Water, Metal vs Wood) without mediation.
+      - **Logic:** Do NOT inflate the score. Be honest. If the score is low, explain *why* and give *constructive advice* on how to overcome it.
+
+      **CRITICAL WRITING RULES:**
       1. **STRICT JSON ONLY:** Do NOT output any markdown, code blocks, or explanations. Output pure JSON.
       2. **NO CONTROL CHARACTERS:** Do NOT use literal newlines inside strings. Use '\\n' for line breaks.
-      3. **GENDER REFLECTION:** In Korean Saju, gender dictates the direction of the Life Cycles (Daewun). Use their genders to provide a precise interpretation of their cosmic flow.
-      4. **LENGTH & DEPTH:** For EACH category, write **2-3 detailed paragraphs**. Separate paragraphs with a blank line (\\n\\n). Do NOT write short summaries.
-      5. **TONE:** Warm, empathetic, mystical, yet logical. Use metaphors like "Just as the ocean embraces the rock...".
-      6. **REAL NAMES:** Use "${mySaju.englishName}" and "${partnerSaju.englishName}" constantly. **NEVER** use "Person A" or "Person B".
-      7. **NO HANJA:** Do NOT use Chinese characters. English ONLY.
-      8. **NO ROMANIZATION:** Do not use "Gap", "Eul", "In", "Myo". Use "Tree", "Flower", "Tiger", "Rabbit".
-      9. **LOGIC:** Explain *why* based on their elements and gender-specific energy flow (e.g., "Because ${mySaju.englishName} is strong Metal...").
+      3. **GENDER REFLECTION:** Use their genders to interpret the flow of energy (Yin/Yang).
+      4. **LENGTH & DEPTH:** For EACH category, write **2-3 detailed paragraphs**. Separate paragraphs with a blank line (\\n\\n).
+      5. **TONE:**
+         - **Objective:** Analyze pros and cons clearly.
+         - **Constructive:** Instead of saying "You will break up," say "You need to be careful about X to avoid conflict."
+      6. **REAL NAMES:** Use "${mySaju.englishName}" and "${partnerSaju.englishName}" constantly.
 
       **Categories to Analyze:**
       ${JSON.stringify(categories)}
 
       **Output JSON Structure:**
       {
-        "score": 88,
+        "score": 65,
         "insta_card": {
-          "title": "Headline (e.g. The Unstoppable Storm & The Calm Anchor)",
-          "person_a_emoji": "🌊", "person_a_nature": "Ocean",
-          "person_b_emoji": "⛰️", "person_b_nature": "Mountain", 
-          "hashtags": ["#Tag1", "#Tag2", "#Tag3"],
-          "caption": "A touching 2-sentence summary using their real names."
+          "title": "Headline (e.g. Passionate but Volatile)",
+          "person_a_emoji": "🔥", "person_a_nature": "Fire",
+          "person_b_emoji": "💧", "person_b_nature": "Water", 
+          "hashtags": ["#Chemistry", "#NeedsPatience", "#Growth"],
+          "caption": "A summary of their dynamic."
         },
         "elemental_analysis": {
           "balance_title": "The Core Dynamic",
-          "content": "A beautiful, poetic, yet accurate summary of their elemental compatibility (3-4 sentences)."
+          "content": "A detailed summary of their elemental compatibility."
         },
         "analysis_categories": [
           { "icon": "ICON", "title": "TITLE", "content": "Paragraph 1...\\n\\nParagraph 2..." },
@@ -234,9 +239,8 @@ async function performAIAnalysis(dataFromKV: any) {
   const text = result.response.text();
   console.log("✅ Gemini Response received");
   
-  // ✅ [핵심 해결책] 에러를 일으키는 '나쁜 문자'들 청소 (JSON 파싱 에러 방지)
+  // ✅ JSON 파싱 에러 방지 (청소)
   let cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
-  // 제어 문자(줄바꿈 제외) 제거
   cleanText = cleanText.replace(/[\x00-\x09\x0B-\x1F\x7F]/g, "");
 
   const parsedResult = JSON.parse(cleanText);
@@ -247,7 +251,7 @@ async function performAIAnalysis(dataFromKV: any) {
   };
 }
 
-// --- 서버 내부용 헬퍼 함수들 (원본 100% 보존 및 성별 필드 추가) ---
+// --- 서버 내부용 헬퍼 함수들 (원본 100% 보존) ---
 function calculateSaju(data: any) {
   if (!data.birthDate) return null;
   let [year, month, day] = data.birthDate.split('-').map(Number);
@@ -286,7 +290,7 @@ function calculateSaju(data: any) {
   return {
     name: fullName,
     englishName: data.firstName,
-    gender: data.gender, // ✅ 성별 정보 보존
+    gender: data.gender,
     pillars: [
       translatePillar(ganji.year, "Year"),
       translatePillar(ganji.month, "Month"),
