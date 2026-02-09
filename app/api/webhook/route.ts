@@ -121,7 +121,7 @@ export async function POST(req: Request) {
 }
 
 // =========================================================
-// 🧠 AI 분석 로직 (프롬프트: 스토리텔링 & 쉬운 영어 적용)
+// 🧠 AI 분석 로직 (프롬프트 수정: 텍스트는 정직하게, 점수는 후하게)
 // =========================================================
 async function performAIAnalysis(dataFromKV: any) {
   // 키 확인
@@ -181,7 +181,7 @@ async function performAIAnalysis(dataFromKV: any) {
     ];
   }
 
-  // 5. ★★★ 프롬프트 수정: 쉬운 영어, 스토리텔링, 한자 금지 ★★★
+  // 5. ★★★ 프롬프트 수정: 점수 살짝 높이기 & 분석은 현실적으로 유지 ★★★
   const prompt = `
       You are a world-class Korean Saju Master for a global audience.
       This is a **PREMIUM PAID CONSULTATION**.
@@ -192,12 +192,17 @@ async function performAIAnalysis(dataFromKV: any) {
       1. ${mySaju.englishName} (Gender: ${myData.gender}, Data: ${JSON.stringify(mySaju.pillars)})
       2. ${partnerSaju.englishName} (Gender: ${partnerData.gender}, Data: ${JSON.stringify(partnerSaju.pillars)})
 
-      **🚨 SCORING RULES (STRICT BUT REALISTIC):**
-      - **Perfect Match (90-100):** Give this ONLY if their elements mutually nourish and protect each other perfectly.
-      - **Great Match (70-89):** If they generally support each other with minor manageable clashes.
-      - **Average Match (50-69):** This is the most common score. If they have mixed dynamics.
-      - **Challenging/Bad Match (30-49):** If their elements strongly clash (e.g., Fire vs Water) without mediation.
-      - **Logic:** Do NOT inflate the score. Be honest. If the score is low, explain *why* and give *constructive advice*.
+      **🚨 SCORING STRATEGY (IMPORTANT):**
+      - **Text Analysis:** Be honest and accurate. If they clash (e.g. Winter vs Winter), describe the coldness accurately. Do NOT hallucinate warmth where there is none.
+      - **Numerical Score:** **Be GENEROUS.** 1. Calculate the strict compatibility score based on elements.
+        2. **Then ADD +10 POINTS** as a "Human Effort Bonus". (Customers paid for this, give them hope).
+        3. **Minimum Score:** Unless they are enemies, try to keep the score **above 50**.
+      
+      **Score Range Guide (After Bonus):**
+      - **90-100:** Perfect match.
+      - **75-89:** Great match.
+      - **60-74:** Good match (Most average couples should fall here).
+      - **40-59:** Challenging. (Only for severe clashes).
 
       **CRITICAL WRITING RULES (FOR WESTERN AUDIENCE):**
       1. **NO TECHNICAL JARGON:** Avoid terms like "Yang Fire", "Yin Wood", "Stem", or "Branch".
