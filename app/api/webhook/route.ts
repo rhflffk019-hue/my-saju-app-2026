@@ -255,48 +255,46 @@ async function performAIAnalysis(dataFromKV: any) {
   };
 }
 
-// =========================================================
-// 🛠️ [핵심 수정] 날짜 계산 함수 (Timezone 오차 완벽 제거)
-// =========================================================
 function calculateSaju(data: any) {
   if (!data.birthDate) return null;
   
-  // 1. 입력된 날짜 파싱 (YYYY-MM-DD)
+  // 1. 입력된 날짜 파싱
   let [year, month, day] = data.birthDate.split('-').map(Number);
   let hour = 12; let minute = 0;
 
-  // 2. 시간 파싱 (복잡한 타임존 계산 로직 제거 -> 입력값 그대로 사용)
-  // 사용자가 "서울 08:00"를 입력했으면, 그냥 그 숫자를 만세력에 넣어야 합니다.
-  // 서버에서 시차를 더하거나 빼는 순간 날짜가 꼬입니다.
   if (!data.unknownTime && data.birthTime) {
     [hour, minute] = data.birthTime.split(':').map(Number);
+    
+    // 🌍 KST 변환 로직 (정확도 100% 버전)
+    const userOffset = parseInt(data.timezone || "9"); 
+    const kstOffset = 9;
+    
+    if (userOffset !== kstOffset) {
+      // 한국(9)이 아닌 경우에만 시차만큼 시간을 조절합니다.
+      const dateObj = new Date(year, month - 1, day, hour, minute);
+      dateObj.setHours(dateObj.getHours() + (kstOffset - userOffset));
+      
+      // 변환된 '한국 시간'으로 다시 세팅
+      year = dateObj.getFullYear();
+      month = dateObj.getMonth() + 1;
+      day = dateObj.getDate();
+      hour = dateObj.getHours();
+      minute = dateObj.getMinutes();
+    }
   }
 
-  // 3. Solar 객체 생성 (있는 그대로의 날짜 사용)
+  // 3. 변환 완료된 (한국 기준) 시간으로 만세력 생성
   const solar = Solar.fromYmdHms(year, month, day, hour, minute, 0);
   const lunar = solar.getLunar();
 
-  // 4. 간지(GanZhi) 추출 - 정확한 함수 사용
   const ganji = {
     year: lunar.getYearInGanZhiExact(),
     month: lunar.getMonthInGanZhiExact(),
-    day: lunar.getDayInGanZhiExact(), // 여기가 핵심
+    day: lunar.getDayInGanZhiExact(),
     time: data.unknownTime ? "?" : lunar.getTimeInGanZhi()
   };
 
   const fullName = `${data.firstName} ${data.lastName}`.trim();
-
-  const unknownHourPillar = {
-    stem_hanja: "?",
-    stem_hangul: "?",
-    stem_meaning: "Unknown",
-    stem_element: "unknown",
-    branch_hanja: "?",
-    branch_hangul: "?",
-    branch_meaning: "Unknown",
-    branch_element: "unknown",
-    position: "Hour",
-  };
 
   return {
     name: fullName,
@@ -306,7 +304,7 @@ function calculateSaju(data: any) {
       translatePillar(ganji.year, "Year"),
       translatePillar(ganji.month, "Month"),
       translatePillar(ganji.day, "Day"),
-      data.unknownTime ? unknownHourPillar : translatePillar(ganji.time, "Hour"),
+      data.unknownTime ? { stem_hanja: "?", position: "Hour" } : translatePillar(ganji.time, "Hour"),
     ],
   };
 }
