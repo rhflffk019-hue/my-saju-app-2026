@@ -1,4 +1,6 @@
 export const dynamic = "force-dynamic";
+// ✅ [필수 추가] Vercel이 옛날 데이터(없음)를 캐시하지 못하게 막고, 항상 최신 상태를 확인하게 합니다.
+export const fetchCache = "force-no-store"; 
 
 // ✅ page.tsx에서도 metadata export 가능 (App Router)
 export const metadata = {
@@ -33,27 +35,15 @@ export const metadata = {
 import React from "react";
 import { kv } from "@vercel/kv";
 import ShareButtons from "./ShareButtons";
-import PollingHandler from "./PollingHandler";
-
-// =========================================================
-// 🔮 기다리는 동안 무작위로 노출될 사주 팁 (지루함 방지)
-// =========================================================
-const SAJU_TIPS = [
-  "In Saju, your 'Day Master' represents your core essence—the sun you were born under.",
-  "The Four Pillars map not just your personality, but the flow of your life's seasons.",
-  "Balance between the Five Elements (Wood, Fire, Earth, Metal, Water) brings true harmony.",
-  "Your birth hour reveals your hidden internal world and your future potential.",
-  "Saju is not a fixed fate, but a weather forecast for your journey through time.",
-  "The 'Year' pillar represents your social circle and the legacy of your ancestors.",
-  "The 'Month' pillar governs your career potential and the environment of your youth.",
-];
+// ❌ PollingHandler는 이제 필요 없어서 삭제했습니다.
+// ✅ [추가] 방금 만든 3초 체크 엔진을 가져옵니다.
+import ResultLoading from "@/components/ResultLoading"; 
 
 /**
  * app/share/[id]/page.tsx
  * - params: Promise<{id}>
  * - KV에서 report:${id} 조회
- * - ✅ 하드 새로고침(meta/script) 제거
- * - ✅ PollingHandler로 조용한 폴링(router.refresh) 적용
+ * - ✅ ResultLoading 컴포넌트로 광속 폴링 적용
  */
 export default async function SharePage({
   params,
@@ -66,133 +56,16 @@ export default async function SharePage({
   const data = await kv.get<any>(reportKey);
 
   // =========================================================
-  // ⚡ [로딩 화면] - PollingHandler로 "조용히" 갱신
+  // ⚡ [로딩 화면] 데이터가 없으면 'ResultLoading'이 3초마다 체크함
   // =========================================================
   if (!data) {
-    const randomTip = SAJU_TIPS[Math.floor(Math.random() * SAJU_TIPS.length)];
-
-    return (
-      <div style={pageStyle}>
-        {/* ✅ 하드 리로드 제거, soft polling 적용 */}
-        <PollingHandler intervalMs={7000} maxMinutes={4} />
-
-        {/* Header - 원본 스타일 그대로 */}
-        <div style={headerStyle}>
-          <div style={{ fontSize: 36, marginBottom: 5 }}>🔮</div>
-          <h1
-            style={{
-              margin: 0,
-              fontSize: 32,
-              fontWeight: 900,
-              letterSpacing: "-0.5px",
-            }}
-          >
-            The Saju
-          </h1>
-          <p
-            style={{
-              margin: "8px 0 0",
-              fontSize: 14,
-              opacity: 0.95,
-              fontWeight: 500,
-            }}
-          >
-            Korean Destiny & Love Chemistry
-          </p>
-        </div>
-
-        <div style={{ ...containerStyle, textAlign: "center", marginTop: "100px" }}>
-          {/* ⚡️ 로딩 애니메이션 */}
-          <div style={{ fontSize: "60px", marginBottom: "20px", animation: "pulse 2s infinite" }}>
-            ⚡️
-          </div>
-          <h2 style={{ color: "#d63384", fontSize: "24px", fontWeight: 900 }}>
-            Connecting Energies...
-          </h2>
-          <p style={{ color: "#666", fontSize: "15px", marginBottom: "30px" }}>
-            Applying 1,000-year-old formula...
-          </p>
-
-          {/* ✨ 무작위 사주 팁 */}
-          <div style={{ marginBottom: "30px", padding: "0 20px" }}>
-            <div
-              style={{
-                fontSize: "11px",
-                fontWeight: "bold",
-                color: "#ff69b4",
-                textTransform: "uppercase",
-                marginBottom: "8px",
-                letterSpacing: "1px",
-              }}
-            >
-              Master's Note
-            </div>
-            <p
-              style={{
-                fontSize: "15px",
-                color: "#333",
-                fontWeight: "600",
-                lineHeight: "1.6",
-                margin: 0,
-                fontStyle: "italic",
-              }}
-            >
-              "{randomTip}"
-            </p>
-          </div>
-
-          {/* 안내 박스 */}
-          <div
-            style={{
-              margin: "0 auto",
-              maxWidth: 360,
-              background: "#f0f9ff",
-              border: "1px solid #bce3eb",
-              borderRadius: 14,
-              padding: "14px 14px",
-              color: "#0369a1",
-              textAlign: "left",
-              lineHeight: 1.45,
-              boxShadow: "0 6px 18px rgba(0,0,0,0.06)",
-            }}
-          >
-            <div style={{ fontSize: 13, fontWeight: 900, marginBottom: 6 }}>
-              Important: Please stay on this page.
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
-              Please don’t leave this page.
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 700 }}>
-              Your premium report is being generated automatically.
-              <br />
-              It may take up to 3 minutes.
-            </div>
-          </div>
-
-          <div style={{ marginTop: 40, fontSize: 11, color: "#aaa", fontStyle: "italic" }}>
-            The results will appear automatically once analysis is complete...
-          </div>
-        </div>
-
-        {/* 애니메이션 정의 */}
-        <style
-          dangerouslySetInnerHTML={{
-            __html: `
-              @keyframes pulse { 
-                0% { transform: scale(1); opacity: 1; } 
-                50% { transform: scale(1.1); opacity: 0.7; } 
-                100% { transform: scale(1); opacity: 1; } 
-              }
-              body { margin: 0; }
-            `,
-          }}
-        />
-      </div>
-    );
+    // 기존의 길었던 로딩 코드를 이 한 줄로 대체했습니다.
+    // ResultLoading 컴포넌트가 "이메일 발송 안내"와 "3초 자동 새로고침"을 모두 담당합니다.
+    return <ResultLoading />;
   }
 
   // =========================================================
-  // ✅ [결과 화면] - 원본 로직 유지
+  // ✅ [결과 화면] - 원본 로직 100% 유지
   // =========================================================
   const score = toNumberSafe(data.score, 0);
   const insta = data.insta_card || {};
@@ -436,7 +309,9 @@ export default async function SharePage({
             background: "linear-gradient(135deg, #ffffff, #fff0f5)",
           }}
         >
-          <div style={{ fontSize: 14, fontWeight: 800, color: "#333" }}>Curious about someone else?</div>
+          <div style={{ fontSize: 14, fontWeight: 800, color: "#333" }}>
+            Curious about someone else?
+          </div>
           <div style={{ fontSize: 12, color: "#777", marginTop: 6 }}>
             Create another premium report in seconds.
           </div>
