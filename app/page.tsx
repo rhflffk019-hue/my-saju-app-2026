@@ -137,7 +137,7 @@ export default function Home() {
       // 4. 검로드 오버레이 실행
       // ?wanted=true: 즉시 구매창 띄우기
       // &id=... : 웹훅으로 전달할 커스텀 데이터 (session_id 역할)
-      const checkoutUrl = `${GUMROAD_PRODUCT_URL}?wanted=true&id=${sessionId}`;
+      const checkoutUrl = `${GUMROAD_PRODUCT_URL}?wanted=true&saju_id=${sessionId}`;
       
       // layout.tsx에 스크립트가 있다면, 이 코드가 실행될 때 자동으로 팝업이 뜹니다.
       window.location.href = checkoutUrl;
