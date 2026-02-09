@@ -221,11 +221,14 @@ export default function Home() {
                 )}
               </button>
 
-              {/* ✅ [추가됨] 이메일 발송 안내 문구 (결제 버튼 바로 아래) */}
-              <div style={{ marginTop: '15px', textAlign: 'center', fontSize: '12px', color: '#666', lineHeight: '1.5', padding: '10px', backgroundColor: '#fafafa', borderRadius: '10px', border: '1px dashed #e0e0e0' }}>
-                <span style={{ fontSize: '14px', marginRight: '5px' }}>📧</span>
-                <b>We'll email you the results!</b><br/>
-                A secure link to your premium report will be sent to your email automatically after payment.
+            {/* ✅ [수정됨] 즉시 확인 + 이메일 백업 안내 문구 */}
+              <div style={{ marginTop: '15px', textAlign: 'center', fontSize: '12px', color: '#555', lineHeight: '1.5', padding: '12px', backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #eee', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
+                <div style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'6px', marginBottom:'4px'}}>
+                  <span style={{ fontSize: '14px' }}>⚡️</span>
+                  <b style={{color:'#333', fontSize:'13px'}}>Instant Access + Email Backup</b>
+                </div>
+                Your report opens <b>automatically</b> here after payment.<br/>
+                <span style={{color:'#888', fontSize:'11px'}}>(We also email a copy for safekeeping)</span>
               </div>
 
               {!loading && (
