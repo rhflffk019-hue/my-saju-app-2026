@@ -53,7 +53,7 @@ export async function POST(req: Request) {
       }
 
       if (tempStore) {
-        // ✅ [핵심 수정] AI 분석 중 에러가 나도 서버가 죽지 않도록 try-catch 추가
+        // ✅ AI 분석 중 에러가 나도 서버가 죽지 않도록 try-catch 추가
         try {
             // 기존 사주 분석 로직 수행
             const analysisResult = await performAIAnalysis(tempStore as any);
@@ -76,7 +76,6 @@ export async function POST(req: Request) {
             // ====================================================
             if (userEmail) {
                 // ✅ 메인 페이지(?paid=true)를 거치지 않고 바로 결과 페이지(/share/ID)로 보냅니다.
-                // 이렇게 하면 위에서 발생한 메인 페이지 리다이렉트 버그를 아예 피해갈 수 있습니다.
                 const resultLink = `https://www.mythesaju.com/share/${sessionId}`;
                 
                 const mailOptions = {
@@ -122,7 +121,7 @@ export async function POST(req: Request) {
 }
 
 // =========================================================
-// 🧠 AI 분석 로직 (프롬프트 업데이트됨)
+// 🧠 AI 분석 로직 (프롬프트: 스토리텔링 & 쉬운 영어 적용)
 // =========================================================
 async function performAIAnalysis(dataFromKV: any) {
   // 키 확인
@@ -182,33 +181,32 @@ async function performAIAnalysis(dataFromKV: any) {
     ];
   }
 
-  // 5. ★★★ 성별 데이터가 반영된 "전문가 모드" 프롬프트 ★★★
-  // 점수 기준: 나쁨(40대) / 보통(50대) / 좋음(70-80대) / 완벽(90-100)
+  // 5. ★★★ 프롬프트 수정: 쉬운 영어, 스토리텔링, 한자 금지 ★★★
   const prompt = `
-      You are a Grand Master of Korean Saju (Destiny Analysis). 
-      This is a **PREMIUM PAID CONSULTATION**. The user expects **realistic, honest, and constructive analysis**.
+      You are a world-class Korean Saju Master for a global audience.
+      This is a **PREMIUM PAID CONSULTATION**.
+      Analyze the compatibility between ${mySaju.englishName} and ${partnerSaju.englishName}.
 
       **RELATIONSHIP TYPE:** ${relationshipType.toUpperCase()}
       **CLIENTS:**
       1. ${mySaju.englishName} (Gender: ${myData.gender}, Data: ${JSON.stringify(mySaju.pillars)})
       2. ${partnerSaju.englishName} (Gender: ${partnerData.gender}, Data: ${JSON.stringify(partnerSaju.pillars)})
 
-      **🚨 SCORING RULES (STRICT BUT FAIR):**
+      **🚨 SCORING RULES (STRICT BUT REALISTIC):**
       - **Perfect Match (90-100):** Give this ONLY if their elements mutually nourish and protect each other perfectly.
       - **Great Match (70-89):** If they generally support each other with minor manageable clashes.
-      - **Average Match (50-69):** This is the most common score. If they have mixed dynamics (some good, some bad).
-      - **Challenging/Bad Match (30-49):** If their elements strongly clash (e.g., Fire vs Water, Metal vs Wood) without mediation.
-      - **Logic:** Do NOT inflate the score. Be honest. If the score is low, explain *why* and give *constructive advice* on how to overcome it.
+      - **Average Match (50-69):** This is the most common score. If they have mixed dynamics.
+      - **Challenging/Bad Match (30-49):** If their elements strongly clash (e.g., Fire vs Water) without mediation.
+      - **Logic:** Do NOT inflate the score. Be honest. If the score is low, explain *why* and give *constructive advice*.
 
-      **CRITICAL WRITING RULES:**
-      1. **STRICT JSON ONLY:** Do NOT output any markdown, code blocks, or explanations. Output pure JSON.
-      2. **NO CONTROL CHARACTERS:** Do NOT use literal newlines inside strings. Use '\\n' for line breaks.
-      3. **GENDER REFLECTION:** Use their genders to interpret the flow of energy (Yin/Yang).
-      4. **LENGTH & DEPTH:** For EACH category, write **2-3 detailed paragraphs**. Separate paragraphs with a blank line (\\n\\n).
-      5. **TONE:**
-         - **Objective:** Analyze pros and cons clearly.
-         - **Constructive:** Instead of saying "You will break up," say "You need to be careful about X to avoid conflict."
-      6. **REAL NAMES:** Use "${mySaju.englishName}" and "${partnerSaju.englishName}" constantly.
+      **CRITICAL WRITING RULES (FOR WESTERN AUDIENCE):**
+      1. **NO TECHNICAL JARGON:** Avoid terms like "Yang Fire", "Yin Wood", "Stem", or "Branch".
+      2. **USE METAPHORS:** Use natural metaphors like "The Sun", "A Delicate Flower", "A Mighty Rock", or "The Deep Ocean". This makes it much more relatable.
+      3. **NO HANJA / CHINESE CHARACTERS:** Do NOT include any Chinese characters in your response text. Use English ONLY.
+      4. **STORYTELLING TONE:** Instead of "A is Fire, B is Wood," say "${mySaju.englishName} is like the radiant Sun, providing the warmth that ${partnerSaju.englishName} (the delicate Flower) needs to bloom."
+      5. **K-CULTURE VIBE:** Maintain a wise, mystical, yet warm and modern tone.
+      6. **LENGTH:** Write 2-3 detailed paragraphs per category.
+      7. **REAL NAMES:** Use "${mySaju.englishName}" and "${partnerSaju.englishName}" constantly.
 
       **Categories to Analyze:**
       ${JSON.stringify(categories)}
@@ -217,15 +215,15 @@ async function performAIAnalysis(dataFromKV: any) {
       {
         "score": 65,
         "insta_card": {
-          "title": "Headline (e.g. Passionate but Volatile)",
-          "person_a_emoji": "🔥", "person_a_nature": "Fire",
-          "person_b_emoji": "💧", "person_b_nature": "Water", 
-          "hashtags": ["#Chemistry", "#NeedsPatience", "#Growth"],
+          "title": "Headline (e.g. The Sun & The Rain)",
+          "person_a_emoji": "🔥", "person_a_nature": "Sun",
+          "person_b_emoji": "💧", "person_b_nature": "Rain", 
+          "hashtags": ["#Destiny", "#Chemistry", "#Growth"],
           "caption": "A summary of their dynamic."
         },
         "elemental_analysis": {
           "balance_title": "The Core Dynamic",
-          "content": "A detailed summary of their elemental compatibility."
+          "content": "A beautiful, poetic, yet accurate summary of their elemental compatibility using metaphors."
         },
         "analysis_categories": [
           { "icon": "ICON", "title": "TITLE", "content": "Paragraph 1...\\n\\nParagraph 2..." },
@@ -251,7 +249,7 @@ async function performAIAnalysis(dataFromKV: any) {
   };
 }
 
-// --- 서버 내부용 헬퍼 함수들 (원본 100% 보존) ---
+// --- 서버 내부용 헬퍼 함수들 (한글 이름 반영) ---
 function calculateSaju(data: any) {
   if (!data.birthDate) return null;
   let [year, month, day] = data.birthDate.split('-').map(Number);
@@ -279,9 +277,11 @@ function calculateSaju(data: any) {
 
   const unknownHourPillar = {
     stem_hanja: "?",
+    stem_hangul: "?",
     stem_meaning: "Unknown",
     stem_element: "unknown",
     branch_hanja: "?",
+    branch_hangul: "?",
     branch_meaning: "Unknown",
     branch_element: "unknown",
     position: "Hour",
@@ -303,28 +303,47 @@ function calculateSaju(data: any) {
 function translatePillar(chineseChar: string, position: string) {
   const stem = chineseChar.charAt(0);
   const branch = chineseChar.charAt(1);
-  const stemData = STEM_MAP[stem] || { metaphor: "Unknown", element: "Unknown" };
-  const branchData = BRANCH_MAP[branch] || { metaphor: "Unknown", element: "Unknown" };
+  const stemData = STEM_MAP[stem] || { hangul: "?", metaphor: "Unknown", element: "Unknown" };
+  const branchData = BRANCH_MAP[branch] || { hangul: "?", metaphor: "Unknown", element: "Unknown" };
   return {
-    stem_hanja: stem, stem_meaning: stemData.metaphor, stem_element: stemData.element,
-    branch_hanja: branch, branch_meaning: branchData.metaphor, branch_element: branchData.element,
+    stem_hanja: stem, 
+    stem_hangul: stemData.hangul, // ✅ 한글 추가
+    stem_meaning: stemData.metaphor, 
+    stem_element: stemData.element,
+    branch_hanja: branch, 
+    branch_hangul: branchData.hangul, // ✅ 한글 추가
+    branch_meaning: branchData.metaphor, 
+    branch_element: branchData.element,
     position: position
   };
 }
 
+// 🛠️ STEM_MAP (천간) - 한글 이름 추가
 const STEM_MAP: any = {
-  "甲": { metaphor: "Big Tree", element: "wood" }, "乙": { metaphor: "Flower", element: "wood" },
-  "丙": { metaphor: "The Sun", element: "fire" }, "丁": { metaphor: "Candle", element: "fire" },
-  "戊": { metaphor: "Mountain", element: "earth" }, "己": { metaphor: "Soil", element: "earth" },
-  "庚": { metaphor: "Iron/Rock", element: "metal" }, "辛": { metaphor: "Jewelry", element: "metal" },
-  "壬": { metaphor: "Ocean", element: "water" }, "癸": { metaphor: "Rain", element: "water" }
+  "甲": { hangul: "갑", metaphor: "Big Tree", element: "wood" },
+  "乙": { hangul: "을", metaphor: "Flower", element: "wood" },
+  "丙": { hangul: "병", metaphor: "The Sun", element: "fire" },
+  "丁": { hangul: "정", metaphor: "Candle", element: "fire" },
+  "戊": { hangul: "무", metaphor: "Mountain", element: "earth" },
+  "己": { hangul: "기", metaphor: "Soil", element: "earth" },
+  "庚": { hangul: "경", metaphor: "Iron/Rock", element: "metal" },
+  "辛": { hangul: "신", metaphor: "Jewelry", element: "metal" },
+  "壬": { hangul: "임", metaphor: "Ocean", element: "water" },
+  "癸": { hangul: "계", metaphor: "Rain", element: "water" }
 };
 
+// 🛠️ BRANCH_MAP (지지) - 한글 이름 추가
 const BRANCH_MAP: any = {
-  "子": { metaphor: "Rat", element: "water" }, "丑": { metaphor: "Ox", element: "earth" },
-  "寅": { metaphor: "Tiger", element: "wood" }, "卯": { metaphor: "Rabbit", element: "wood" },
-  "辰": { metaphor: "Dragon", element: "earth" }, "巳": { metaphor: "Snake", element: "fire" },
-  "午": { metaphor: "Horse", element: "fire" }, "未": { metaphor: "Goat", element: "earth" },
-  "申": { metaphor: "Monkey", element: "metal" }, "酉": { metaphor: "Rooster", element: "metal" },
-  "戌": { metaphor: "Dog", element: "earth" }, "亥": { metaphor: "Pig", element: "water" }
+  "子": { hangul: "자", metaphor: "Rat", element: "water" },
+  "丑": { hangul: "축", metaphor: "Ox", element: "earth" },
+  "寅": { hangul: "인", metaphor: "Tiger", element: "wood" },
+  "卯": { hangul: "묘", metaphor: "Rabbit", element: "wood" },
+  "辰": { hangul: "진", metaphor: "Dragon", element: "earth" },
+  "巳": { hangul: "사", metaphor: "Snake", element: "fire" },
+  "午": { hangul: "오", metaphor: "Horse", element: "fire" },
+  "未": { hangul: "미", metaphor: "Goat", element: "earth" },
+  "申": { hangul: "신", metaphor: "Monkey", element: "metal" },
+  "酉": { hangul: "유", metaphor: "Rooster", element: "metal" },
+  "戌": { hangul: "술", metaphor: "Dog", element: "earth" },
+  "亥": { hangul: "해", metaphor: "Pig", element: "water" }
 };
