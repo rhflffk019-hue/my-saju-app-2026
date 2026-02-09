@@ -47,8 +47,8 @@ export default function Privacy() {
 
       <h2 style={{ marginTop: '30px' }}>5. Secure Payments</h2>
       <p>
-        Payments are processed by <b>Lemon Squeezy</b>. We do not store or have access to your full
-        credit card details. Lemon Squeezy may collect and process payment-related information in
+        Payments are processed by <b>Gumroad</b>. We do not store or have access to your full
+        credit card details. Gumroad may collect and process payment-related information in
         accordance with its own policies.
       </p>
 

@@ -1,35 +1,33 @@
 "use client";
 import { useState, useRef, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; // ★ 페이지 이동 기능 유지
-import html2canvas from 'html2canvas'; // 기존 기능 유지
-import { Solar, Lunar } from 'lunar-javascript'; // 기존 기능 유지
-
+import { useRouter } from 'next/navigation';
+import html2canvas from 'html2canvas';
+import { Solar, Lunar } from 'lunar-javascript';
 
 export default function Home() {
-  const router = useRouter(); // ★ 라우터 사용
+  const router = useRouter();
   const [step, setStep] = useState(1);
   const resultRef = useRef<HTMLDivElement>(null); 
 
   const [relationshipType, setRelationshipType] = useState('lover'); 
   const [myData, setMyData] = useState({ 
-    firstName: '', lastName: '', gender: '', // ✅ 성별 데이터 필드 추가
+    firstName: '', lastName: '', gender: '', 
     birthDate: '', birthTime: '', unknownTime: false, timezone: '-5' 
   });
   const [partnerData, setPartnerData] = useState({ 
-    firstName: '', lastName: '', gender: '', // ✅ 성별 데이터 필드 추가
+    firstName: '', lastName: '', gender: '', 
     birthDate: '', birthTime: '', unknownTime: false, timezone: '-5' 
   });
   
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
-  // ✅ [신규 추가] 에러 상태 관리 (성별 포함하여 빨간색 문구 표시용)
   const [errors, setErrors] = useState<any>({
     my: { firstName: false, gender: false, birthDate: false, birthTime: false },
     partner: { firstName: false, gender: false, birthDate: false, birthTime: false }
   });
 
-  // 1. 이미지 저장 함수 (원본 유지)
+  // 1. 이미지 저장 함수
   const downloadResultImage = async () => {
     if (resultRef.current) {
       const canvas = await html2canvas(resultRef.current, { scale: 2, useCORS: true });
@@ -41,7 +39,7 @@ export default function Home() {
     }
   };
 
-  // 2. 사주 계산 함수 (원본 유지)
+  // 2. 사주 계산 함수
   const calculateSaju = (data: any) => {
     if (!data.birthDate) return null;
     let [year, month, day] = data.birthDate.split('-').map(Number);
@@ -79,116 +77,79 @@ export default function Home() {
     };
   };
 
-    // app/page.tsx 내 useEffect 수정 (원본 유지)
-    useEffect(() => {
-      const query = new URLSearchParams(window.location.search);
-      
-      // 레몬 스퀴지에서 설정한 ?paid=true 주소로 돌아왔을 때
-      if (query.get('paid') === 'true') {
-        const sessionId = localStorage.getItem('currentSessionId');
-        
-        if (sessionId) {
-          router.push(`/share/${sessionId}`);
-        } else {
-          alert("Session expired. Please try again.");
-          router.push("/");
-        }
+  useEffect(() => {
+    // 검로드 결제 후 돌아왔을 때 처리 (선택 사항이지만 안전장치로 유지)
+    const query = new URLSearchParams(window.location.search);
+    if (query.get('paid') === 'true' || query.get('success') === 'true') {
+      const sessionId = localStorage.getItem('currentSessionId');
+      if (sessionId) {
+        router.push(`/share/${sessionId}`);
       }
-    }, [router]);
-
-// ✅ handlePaymentClick: 결제 전 데이터 검증(성별 포함) 로직 추가
-const handlePaymentClick = async () => {
-  // 1. 에러 체크 수행
-  const newErrors = {
-    my: {
-      firstName: !myData.firstName,
-      gender: !myData.gender, // ✅ 성별 선택 여부 체크
-      birthDate: !myData.birthDate,
-      birthTime: !myData.unknownTime && !myData.birthTime
-    },
-    partner: {
-      firstName: !partnerData.firstName,
-      gender: !partnerData.gender, // ✅ 성별 선택 여부 체크
-      birthDate: !partnerData.birthDate,
-      birthTime: !partnerData.unknownTime && !partnerData.birthTime
     }
-  };
+  }, [router]);
 
-  setErrors(newErrors);
+  // ✅ [수정됨] 검로드 오버레이 결제 로직
+  const handlePaymentClick = async () => {
+    // 1. 에러 체크
+    const newErrors = {
+      my: {
+        firstName: !myData.firstName,
+        gender: !myData.gender,
+        birthDate: !myData.birthDate,
+        birthTime: !myData.unknownTime && !myData.birthTime
+      },
+      partner: {
+        firstName: !partnerData.firstName,
+        gender: !partnerData.gender,
+        birthDate: !partnerData.birthDate,
+        birthTime: !partnerData.unknownTime && !partnerData.birthTime
+      }
+    };
 
-  // 하나라도 비어있는 값이 있으면 중단
-  const hasError = 
-    newErrors.my.firstName || newErrors.my.gender || newErrors.my.birthDate || newErrors.my.birthTime ||
-    newErrors.partner.firstName || newErrors.partner.gender || newErrors.partner.birthDate || newErrors.partner.birthTime;
+    setErrors(newErrors);
 
-  if (hasError) {
-    // 유저가 에러를 확인할 수 있도록 상단으로 부드럽게 스크롤
-    window.scrollTo({ top: 150, behavior: 'smooth' });
-    return;
-  }
+    const hasError = 
+      newErrors.my.firstName || newErrors.my.gender || newErrors.my.birthDate || newErrors.my.birthTime ||
+      newErrors.partner.firstName || newErrors.partner.gender || newErrors.partner.birthDate || newErrors.partner.birthTime;
 
-  setLoading(true);
+    if (hasError) {
+      window.scrollTo({ top: 150, behavior: 'smooth' });
+      return;
+    }
 
-  try {
-    // 1. 서버(KV)에 데이터 임시 저장 및 세션 ID 발급 (성별 데이터가 포함되어 서버로 전달됨)
-    const res = await fetch('/api/reserve', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ myData, partnerData, relationshipType }),
-    });
-    const { sessionId } = await res.json();
-
-    // 2. 브라우저 로컬 스토리지에 세션 ID 저장 (결제 후 복귀용)
-    localStorage.setItem('currentSessionId', sessionId);
-
-    // 3. 레몬 스퀴지 결제창으로 이동 (ID를 파라미터로 포함)
-    const PRODUCT_URL = "https://thesaju.lemonsqueezy.com/checkout/buy/131da000-c59f-4267-aa53-7747c2b3c5b0";
-    window.location.href = `${PRODUCT_URL}?checkout[custom_data][id]=${sessionId}`;
-  } catch (e) {
-    console.error(e);
-    alert("Payment initialization failed.");
-    setLoading(false);
-  }
-};
-
-  // requestAnalysis (원본 유지)
-  const requestAnalysis = async (dataA: any, dataB: any, relType: string) => {
     setLoading(true);
-    setStep(2); // 로딩 화면
 
     try {
-      const response = await fetch('/api/analyze', {
+      // 2. 서버 예약 및 세션 ID 발급
+      const res = await fetch('/api/reserve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          myData: dataA,
-          partnerData: dataB,
-          relationshipType: relType
-        })
+        body: JSON.stringify({ myData, partnerData, relationshipType }),
       });
+      const { sessionId } = await res.json();
+      localStorage.setItem('currentSessionId', sessionId);
 
-      const data = await response.json();
+      // 3. ✅ 검로드 상품 주소 설정 (가장 중요한 부분!)
+      // TODO: 아래 주소를 준수님의 실제 검로드 상품 URL로 교체하세요.
+      // 예: https://rhflffk019.gumroad.com/l/abcde
+      const GUMROAD_PRODUCT_URL = "https://rhflffk.gumroad.com/l/ixxuyp"; 
 
-      if (!response.ok) {
-        throw new Error(data.error || 'Analysis failed');
-      }
+      // 4. 검로드 오버레이 실행
+      // ?wanted=true: 즉시 구매창 띄우기
+      // &id=... : 웹훅으로 전달할 커스텀 데이터 (session_id 역할)
+      const checkoutUrl = `${GUMROAD_PRODUCT_URL}?wanted=true&id=${sessionId}`;
+      
+      // layout.tsx에 스크립트가 있다면, 이 코드가 실행될 때 자동으로 팝업이 뜹니다.
+      window.location.href = checkoutUrl;
 
-      if (data.success && data.redirectId) {
-        router.push(`/share/${data.redirectId}`);
-      } else {
-        throw new Error("No redirect ID returned form server");
-      }
-
-    } catch (error: any) {
-      console.error(error);
-      alert("Error: " + error.message);
-      setStep(1); 
-    } finally {
-      setLoading(false); 
+    } catch (e) {
+      console.error(e);
+      alert("Payment initialization failed.");
+      setLoading(false);
     }
   };
 
-  // 색상 헬퍼 (원본 유지)
+  // 색상 헬퍼
   const getElementColor = (element: string) => {
     const el = element ? element.toLowerCase() : "";
     if (el === 'wood') return '#4ade80'; if (el === 'fire') return '#f87171';
@@ -210,7 +171,6 @@ const handlePaymentClick = async () => {
         
         {step === 1 && (
           <div>
-            {/* 원본 안내 문구 카드 (✅ 3.99 부분 수정됨) */}
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '20px', marginBottom: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)', border: '1px solid #fff' }}>
               <div style={{fontSize: '11px', fontWeight: 'bold', color: '#ff69b4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>Korean Tradition • Modern Report</div>
               <h3 style={{ margin:'0 0 15px 0', color:'#333', fontSize:'22px', lineHeight:'1.3', fontWeight:'800' }}>
@@ -240,7 +200,6 @@ const handlePaymentClick = async () => {
                 </select>
               </div>
 
-              {/* ✅ PersonInput 컴포넌트에 성별 데이터 및 검증 결과 전달 */}
               <PersonInput label="YOU" data={myData} setData={setMyData} errorState={errors.my} />
               <div style={{ height: '20px' }}></div>
               <PersonInput label="THE OTHER PERSON" data={partnerData} setData={setPartnerData} errorState={errors.partner} />
@@ -252,7 +211,6 @@ const handlePaymentClick = async () => {
                 </span>
               </div>
 
-              {/* ✅ 결제 버튼: 런칭 전략 반영 */}
               <button onClick={handlePaymentClick} style={buttonStyle}>
                 <div style={{ fontSize: '17px', fontWeight: '900' }}>
                   {loading ? "Checking details..." : "Get My Compatibility Report — $3.99"}
@@ -277,7 +235,7 @@ const handlePaymentClick = async () => {
           </div>
         )}
 
-        {/* ✅ 결제 모달 (Step 1.5 - 가격 앵커링 반영) */}
+        {/* 결제 모달 (Step 1.5) */}
         {step === 1.5 && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.7)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, backdropFilter: 'blur(5px)' }}>
             <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '25px', width: '85%', maxWidth: '350px', textAlign: 'center', boxShadow: '0 20px 60px rgba(0,0,0,0.4)', animation: 'popIn 0.3s ease' }}>
@@ -297,42 +255,42 @@ const handlePaymentClick = async () => {
           </div>
         )}
 
-        {/* 로딩 화면 (✅ 'It' 앞 줄바꿈 반영) */}
-      {step === 2 && (
-        <div style={{ textAlign: 'center', marginTop: '100px', animation: 'pulse 2s infinite' }}>
-          <div style={{ fontSize: '60px', marginBottom:'20px' }}>⚡️</div>
-          <h2 style={{ color: '#d63384', fontSize:'22px' }}>Generating Your Report...</h2>
-          <p style={{ color: '#666', fontSize:'15px' }}>Running the compatibility calculation...</p>
+        {/* 로딩 화면 */}
+        {step === 2 && (
+          <div style={{ textAlign: 'center', marginTop: '100px', animation: 'pulse 2s infinite' }}>
+            <div style={{ fontSize: '60px', marginBottom:'20px' }}>⚡️</div>
+            <h2 style={{ color: '#d63384', fontSize:'22px' }}>Generating Your Report...</h2>
+            <p style={{ color: '#666', fontSize:'15px' }}>Running the compatibility calculation...</p>
 
-          <div
-            style={{
-              margin: '22px auto 0',
-              maxWidth: 360,
-              background: '#f0f9ff',
-              border: '1px solid #bce3eb',
-              borderRadius: 14,
-              padding: '14px 14px',
-              color: '#0369a1',
-              textAlign: 'left',
-              lineHeight: 1.45,
-              boxShadow: '0 6px 18px rgba(0,0,0,0.06)',
-            }}
-          >
-            <div style={{ fontSize: 13, fontWeight: 900, marginBottom: 6 }}>
-              Important: Please stay on this page.
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
-              Please don’t leave or refresh this page.
-            </div>
-            <div style={{ fontSize: 12, fontWeight: 700 }}>
-              Your premium report is being generated automatically.<br/>
-              It may take up to 3 minutes.
+            <div
+              style={{
+                margin: '22px auto 0',
+                maxWidth: 360,
+                background: '#f0f9ff',
+                border: '1px solid #bce3eb',
+                borderRadius: 14,
+                padding: '14px 14px',
+                color: '#0369a1',
+                textAlign: 'left',
+                lineHeight: 1.45,
+                boxShadow: '0 6px 18px rgba(0,0,0,0.06)',
+              }}
+            >
+              <div style={{ fontSize: 13, fontWeight: 900, marginBottom: 6 }}>
+                Important: Please stay on this page.
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
+                Please don’t leave or refresh this page.
+              </div>
+              <div style={{ fontSize: 12, fontWeight: 700 }}>
+                Your premium report is being generated automatically.<br/>
+                It may take up to 3 minutes.
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
-        {/* Footer 섹션 (원본 유지) */}
+        {/* Footer */}
         <footer style={{ marginTop: '50px', padding: '30px 20px', textAlign: 'center', borderTop: '1px solid #ffe4ef' }}>
           <div style={{ marginBottom: '15px' }}>
             <a href="/privacy" style={footerLinkStyle}>Privacy Policy</a>
@@ -359,7 +317,7 @@ const handlePaymentClick = async () => {
   );
 }
 
-// ---------------- Helper Components (성별 선택 UI 및 에러 문구 추가) ----------------
+// ---------------- Helper Components ----------------
 
 const PersonInput = ({ label, data, setData, errorState }: any) => (
   <div style={{ marginBottom: '20px' }}>
@@ -452,8 +410,6 @@ function translatePillar(chineseChar: string, position: string) {
   };
 }
 
-// ---------------- 원본 맵 데이터 및 스타일 객체 (원본 100% 보존) ----------------
-
 const STEM_MAP: any = {
   "甲": { metaphor: "Big Tree", element: "wood" }, "乙": { metaphor: "Flower", element: "wood" },
   "丙": { metaphor: "The Sun", element: "fire" }, "丁": { metaphor: "Candle", element: "fire" },
@@ -470,32 +426,6 @@ const BRANCH_MAP: any = {
   "申": { metaphor: "Monkey", element: "metal" }, "酉": { metaphor: "Rooster", element: "metal" },
   "戌": { metaphor: "Dog", element: "earth" }, "亥": { metaphor: "Pig", element: "water" }
 };
-
-function PillarChart({ info, getElementColor }: any) {
-  const sortedPillars = info.pillars ? [...info.pillars] : []; 
-  return (
-    <div>
-      <div style={{ textAlign:'center', fontWeight:'bold', color:'#333', marginBottom:'8px', fontSize:'14px' }}>{info.name}</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px' }}>
-        {['YEAR', 'MONTH', 'DAY', 'HOUR'].map((label) => (
-          <div key={label} style={{ textAlign: 'center', fontSize: '10px', color: '#999', fontWeight: 'bold', marginBottom: '5px' }}>{label}</div>
-        ))}
-        {sortedPillars.map((p: any, i: number) => (
-          <div key={i} style={{ textAlign: 'center' }}>
-            <div style={{ backgroundColor: getElementColor(p.stem_element), color: 'white', padding: '8px 2px', borderRadius: '8px 8px 0 0' }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{p.stem_han_ja}</div>
-              <div style={{ fontSize: '9px', fontWeight:'500', marginTop:'2px' }}>{p.stem_meaning}</div>
-            </div>
-            <div style={{ backgroundColor: getElementColor(p.branch_element), color: 'white', padding: '8px 2px', borderRadius: '0 0 8px 8px', opacity: 0.9 }}>
-              <div style={{ fontSize: '18px', fontWeight: 'bold' }}>{p.branch_han_ja}</div>
-              <div style={{ fontSize: '9px', fontWeight:'500', marginTop:'2px' }}>{p.branch_meaning}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 const inputStyle = { padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '16px', outline: 'none', backgroundColor:'#fcfcfc', color:'#333', transition: 'border 0.2s' };
 const buttonStyle = { width: '100%', padding: '16px', backgroundColor: '#d63384', color: 'white', border: 'none', borderRadius: '15px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px', boxShadow:'0 8px 20px rgba(214, 51, 132, 0.25)', transition: 'transform 0.1s' };

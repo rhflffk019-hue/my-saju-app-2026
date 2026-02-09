@@ -3,20 +3,29 @@ import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Solar, Lunar } from 'lunar-javascript';
 
-// 1. API 키 설정 (Vercel Environment Variables에서 불러옴)
+// 1. API 키 설정
 const API_KEY = process.env.GEMINI_API_KEY;
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const eventName = body.meta.event_name;
+    // ✅ [수정됨] 검로드는 JSON이 아니라 FormData로 옵니다.
+    const formData = await req.formData();
+    const data: any = {};
+    formData.forEach((value, key) => { data[key] = value; });
 
-    // 레몬 스퀴지 결제 완료(order_created) 신호인 경우에만 분석 시작
-    if (eventName === "order_created") {
-      const sessionId = body.meta.custom_data.id; // 우리가 결제창으로 보냈던 고유 ID
-      let tempStore = await kv.get(`temp_session:${sessionId}`); // 24시간 임시 보관함에서 데이터 꺼내기
+    // 로그로 데이터 확인 (디버깅용)
+    console.log("🚀 [Gumroad Webhook] 전체 데이터 수신:", data);
 
-      // ★ [수정됨] 데이터가 문자열로 저장되어 있을 경우를 대비해 JSON으로 변환합니다.
+    // ✅ [핵심] 우리가 결제창 URL(?id=...)로 보냈던 session_id를 찾습니다.
+    // 검로드는 URL 파라미터를 그대로 body에 포함해서 보내줍니다.
+    const sessionId = data.id || data['url_params[id]']; 
+
+    if (sessionId) {
+      console.log(`🚀 [Gumroad Webhook] 분석 시작: Session ID: ${sessionId}`);
+      
+      let tempStore = await kv.get(`temp_session:${sessionId}`);
+
+      // 데이터가 문자열로 저장되어 있을 경우를 대비해 JSON으로 변환
       if (typeof tempStore === 'string') {
         try {
           tempStore = JSON.parse(tempStore);
@@ -26,12 +35,10 @@ export async function POST(req: Request) {
       }
 
       if (tempStore) {
-        console.log(`🚀 [Webhook] 분석 시작: Session ID: ${sessionId}`);
-
-        // 아래의 performAIAnalysis 함수가 예경님의 원본 로직을 그대로 수행하며, 성별 데이터를 반영합니다.
+        // 기존 사주 분석 로직 수행 (기존 함수 그대로 사용)
         const analysisResult = await performAIAnalysis(tempStore as any);
 
-        // 분석 결과를 영구 저장 (ID를 결제 세션 ID와 동일하게 설정)
+        // 분석 결과를 영구 저장
         await kv.set(`report:${sessionId}`, {
           ...analysisResult,
           createdAt: new Date().toISOString()
@@ -40,8 +47,12 @@ export async function POST(req: Request) {
         // 사용 완료된 임시 데이터 삭제
         await kv.del(`temp_session:${sessionId}`);
         
-        console.log(`✅ [Webhook] 분석 완료 및 저장 성공: ${sessionId}`);
+        console.log(`✅ [Gumroad Webhook] 분석 완료 및 저장 성공: ${sessionId}`);
+      } else {
+         console.error(`❌ [Gumroad Webhook] 만료되었거나 없는 세션입니다: ${sessionId}`);
       }
+    } else {
+        console.log("⚠️ [Gumroad Webhook] 결제는 되었으나 ID가 없습니다. (테스트 핑일 수 있음)");
     }
 
     return NextResponse.json({ success: true });
@@ -52,7 +63,7 @@ export async function POST(req: Request) {
 }
 
 // =========================================================
-// 🧠 예경님의 원본 로직 (성별 데이터 반영 및 무삭제 이식)
+// 🧠 준수님의 원본 로직 (100% 무삭제 보존)
 // =========================================================
 async function performAIAnalysis(dataFromKV: any) {
   // 키 확인
@@ -74,13 +85,13 @@ async function performAIAnalysis(dataFromKV: any) {
   // 3. 구글 AI 부르기
   const genAI = new GoogleGenerativeAI(API_KEY);
   
-  // ★★★ 모델 설정 (예경님의 2.5-flash 설정 유지) ★★★
+  // ★★★ 모델 설정 (준수님의 2.5-flash 설정 유지) ★★★
   const model = genAI.getGenerativeModel({ 
     model: "gemini-2.5-flash", 
     generationConfig: { responseMimeType: "application/json" }
   });
 
-  // 4. 관계별 13개 항목 정의 (예경님 원본 그대로 100% 보존)
+  // 4. 관계별 13개 항목 정의 (준수님 원본 그대로 100% 보존)
   let categories: string[] = [];
   if (relationshipType === 'lover') {
     categories = [

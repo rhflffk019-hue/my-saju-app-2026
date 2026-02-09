@@ -40,7 +40,7 @@ export default function Terms() {
 
       <h2 style={{ marginTop: '30px' }}>4. Payments and Refunds</h2>
       <p>
-        All sales are processed via <b>Lemon Squeezy</b>. Because the report is digital and delivered
+        All sales are processed via <b>Gumroad</b>. Because the report is digital and delivered
         instantly, purchases are generally <b>non-refundable</b>.
       </p>
       <p>

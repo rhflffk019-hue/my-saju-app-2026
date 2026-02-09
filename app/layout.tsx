@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script"; // ✅ [추가됨] Next.js 전용 스크립트 로더
 import "./globals.css";
 
 const geistSans = Geist({
@@ -12,7 +13,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// ✅ 기본 'Create Next App'을 지우고 아래 내용으로 교체하세요!
+// ✅ 메타데이터는 준수님이 작성하신 그대로 유지됩니다.
 export const metadata: Metadata = {
   title: "The Saju | Love is Intuition, Saju is a Blueprint",
   description: "Map your Five-Element energy with a 1,000-year-old Korean framework. Reveal your hidden dynamics for just $3.99.",
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
     siteName: "The Saju",
     images: [
       {
-        url: "/og-image.png", // public 폴더에 이 이름의 이미지가 있어야 합니다!
+        url: "/og-image.png", 
         width: 1200,
         height: 630,
         alt: "The Saju - Korean Destiny & Love Chemistry",
@@ -51,6 +52,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+
+        {/* ✅ [추가됨] 검로드 오버레이 스크립트 */}
+        {/* strategy="lazyOnload"를 쓰면 사이트 속도 저하 없이 부드럽게 불러옵니다 */}
+        <Script src="https://gumroad.com/js/gumroad.js" strategy="lazyOnload" />
       </body>
     </html>
   );
