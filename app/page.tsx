@@ -78,13 +78,21 @@ export default function Home() {
   };
 
   useEffect(() => {
-    // 검로드 결제 후 돌아왔을 때 처리 (선택 사항이지만 안전장치로 유지)
     const query = new URLSearchParams(window.location.search);
-    if (query.get('paid') === 'true' || query.get('success') === 'true') {
-      const sessionId = localStorage.getItem('currentSessionId');
-      if (sessionId) {
-        router.push(`/share/${sessionId}`);
-      }
+    
+    // ✅ URL에서 saju_id를 먼저 가져오고, 없으면 localStorage에서 가져옵니다.
+    const urlSajuId = query.get('saju_id');
+    const localSajuId = localStorage.getItem('currentSessionId');
+    const finalId = urlSajuId || localSajuId;
+
+    if ((query.get('paid') === 'true' || query.get('success') === 'true') && finalId) {
+      console.log(`🚀 결제 확인! 결과 페이지로 이동: ${finalId}`);
+      
+      // 혹시 모르니 가져온 ID를 다시 저장해둡니다.
+      localStorage.setItem('currentSessionId', finalId);
+      
+      // 결과 페이지로 이동
+      router.push(`/share/${finalId}`);
     }
   }, [router]);
 

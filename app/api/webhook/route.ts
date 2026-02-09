@@ -75,8 +75,9 @@ export async function POST(req: Request) {
             // 📧 [NEW] 고객에게 결과 링크 이메일 발송
             // ====================================================
             if (userEmail) {
-                // 결과 페이지 링크 (주소 파라미터로 ID 전달)
-                const resultLink = `https://www.mythesaju.com/?paid=true&saju_id=${sessionId}`;
+                // ✅ 메인 페이지(?paid=true)를 거치지 않고 바로 결과 페이지(/share/ID)로 보냅니다.
+                // 이렇게 하면 위에서 발생한 메인 페이지 리다이렉트 버그를 아예 피해갈 수 있습니다.
+                const resultLink = `https://www.mythesaju.com/share/${sessionId}`;
                 
                 const mailOptions = {
                     from: '"The Saju Master" <mythesaju@gmail.com>',
@@ -85,7 +86,6 @@ export async function POST(req: Request) {
                     html: `
                         <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
                             <h2 style="color: #4F46E5;">Your Saju Analysis is Complete.</h2>
-                            <p>Thank you for waiting. Your detailed destiny report has been successfully generated.</p>
                             <p>You can view your full report by clicking the button below:</p>
                             <br>
                             <a href="${resultLink}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">👉 View My Report</a>
