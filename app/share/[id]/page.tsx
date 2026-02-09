@@ -206,27 +206,37 @@ export default async function SharePage({
               </div>
             )}
 
-            {/* ✅ [추가] 브랜딩 및 스크린샷 유도 문구 (카드 맨 하단) */}
+          {/* ✅ 1. 카드 안쪽: 도메인만 예쁘게 남김 (캡처에 포함됨) */}
             <div style={{ 
                 marginTop: 25, 
                 borderTop: "1px solid #ffe4ef",
-                paddingTop: 12
+                paddingTop: 12,
+                paddingBottom: 5 // 아래 여백 살짝 추가
             }}>
                 <div style={{ 
                     fontSize: 14, 
                     fontWeight: 900, 
                     color: "#d63384", 
                     letterSpacing: "-0.5px",
-                    fontFamily: "monospace" // 약간 힙한 느낌
+                    fontFamily: "monospace" 
                 }}>
                     mythesaju.com
                 </div>
-                <div style={{ fontSize: 11, color: "#aaa", fontWeight: 500, marginTop: 4 }}>
-                    📸 Screenshot to share on Story
-                </div>
             </div>
 
-          </div>
+          </div> {/* 패딩 박스 닫기 */}
+        </div>   {/* Top Summary Card (흰색 박스) 닫기 */}
+
+        {/* ✅ 2. 카드 바깥쪽: 안내 문구 (캡처에 포함 안 됨!) */}
+        <div style={{ 
+            marginTop: -10, // 카드랑 너무 멀어지지 않게 살짝 붙임
+            marginBottom: 20, 
+            textAlign: "center",
+            fontSize: 12, 
+            color: "#999", 
+            fontWeight: 500 
+        }}>
+            📸 Screenshot this card to share on Story
         </div>
 
         {/* Key Dynamic */}
