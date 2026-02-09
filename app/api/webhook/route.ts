@@ -121,7 +121,7 @@ export async function POST(req: Request) {
 }
 
 // =========================================================
-// 🧠 AI 분석 로직 (프롬프트: 스토리텔링 & 쉬운 영어 & 점수 보너스 적용)
+// 🧠 AI 분석 로직 (프롬프트: 스토리텔링 & 쉬운 영어 적용)
 // =========================================================
 async function performAIAnalysis(dataFromKV: any) {
   // 키 확인
@@ -149,7 +149,7 @@ async function performAIAnalysis(dataFromKV: any) {
     generationConfig: { responseMimeType: "application/json" }
   });
 
-  // 4. 관계별 13개 항목 정의
+  // 4. 관계별 13개 항목 정의 (준수님 원본 그대로 100% 보존)
   let categories: string[] = [];
   if (relationshipType === 'lover') {
     categories = [
@@ -181,7 +181,7 @@ async function performAIAnalysis(dataFromKV: any) {
     ];
   }
 
-  // 5. ★★★ 프롬프트 수정: 점수 상향(보너스) + 쉬운 영어 + 한자 금지 통합 버전 ★★★
+  // 5. ★★★ 프롬프트 수정: 쉬운 영어, 스토리텔링, 한자 금지 ★★★
   const prompt = `
       You are a world-class Korean Saju Master for a global audience.
       This is a **PREMIUM PAID CONSULTATION**.
@@ -192,22 +192,19 @@ async function performAIAnalysis(dataFromKV: any) {
       1. ${mySaju.englishName} (Gender: ${myData.gender}, Data: ${JSON.stringify(mySaju.pillars)})
       2. ${partnerSaju.englishName} (Gender: ${partnerData.gender}, Data: ${JSON.stringify(partnerSaju.pillars)})
 
-      **🚨 SCORING RULES (OPTIMISTIC & ENCOURAGING):**
-      - **Objective:** Users paid for hope and solutions. Do NOT give a discouraging low score.
-      - **Bonus Logic:** Calculate the strict compatibility score first, **THEN ADD +10 to +15 POINTS as a "Potential Bonus".**
-      - **Range Guide (After Bonus):**
-        - **Perfect Match (95-100):** Soulmates who empower each other.
-        - **Great Match (80-94):** Very good chemistry. (Most couples should fall here).
-        - **Good Match (60-79):** They have differences, but love can overcome them. (Explain how to fix conflicts).
-        - **Challenging (40-59):** Only give this if they are completely opposite elements (Water vs Fire) with NO mediation. Even then, give advice on how to survive.
-        - **NEVER give below 40.** Even the worst enemies can learn from each other.
+      **🚨 SCORING RULES (STRICT BUT REALISTIC):**
+      - **Perfect Match (90-100):** Give this ONLY if their elements mutually nourish and protect each other perfectly.
+      - **Great Match (70-89):** If they generally support each other with minor manageable clashes.
+      - **Average Match (50-69):** This is the most common score. If they have mixed dynamics.
+      - **Challenging/Bad Match (30-49):** If their elements strongly clash (e.g., Fire vs Water) without mediation.
+      - **Logic:** Do NOT inflate the score. Be honest. If the score is low, explain *why* and give *constructive advice*.
 
       **CRITICAL WRITING RULES (FOR WESTERN AUDIENCE):**
       1. **NO TECHNICAL JARGON:** Avoid terms like "Yang Fire", "Yin Wood", "Stem", or "Branch".
       2. **USE METAPHORS:** Use natural metaphors like "The Sun", "A Delicate Flower", "A Mighty Rock", or "The Deep Ocean". This makes it much more relatable.
       3. **NO HANJA / CHINESE CHARACTERS:** Do NOT include any Chinese characters in your response text. Use English ONLY.
-      4. **STORYTELLING TONE:** Be "Warm, Insightful, and Constructive." instead of "Judgmental."
-      5. **Example:** Instead of "You clash because of Fire and Water," say "${mySaju.englishName} is like a passionate Fire, while ${partnerSaju.englishName} is a calm Ocean. At first, you might feel different, but you can create a warm steam bath together if you respect boundaries."
+      4. **STORYTELLING TONE:** Instead of "A is Fire, B is Wood," say "${mySaju.englishName} is like the radiant Sun, providing the warmth that ${partnerSaju.englishName} (the delicate Flower) needs to bloom."
+      5. **K-CULTURE VIBE:** Maintain a wise, mystical, yet warm and modern tone.
       6. **LENGTH:** Write 2-3 detailed paragraphs per category.
       7. **REAL NAMES:** Use "${mySaju.englishName}" and "${partnerSaju.englishName}" constantly.
 
@@ -216,7 +213,7 @@ async function performAIAnalysis(dataFromKV: any) {
 
       **Output JSON Structure:**
       {
-        "score": 85,
+        "score": 65,
         "insta_card": {
           "title": "Headline (e.g. The Sun & The Rain)",
           "person_a_emoji": "🔥", "person_a_nature": "Sun",
