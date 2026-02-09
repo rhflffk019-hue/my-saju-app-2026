@@ -35,7 +35,6 @@ export const metadata = {
 import React from "react";
 import { kv } from "@vercel/kv";
 import ShareButtons from "./ShareButtons";
-// ❌ PollingHandler는 이제 필요 없어서 삭제했습니다.
 // ✅ [추가] 방금 만든 3초 체크 엔진을 가져옵니다.
 import ResultLoading from "@/components/ResultLoading"; 
 
@@ -59,8 +58,6 @@ export default async function SharePage({
   // ⚡ [로딩 화면] 데이터가 없으면 'ResultLoading'이 3초마다 체크함
   // =========================================================
   if (!data) {
-    // 기존의 길었던 로딩 코드를 이 한 줄로 대체했습니다.
-    // ResultLoading 컴포넌트가 "이메일 발송 안내"와 "3초 자동 새로고침"을 모두 담당합니다.
     return <ResultLoading />;
   }
 
@@ -208,6 +205,27 @@ export default async function SharePage({
                 ))}
               </div>
             )}
+
+            {/* ✅ [추가] 브랜딩 및 스크린샷 유도 문구 (카드 맨 하단) */}
+            <div style={{ 
+                marginTop: 25, 
+                borderTop: "1px solid #ffe4ef",
+                paddingTop: 12
+            }}>
+                <div style={{ 
+                    fontSize: 14, 
+                    fontWeight: 900, 
+                    color: "#d63384", 
+                    letterSpacing: "-0.5px",
+                    fontFamily: "monospace" // 약간 힙한 느낌
+                }}>
+                    mythesaju.com
+                </div>
+                <div style={{ fontSize: 11, color: "#aaa", fontWeight: 500, marginTop: 4 }}>
+                    📸 Screenshot to share on Story
+                </div>
+            </div>
+
           </div>
         </div>
 
@@ -493,11 +511,12 @@ const headerStyle: React.CSSProperties = {
   boxShadow: "0 4px 20px rgba(255,105,180,0.3)",
 };
 
+// ✅ [수정 완료] 이제 카드가 헤더를 가리지 않고 아래에 예쁘게 위치합니다.
 const containerStyle: React.CSSProperties = {
   maxWidth: "480px",
   margin: "0 auto",
   padding: "20px",
-  marginTop: "-25px",
+  marginTop: "10px", // 기존 -25px에서 수정됨
 };
 
 const cardStyle: React.CSSProperties = {
