@@ -178,7 +178,7 @@ export default function Home() {
               </h3>
               <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#555' }}>
                 <p style={{ marginBottom: '15px' }}>
-                  Your story begins at birth. We analyze your <b>Birth Year, Month, Day, and Time</b> using <b>Korean Saju (Four Pillars)</b> patterns to map your <b>Five-Element energy</b>—and highlight relationship dynamics you can explore together.
+                  Your story begins at birth. We analyze your <b>Birth Year, Month, Day, and Time</b> using <b>Korean Saju (Four Pillars)</b> patterns to map your <b>Five-Element traits</b>—and highlight relationship dynamics you can explore together.
                 </p>
                 <p style={{ marginBottom: '15px' }}>
                   Saju is a traditional cultural framework in Korea. This experience generates a <b>personalized compatibility report</b> for <b>fun, reflection, and conversation</b>.

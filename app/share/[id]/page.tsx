@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 export const metadata = {
   title: "The Saju | Love is Intuition, Saju is a Blueprint",
   description:
-    "Map your Five-Element energy with a 1,000-year-old Korean framework. Reveal your hidden dynamics.",
+    "Map your Five-Element traits- with a 1,000-year-old Korean framework. Reveal your hidden dynamics.",
   openGraph: {
     title: "The Saju: Love is Intuition, Saju is a Blueprint",
     description:
