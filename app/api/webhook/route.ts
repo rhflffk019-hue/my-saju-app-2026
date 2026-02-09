@@ -8,22 +8,39 @@ const API_KEY = process.env.GEMINI_API_KEY;
 
 export async function POST(req: Request) {
   try {
-    // ✅ [수정됨] 검로드는 JSON이 아니라 FormData로 옵니다.
-    const formData = await req.formData();
+    // ✅ [수정 1] 검로드는 x-www-form-urlencoded로 옵니다. 텍스트로 받아서 파싱하는 게 가장 안전합니다.
+    const rawBody = await req.text();
+    const params = new URLSearchParams(rawBody);
     const data: any = {};
-    formData.forEach((value, key) => { data[key] = value; });
+    for (const [key, value] of params.entries()) {
+      data[key] = value;
+    }
 
     // 로그로 데이터 확인 (디버깅용)
     console.log("🚀 [Gumroad Webhook] 전체 데이터 수신:", data);
 
-    // ✅ [핵심] 우리가 결제창 URL(?id=...)로 보냈던 session_id를 찾습니다.
-    // 검로드는 URL 파라미터를 그대로 body에 포함해서 보내줍니다.
-    const sessionId = data.id || data['url_params[id]']; 
+    // ✅ [핵심 수정] saju_id를 최우선으로 찾습니다.
+    // 1순위: saju_id (직접 전달됨)
+    // 2순위: custom_fields[saju_id] (검로드 커스텀 필드)
+    // 3순위: url_params[saju_id] (URL 파라미터)
+    // 4순위: id (기존 상품 ID와의 충돌 방지용 백업)
+    const sessionId = data.saju_id || 
+                      data['custom_fields[saju_id]'] || 
+                      data['url_params[saju_id]'] || 
+                      data.id;
 
     if (sessionId) {
       console.log(`🚀 [Gumroad Webhook] 분석 시작: Session ID: ${sessionId}`);
       
+      // ✅ [중요] 저장할 때 'temp_session:'을 붙였는지 안 붙였는지 꼭 확인해야 합니다.
+      // (잠시 후 드릴 reserve 코드와 맞추기 위해 여기서는 접두어 없이 조회하는 로직도 추가했습니다)
       let tempStore = await kv.get(`temp_session:${sessionId}`);
+      
+      // 만약 못 찾았으면 접두어 없이 한 번 더 찾아봄 (안전장치)
+      if (!tempStore) {
+        console.log("⚠️ 접두어 있는 키로 못 찾음. 원본 ID로 재시도...");
+        tempStore = await kv.get(sessionId);
+      }
 
       // 데이터가 문자열로 저장되어 있을 경우를 대비해 JSON으로 변환
       if (typeof tempStore === 'string') {
@@ -44,15 +61,19 @@ export async function POST(req: Request) {
           createdAt: new Date().toISOString()
         }, { ex: 2592000 }); // 30일 보관
 
-        // 사용 완료된 임시 데이터 삭제
+        // 사용 완료된 임시 데이터 삭제 (접두어 있는 것, 없는 것 둘 다 시도)
         await kv.del(`temp_session:${sessionId}`);
+        await kv.del(sessionId);
         
         console.log(`✅ [Gumroad Webhook] 분석 완료 및 저장 성공: ${sessionId}`);
       } else {
          console.error(`❌ [Gumroad Webhook] 만료되었거나 없는 세션입니다: ${sessionId}`);
+         // 디버깅을 위해 무슨 키를 찾으려 했는지 로그 남김
+         console.error(`   👉 찾는 키 1: temp_session:${sessionId}`);
+         console.error(`   👉 찾는 키 2: ${sessionId}`);
       }
     } else {
-        console.log("⚠️ [Gumroad Webhook] 결제는 되었으나 ID가 없습니다. (테스트 핑일 수 있음)");
+        console.log("⚠️ [Gumroad Webhook] 결제는 되었으나 saju_id가 없습니다. (테스트 핑일 수 있음)");
     }
 
     return NextResponse.json({ success: true });
@@ -87,7 +108,7 @@ async function performAIAnalysis(dataFromKV: any) {
   
   // ★★★ 모델 설정 (준수님의 2.5-flash 설정 유지) ★★★
   const model = genAI.getGenerativeModel({ 
-    model: "gemini-2.5-flash", 
+    model: "gemini-2.0-flash", 
     generationConfig: { responseMimeType: "application/json" }
   });
 
