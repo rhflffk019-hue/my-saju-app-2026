@@ -450,6 +450,7 @@ function PillarChart({ info, getElementColor }: any) {
 
         {sortedPillars.map((p: any, i: number) => (
           <div key={i} style={{ textAlign: "center" }}>
+            {/* 천간 (윗글자) */}
             <div
               style={{
                 backgroundColor: getElementColor(p.stem_element || p.element),
@@ -458,14 +459,16 @@ function PillarChart({ info, getElementColor }: any) {
                 borderRadius: "8px 8px 0 0",
               }}
             >
+              {/* ✅ 여기가 핵심 수정! hanja 대신 hangul을 먼저 찾게 변경 */}
               <div style={{ fontSize: "18px", fontWeight: "bold" }}>
-                {p.stem_hanja || p.hanja}
+                {p.stem_hangul || p.stem_hanja || p.hanja}
               </div>
               <div style={{ fontSize: "9px", fontWeight: "500", marginTop: "2px" }}>
                 {p.stem_meaning || p.meaning}
               </div>
             </div>
 
+            {/* 지지 (아랫글자) */}
             <div
               style={{
                 backgroundColor: getElementColor(p.branch_element || p.element),
@@ -475,8 +478,9 @@ function PillarChart({ info, getElementColor }: any) {
                 opacity: 0.9,
               }}
             >
+              {/* ✅ 여기도 hangul 우선으로 변경 */}
               <div style={{ fontSize: "18px", fontWeight: "bold" }}>
-                {p.branch_hanja || p.hanja}
+                {p.branch_hangul || p.branch_hanja || p.hanja}
               </div>
               <div style={{ fontSize: "9px", fontWeight: "500", marginTop: "2px" }}>
                 {p.branch_meaning || p.meaning}
