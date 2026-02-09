@@ -211,7 +211,7 @@ export default async function SharePage({
                 marginTop: 25, 
                 borderTop: "1px solid #ffe4ef",
                 paddingTop: 12,
-                paddingBottom: 5 // 아래 여백 살짝 추가
+                paddingBottom: 1 // 아래 여백 살짝 추가
             }}>
                 <div style={{ 
                     fontSize: 14, 
