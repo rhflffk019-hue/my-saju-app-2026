@@ -313,7 +313,7 @@ export default function Home() {
           </div>
           
           <div style={{ fontSize: '13px', color: '#999', lineHeight: '1.6' }}>
-            <p style={{ margin: '5px 0' }}>Support: <a href="mailto:rhflffk019@gmail.com" style={{ color: '#ff69b4', textDecoration: 'none' }}>rhflffk019@gmail.com</a></p>
+            <p style={{ margin: '5px 0' }}>Support: <a href="mailto:mythesaju@gmail.com" style={{ color: '#ff69b4', textDecoration: 'none' }}>rhflffk019@gmail.com</a></p>
             <p style={{ margin: '5px 0' }}>© 2026 The Saju. All rights reserved.</p>
             <p style={{ fontSize: '11px', marginTop: '10px', opacity: 0.8 }}>
               This service is for entertainment purposes only.
