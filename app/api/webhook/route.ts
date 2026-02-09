@@ -255,23 +255,26 @@ async function performAIAnalysis(dataFromKV: any) {
   };
 }
 
-// --- 서버 내부용 헬퍼 함수들 (한글 이름 반영) ---
+// =========================================================
+// 🛠️ [핵심 수정] 날짜 계산 함수 (Timezone Offset 제거)
+// =========================================================
 function calculateSaju(data: any) {
   if (!data.birthDate) return null;
+  
+  // 1. 입력된 날짜 파싱 (YYYY-MM-DD)
   let [year, month, day] = data.birthDate.split('-').map(Number);
   let hour = 12; let minute = 0;
 
+  // 2. 시간 파싱 (Timezone 계산 로직 제거 -> 입력값 그대로 사용)
   if (!data.unknownTime && data.birthTime) {
     [hour, minute] = data.birthTime.split(':').map(Number);
-    const offset = parseInt(data.timezone);
-    const kstOffset = 9;
-    const dateObj = new Date(year, month - 1, day, hour, minute);
-    dateObj.setHours(dateObj.getHours() + (kstOffset - offset));
-    year = dateObj.getFullYear(); month = dateObj.getMonth() + 1; day = dateObj.getDate(); hour = dateObj.getHours();
   }
 
+  // 3. Solar 객체 생성 (있는 그대로의 날짜 사용)
   const solar = Solar.fromYmdHms(year, month, day, hour, minute, 0);
   const lunar = solar.getLunar();
+
+  // 4. 간지(GanZhi) 추출 - 정확한 함수 사용
   const ganji = {
     year: lunar.getYearInGanZhiExact(),
     month: lunar.getMonthInGanZhiExact(),
