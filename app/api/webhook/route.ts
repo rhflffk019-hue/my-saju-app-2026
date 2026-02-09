@@ -2,9 +2,19 @@ import { kv } from "@vercel/kv";
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Solar, Lunar } from 'lunar-javascript';
+import nodemailer from 'nodemailer'; // 📧 이메일 모듈 추가
 
 // 1. API 키 설정
 const API_KEY = process.env.GEMINI_API_KEY;
+
+// 📧 이메일 전송 설정 (Gmail)
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: 'rhflffk019@gmail.com', // 준수님 이메일
+    pass: process.env.GMAIL_APP_PASSWORD // ⚠️ Vercel 환경변수에 설정해야 함
+  }
+});
 
 export async function POST(req: Request) {
   try {
@@ -18,11 +28,15 @@ export async function POST(req: Request) {
 
     console.log("🚀 [Gumroad Webhook] 전체 데이터 수신:", data);
 
-    // ✅ [ID 찾기] saju_id 우선 탐색
+    // ✅ [ID 찾기] saju_id 우선 탐색 (URL 파라미터가 가장 중요)
+    // 입력칸을 지웠으므로 url_params[saju_id]가 핵심입니다.
     const sessionId = data.saju_id || 
                       data['custom_fields[saju_id]'] || 
                       data['url_params[saju_id]'] || 
                       data.id;
+    
+    // 고객 이메일 가져오기
+    const userEmail = data.email;
 
     if (sessionId) {
       console.log(`🚀 [Gumroad Webhook] 분석 시작: Session ID: ${sessionId}`);
@@ -57,6 +71,39 @@ export async function POST(req: Request) {
             await kv.del(sessionId);
             
             console.log(`✅ [Gumroad Webhook] 분석 완료 및 저장 성공: ${sessionId}`);
+
+            // ====================================================
+            // 📧 [NEW] 고객에게 결과 링크 이메일 발송
+            // ====================================================
+            if (userEmail) {
+                // 결과 페이지 링크 (주소 파라미터로 ID 전달)
+                const resultLink = `https://www.mythesaju.com/?paid=true&saju_id=${sessionId}`;
+                
+                const mailOptions = {
+                    from: '"The Saju Master" <rhflffk019@gmail.com>',
+                    to: userEmail,
+                    subject: '🔮 [The Saju] Your Premium Destiny Report is Ready!',
+                    html: `
+                        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                            <h2 style="color: #4F46E5;">Your Saju Analysis is Complete.</h2>
+                            <p>Thank you for waiting. Your detailed destiny report has been successfully generated.</p>
+                            <p>You can view your full report by clicking the button below:</p>
+                            <br>
+                            <a href="${resultLink}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">👉 View My Report</a>
+                            <br><br>
+                            <p style="font-size: 13px; color: #666;">This link is valid for 30 days. Please save your report.</p>
+                        </div>
+                    `
+                };
+
+                // 이메일 발송 (에러가 나도 웹훅은 성공시켜야 함)
+                try {
+                    await transporter.sendMail(mailOptions);
+                    console.log(`📧 이메일 발송 성공: ${userEmail}`);
+                } catch (emailError) {
+                    console.error("❌ 이메일 발송 실패:", emailError);
+                }
+            }
 
         } catch (aiError) {
             console.error("🔥 [AI Analysis Failed]:", aiError);
