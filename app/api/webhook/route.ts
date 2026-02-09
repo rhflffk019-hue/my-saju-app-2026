@@ -256,7 +256,7 @@ async function performAIAnalysis(dataFromKV: any) {
 }
 
 // =========================================================
-// 🛠️ [핵심 수정] 날짜 계산 함수 (Timezone Offset 제거)
+// 🛠️ [핵심 수정] 날짜 계산 함수 (Timezone 오차 완벽 제거)
 // =========================================================
 function calculateSaju(data: any) {
   if (!data.birthDate) return null;
@@ -265,7 +265,9 @@ function calculateSaju(data: any) {
   let [year, month, day] = data.birthDate.split('-').map(Number);
   let hour = 12; let minute = 0;
 
-  // 2. 시간 파싱 (Timezone 계산 로직 제거 -> 입력값 그대로 사용)
+  // 2. 시간 파싱 (복잡한 타임존 계산 로직 제거 -> 입력값 그대로 사용)
+  // 사용자가 "서울 08:00"를 입력했으면, 그냥 그 숫자를 만세력에 넣어야 합니다.
+  // 서버에서 시차를 더하거나 빼는 순간 날짜가 꼬입니다.
   if (!data.unknownTime && data.birthTime) {
     [hour, minute] = data.birthTime.split(':').map(Number);
   }
@@ -278,7 +280,7 @@ function calculateSaju(data: any) {
   const ganji = {
     year: lunar.getYearInGanZhiExact(),
     month: lunar.getMonthInGanZhiExact(),
-    day: lunar.getDayInGanZhiExact(),
+    day: lunar.getDayInGanZhiExact(), // 여기가 핵심
     time: data.unknownTime ? "?" : lunar.getTimeInGanZhi()
   };
 
@@ -327,7 +329,7 @@ function translatePillar(chineseChar: string, position: string) {
   };
 }
 
-// 🛠️ STEM_MAP (천간) - 한글 이름 추가
+// 🛠️ STEM_MAP (천간)
 const STEM_MAP: any = {
   "甲": { hangul: "갑", metaphor: "Big Tree", element: "wood" },
   "乙": { hangul: "을", metaphor: "Flower", element: "wood" },
@@ -341,7 +343,7 @@ const STEM_MAP: any = {
   "癸": { hangul: "계", metaphor: "Rain", element: "water" }
 };
 
-// 🛠️ BRANCH_MAP (지지) - 한글 이름 추가
+// 🛠️ BRANCH_MAP (지지)
 const BRANCH_MAP: any = {
   "子": { hangul: "자", metaphor: "Rat", element: "water" },
   "丑": { hangul: "축", metaphor: "Ox", element: "earth" },
