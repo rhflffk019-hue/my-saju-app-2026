@@ -8,7 +8,7 @@ const API_KEY = process.env.GEMINI_API_KEY;
 
 export async function POST(req: Request) {
   try {
-    // ✅ [수정 1] 검로드는 x-www-form-urlencoded로 옵니다. 텍스트로 받아서 파싱하는 게 가장 안전합니다.
+    // ✅ [데이터 수신] 검로드 데이터 안전하게 받기
     const rawBody = await req.text();
     const params = new URLSearchParams(rawBody);
     const data: any = {};
@@ -16,14 +16,9 @@ export async function POST(req: Request) {
       data[key] = value;
     }
 
-    // 로그로 데이터 확인 (디버깅용)
     console.log("🚀 [Gumroad Webhook] 전체 데이터 수신:", data);
 
-    // ✅ [핵심 수정] saju_id를 최우선으로 찾습니다.
-    // 1순위: saju_id (직접 전달됨)
-    // 2순위: custom_fields[saju_id] (검로드 커스텀 필드)
-    // 3순위: url_params[saju_id] (URL 파라미터)
-    // 4순위: id (기존 상품 ID와의 충돌 방지용 백업)
+    // ✅ [ID 찾기] saju_id 우선 탐색
     const sessionId = data.saju_id || 
                       data['custom_fields[saju_id]'] || 
                       data['url_params[saju_id]'] || 
@@ -32,48 +27,46 @@ export async function POST(req: Request) {
     if (sessionId) {
       console.log(`🚀 [Gumroad Webhook] 분석 시작: Session ID: ${sessionId}`);
       
-      // ✅ [중요] 저장할 때 'temp_session:'을 붙였는지 안 붙였는지 꼭 확인해야 합니다.
-      // (잠시 후 드릴 reserve 코드와 맞추기 위해 여기서는 접두어 없이 조회하는 로직도 추가했습니다)
+      // ✅ [데이터 조회] 접두어(temp_session:) 체크 및 백업 조회
       let tempStore = await kv.get(`temp_session:${sessionId}`);
-      
-      // 만약 못 찾았으면 접두어 없이 한 번 더 찾아봄 (안전장치)
       if (!tempStore) {
         console.log("⚠️ 접두어 있는 키로 못 찾음. 원본 ID로 재시도...");
         tempStore = await kv.get(sessionId);
       }
 
-      // 데이터가 문자열로 저장되어 있을 경우를 대비해 JSON으로 변환
+      // 문자열이면 JSON으로 변환 (안전장치)
       if (typeof tempStore === 'string') {
-        try {
-          tempStore = JSON.parse(tempStore);
-        } catch (e) {
-          console.error("❌ JSON 파싱 에러:", e);
-        }
+        try { tempStore = JSON.parse(tempStore); } catch (e) { console.error("❌ KV JSON 파싱 에러:", e); }
       }
 
       if (tempStore) {
-        // 기존 사주 분석 로직 수행 (기존 함수 그대로 사용)
-        const analysisResult = await performAIAnalysis(tempStore as any);
+        // ✅ [핵심 수정] AI 분석 중 에러가 나도 서버가 죽지 않도록 try-catch 추가
+        try {
+            // 기존 사주 분석 로직 수행
+            const analysisResult = await performAIAnalysis(tempStore as any);
 
-        // 분석 결과를 영구 저장
-        await kv.set(`report:${sessionId}`, {
-          ...analysisResult,
-          createdAt: new Date().toISOString()
-        }, { ex: 2592000 }); // 30일 보관
+            // 분석 결과를 영구 저장
+            await kv.set(`report:${sessionId}`, {
+                ...analysisResult,
+                createdAt: new Date().toISOString(),
+                paid: true
+            }, { ex: 2592000 }); // 30일 보관
 
-        // 사용 완료된 임시 데이터 삭제 (접두어 있는 것, 없는 것 둘 다 시도)
-        await kv.del(`temp_session:${sessionId}`);
-        await kv.del(sessionId);
-        
-        console.log(`✅ [Gumroad Webhook] 분석 완료 및 저장 성공: ${sessionId}`);
+            // 사용 완료된 임시 데이터 삭제
+            await kv.del(`temp_session:${sessionId}`);
+            await kv.del(sessionId);
+            
+            console.log(`✅ [Gumroad Webhook] 분석 완료 및 저장 성공: ${sessionId}`);
+
+        } catch (aiError) {
+            console.error("🔥 [AI Analysis Failed]:", aiError);
+            // AI 실패 시 로그만 남기고 웹훅은 성공 처리 (재시도 방지)
+        }
       } else {
          console.error(`❌ [Gumroad Webhook] 만료되었거나 없는 세션입니다: ${sessionId}`);
-         // 디버깅을 위해 무슨 키를 찾으려 했는지 로그 남김
-         console.error(`   👉 찾는 키 1: temp_session:${sessionId}`);
-         console.error(`   👉 찾는 키 2: ${sessionId}`);
       }
     } else {
-        console.log("⚠️ [Gumroad Webhook] 결제는 되었으나 saju_id가 없습니다. (테스트 핑일 수 있음)");
+        console.log("⚠️ [Gumroad Webhook] ID 없음 (Ping)");
     }
 
     return NextResponse.json({ success: true });
@@ -84,7 +77,7 @@ export async function POST(req: Request) {
 }
 
 // =========================================================
-// 🧠 준수님의 원본 로직 (100% 무삭제 보존)
+// 🧠 준수님의 원본 로직 (100% 무삭제 보존 + JSON 에러 해결)
 // =========================================================
 async function performAIAnalysis(dataFromKV: any) {
   // 키 확인
@@ -106,9 +99,9 @@ async function performAIAnalysis(dataFromKV: any) {
   // 3. 구글 AI 부르기
   const genAI = new GoogleGenerativeAI(API_KEY);
   
-  // ★★★ 모델 설정 (준수님의 2.5-flash 설정 유지) ★★★
+  // ★★★ 모델 설정 ★★★
   const model = genAI.getGenerativeModel({ 
-    model: "gemini-2.0-flash", 
+    model: "gemini-2.5-flash", 
     generationConfig: { responseMimeType: "application/json" }
   });
 
@@ -155,13 +148,15 @@ async function performAIAnalysis(dataFromKV: any) {
       2. ${partnerSaju.englishName} (Gender: ${partnerData.gender}, Data: ${JSON.stringify(partnerSaju.pillars)})
 
       **CRITICAL WRITING RULES (DO NOT SKIP):**
-      1. **GENDER REFLECTION:** In Korean Saju, gender dictates the direction of the Life Cycles (Daewun). Use their genders to provide a precise interpretation of their cosmic flow.
-      2. **LENGTH & DEPTH:** For EACH category, write **2-3 detailed paragraphs**. Separate paragraphs with a blank line (\\n\\n). Do NOT write short summaries.
-      3. **TONE:** Warm, empathetic, mystical, yet logical. Use metaphors like "Just as the ocean embraces the rock...".
-      4. **REAL NAMES:** Use "${mySaju.englishName}" and "${partnerSaju.englishName}" constantly. **NEVER** use "Person A" or "Person B".
-      5. **NO HANJA:** Do NOT use Chinese characters. English ONLY.
-      6. **NO ROMANIZATION:** Do not use "Gap", "Eul", "In", "Myo". Use "Tree", "Flower", "Tiger", "Rabbit".
-      7. **LOGIC:** Explain *why* based on their elements and gender-specific energy flow (e.g., "Because ${mySaju.englishName} is strong Metal...").
+      1. **STRICT JSON ONLY:** Do NOT output any markdown, code blocks, or explanations. Output pure JSON.
+      2. **NO CONTROL CHARACTERS:** Do NOT use literal newlines inside strings. Use '\\n' for line breaks.
+      3. **GENDER REFLECTION:** In Korean Saju, gender dictates the direction of the Life Cycles (Daewun). Use their genders to provide a precise interpretation of their cosmic flow.
+      4. **LENGTH & DEPTH:** For EACH category, write **2-3 detailed paragraphs**. Separate paragraphs with a blank line (\\n\\n). Do NOT write short summaries.
+      5. **TONE:** Warm, empathetic, mystical, yet logical. Use metaphors like "Just as the ocean embraces the rock...".
+      6. **REAL NAMES:** Use "${mySaju.englishName}" and "${partnerSaju.englishName}" constantly. **NEVER** use "Person A" or "Person B".
+      7. **NO HANJA:** Do NOT use Chinese characters. English ONLY.
+      8. **NO ROMANIZATION:** Do not use "Gap", "Eul", "In", "Myo". Use "Tree", "Flower", "Tiger", "Rabbit".
+      9. **LOGIC:** Explain *why* based on their elements and gender-specific energy flow (e.g., "Because ${mySaju.englishName} is strong Metal...").
 
       **Categories to Analyze:**
       ${JSON.stringify(categories)}
@@ -192,7 +187,11 @@ async function performAIAnalysis(dataFromKV: any) {
   const text = result.response.text();
   console.log("✅ Gemini Response received");
   
-  const cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
+  // ✅ [핵심 해결책] 에러를 일으키는 '나쁜 문자'들 청소 (JSON 파싱 에러 방지)
+  let cleanText = text.replace(/```json/g, "").replace(/```/g, "").trim();
+  // 제어 문자(줄바꿈 제외) 제거
+  cleanText = cleanText.replace(/[\x00-\x09\x0B-\x1F\x7F]/g, "");
+
   const parsedResult = JSON.parse(cleanText);
 
   return {
