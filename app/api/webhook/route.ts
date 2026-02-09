@@ -121,7 +121,7 @@ export async function POST(req: Request) {
 }
 
 // =========================================================
-// 🧠 AI 분석 로직 (프롬프트 수정: 텍스트는 정직하게, 점수는 후하게)
+// 🧠 AI 분석 로직 (프롬프트: 조후/억부 적용 & 점수 변별력 강화)
 // =========================================================
 async function performAIAnalysis(dataFromKV: any) {
   // 키 확인
@@ -181,54 +181,55 @@ async function performAIAnalysis(dataFromKV: any) {
     ];
   }
 
-  // 5. ★★★ 프롬프트 수정: 점수 살짝 높이기 & 분석은 현실적으로 유지 ★★★
+  // 5. ★★★ 프롬프트 수정: "진짜 사주 논리(조후/억부)" 적용 ★★★
   const prompt = `
-      You are a world-class Korean Saju Master for a global audience.
-      This is a **PREMIUM PAID CONSULTATION**.
-      Analyze the compatibility between ${mySaju.englishName} and ${partnerSaju.englishName}.
+      You are a **True Master of Korean Saju (Destiny Analysis)**.
+      Your goal is to evaluate the **chemical reaction** between two people, not just compare their Day Masters.
 
-      **RELATIONSHIP TYPE:** ${relationshipType.toUpperCase()}
       **CLIENTS:**
       1. ${mySaju.englishName} (Gender: ${myData.gender}, Data: ${JSON.stringify(mySaju.pillars)})
       2. ${partnerSaju.englishName} (Gender: ${partnerData.gender}, Data: ${JSON.stringify(partnerSaju.pillars)})
 
-      **🚨 SCORING STRATEGY (IMPORTANT):**
-      - **Text Analysis:** Be honest and accurate. If they clash (e.g. Winter vs Winter), describe the coldness accurately. Do NOT hallucinate warmth where there is none.
-      - **Numerical Score:** **Be GENEROUS.** 1. Calculate the strict compatibility score based on elements.
-        2. **Then ADD +10 POINTS** as a "Human Effort Bonus". (Customers paid for this, give them hope).
-        3. **Minimum Score:** Unless they are enemies, try to keep the score **above 50**.
+      **🕵️‍♂️ DEEP ANALYSIS LOGIC (THINK BEFORE SCORING):**
       
-      **Score Range Guide (After Bonus):**
-      - **90-100:** Perfect match.
-      - **75-89:** Great match.
-      - **60-74:** Good match (Most average couples should fall here).
-      - **40-59:** Challenging. (Only for severe clashes).
+      **Step 1: Analyze Individual Strength (Wang-Soe & Temperature)**
+      - Is Person A's chart too Hot (Fire/Summer)? Then they NEED Water/Metal.
+      - Is Person A's chart too Cold (Water/Winter)? Then they NEED Fire/Earth.
+      - Is Person A's Day Master too Weak? They need support (Mother element).
+      - Is Person A's Day Master too Strong? They need to release energy (Output element).
+
+      **Step 2: Check Compatibility (The Chemistry)**
+      - **Good Match (80-100):** Person B HAS what Person A LACKS. (e.g., A is hot/dry, B is cool/wet). The balance is restored.
+      - **Bad Match (30-50):** Person B makes Person A's problems WORSE. (e.g., A is already freezing, B brings more ice/snow). The imbalance is amplified.
+      - **Average Match (55-75):** Neutral interaction. No major harm, no major help.
+
+      **Step 3: Determine the Score**
+      - Do NOT stay in the safe zone (60-70).
+      - If the "Chemistry" is bad (Step 2), be brave and give **35-48**.
+      - If the "Chemistry" is perfect, give **90-98**.
+      - **CRITICAL:** Use the *Full Range* (30 to 100) based on the logic above.
 
       **CRITICAL WRITING RULES (FOR WESTERN AUDIENCE):**
-      1. **NO TECHNICAL JARGON:** Avoid terms like "Yang Fire", "Yin Wood", "Stem", or "Branch".
-      2. **USE METAPHORS:** Use natural metaphors like "The Sun", "A Delicate Flower", "A Mighty Rock", or "The Deep Ocean". This makes it much more relatable.
-      3. **NO HANJA / CHINESE CHARACTERS:** Do NOT include any Chinese characters in your response text. Use English ONLY.
-      4. **STORYTELLING TONE:** Instead of "A is Fire, B is Wood," say "${mySaju.englishName} is like the radiant Sun, providing the warmth that ${partnerSaju.englishName} (the delicate Flower) needs to bloom."
-      5. **K-CULTURE VIBE:** Maintain a wise, mystical, yet warm and modern tone.
-      6. **LENGTH:** Write 2-3 detailed paragraphs per category.
-      7. **REAL NAMES:** Use "${mySaju.englishName}" and "${partnerSaju.englishName}" constantly.
+      1. **METAPHORS ONLY:** Do not say "You need Fire." Say "You are like a frozen lake, and ${partnerSaju.englishName} acts as the warm Sun that melts the ice."
+      2. **BE SPECIFIC:** Explain WHY the score is low or high based on this "filling the void" concept.
+      3. **NO HANJA:** English ONLY. Use "The Sun", "The Ocean", "The Mountain", etc.
 
       **Categories to Analyze:**
       ${JSON.stringify(categories)}
 
       **Output JSON Structure:**
       {
-        "score": 65,
+        "score": 0,
         "insta_card": {
-          "title": "Headline (e.g. The Sun & The Rain)",
-          "person_a_emoji": "🔥", "person_a_nature": "Sun",
-          "person_b_emoji": "💧", "person_b_nature": "Rain", 
-          "hashtags": ["#Destiny", "#Chemistry", "#Growth"],
+          "title": "Headline (e.g. The Perfect Balance)",
+          "person_a_emoji": "🔥", "person_a_nature": "Fire",
+          "person_b_emoji": "💧", "person_b_nature": "Water", 
+          "hashtags": ["#Complementary", "#Healing", "#Destiny"],
           "caption": "A summary of their dynamic."
         },
         "elemental_analysis": {
-          "balance_title": "The Core Dynamic",
-          "content": "A beautiful, poetic, yet accurate summary of their elemental compatibility using metaphors."
+          "balance_title": "Elemental Chemistry",
+          "content": "Detailed explanation of how they balance (or imbalance) each other."
         },
         "analysis_categories": [
           { "icon": "ICON", "title": "TITLE", "content": "Paragraph 1...\\n\\nParagraph 2..." },
