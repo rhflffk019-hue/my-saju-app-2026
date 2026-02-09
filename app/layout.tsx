@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script"; // ✅ [추가됨] Next.js 전용 스크립트 로더
+import Script from "next/script"; // ✅ Next.js 전용 스크립트 로더
 import "./globals.css";
 
 const geistSans = Geist({
@@ -48,13 +48,28 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* 🚀 구글 광고 태그 (gtag.js) 추가 */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17942691969"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads-tag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'AW-17942691969');
+          `}
+        </Script>
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
 
-        {/* ✅ [추가됨] 검로드 오버레이 스크립트 */}
-        {/* strategy="lazyOnload"를 쓰면 사이트 속도 저하 없이 부드럽게 불러옵니다 */}
+        {/* ✅ 검로드 오버레이 스크립트 */}
         <Script src="https://gumroad.com/js/gumroad.js" strategy="lazyOnload" />
       </body>
     </html>
