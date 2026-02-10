@@ -9,7 +9,7 @@ export default function Home() {
   const [step, setStep] = useState(1);
   const resultRef = useRef<HTMLDivElement>(null); 
 
-  // ✅ [추가] 샘플 팝업 상태 관리
+  // ✅ 샘플 팝업 상태 관리
   const [showSample, setShowSample] = useState(false);
 
   const [relationshipType, setRelationshipType] = useState('lover'); 
@@ -88,13 +88,11 @@ export default function Home() {
     const finalId = urlSajuId || localSajuId;
 
     if ((query.get('paid') === 'true' || query.get('success') === 'true') && finalId) {
-      console.log(`🚀 결제 확인! 결과 페이지로 이동: ${finalId}`);
       localStorage.setItem('currentSessionId', finalId);
       router.push(`/share/${finalId}`);
     }
   }, [router]);
 
-  // ✅ [수정됨] 검로드 오버레이 결제 로직
   const handlePaymentClick = async () => {
     const newErrors = {
       my: {
@@ -175,26 +173,10 @@ export default function Home() {
                   Your story begins at birth. We analyze your <b>Birth Year, Month, Day, and Time</b> using <b>Korean Saju (Four Pillars)</b> patterns to map your <b>Five-Element traits</b>—and highlight relationship dynamics you can explore together.
                 </p>
 
-                {/* ✅ [추가] 샘플 보기 버튼 */}
+                {/* ✅ 샘플 보기 버튼 */}
                 <button 
                   onClick={() => setShowSample(true)}
-                  style={{ 
-                    width: '100%', 
-                    padding: '12px', 
-                    backgroundColor: '#fff', 
-                    color: '#ff69b4', 
-                    border: '2px solid #ff69b4', 
-                    borderRadius: '12px', 
-                    fontSize: '14px', 
-                    fontWeight: 'bold', 
-                    cursor: 'pointer', 
-                    marginBottom: '20px', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    gap: '8px',
-                    boxShadow: '0 4px 12px rgba(255,105,180,0.1)'
-                  }}
+                  style={{ width: '100%', padding: '12px', backgroundColor: '#fff', color: '#ff69b4', border: '2px solid #ff69b4', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(255,105,180,0.1)' }}
                 >
                   👀 See a Sample Report (13 Chapters)
                 </button>
@@ -305,23 +287,23 @@ export default function Home() {
           </div>
         )}
 
-        {/* ✅ [추가] 샘플 팝업 모달 (Iframe) */}
+        {/* ✅ 샘플 팝업 모달 (모바일 최적화 수정) */}
         {showSample && (
-          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(5px)' }}>
-            <div style={{ width: '100%', maxWidth: '450px', display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px', backdropFilter: 'blur(5px)' }}>
+            <div style={{ width: '100%', maxWidth: '480px', display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
               <button 
                 onClick={() => setShowSample(false)} 
-                style={{ backgroundColor: '#fff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', fontWeight: 'bold', fontSize: '18px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ backgroundColor: '#fff', border: 'none', borderRadius: '50%', width: '32px', height: '32px', fontWeight: 'bold', fontSize: '16px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >✕</button>
             </div>
-            <div style={{ width: '100%', maxWidth: '450px', height: '80vh', backgroundColor: '#fff', borderRadius: '25px', overflow: 'hidden', position: 'relative', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
+            <div style={{ width: '100%', maxWidth: '480px', height: '85vh', backgroundColor: '#fff', borderRadius: '20px', overflow: 'hidden', position: 'relative', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
               <iframe 
                 src="https://www.mythesaju.com/share/0182d432-1396-4de4-9000-bdeb57f72ed9" 
                 style={{ width: '100%', height: '100%', border: 'none' }}
                 title="Sample Report Preview"
               />
             </div>
-            <p style={{ color: '#fff', marginTop: '15px', fontSize: '14px', fontWeight: '500', opacity: 0.8 }}>Close to start your own analysis</p>
+            <p style={{ color: '#fff', marginTop: '10px', fontSize: '13px', fontWeight: '500', opacity: 0.8 }}>Close to start your own analysis</p>
           </div>
         )}
 
@@ -454,7 +436,7 @@ const BRANCH_MAP: any = {
   "子": { metaphor: "Rat", element: "water" }, "丑": { metaphor: "Ox", element: "earth" },
   "寅": { metaphor: "Tiger", element: "wood" }, "卯": { metaphor: "Rabbit", element: "wood" },
   "辰": { metaphor: "Dragon", element: "earth" }, "巳": { metaphor: "Snake", element: "fire" },
-  "午": { metaphor: "Horse", element: "fire" }, "미": { metaphor: "Goat", element: "earth" },
+  "午": { metaphor: "Horse", element: "fire" }, "未": { metaphor: "Goat", element: "earth" },
   "申": { metaphor: "Monkey", element: "metal" }, "酉": { metaphor: "Rooster", element: "metal" },
   "戌": { metaphor: "Dog", element: "earth" }, "亥": { metaphor: "Pig", element: "water" }
 };
