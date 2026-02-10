@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script"; // ✅ Next.js 전용 스크립트 로더
+import Script from "next/script";
 import "./globals.css";
+// 1. Vercel Analytics 임포트 추가
+import { Analytics } from "@vercel/analytics/react"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -13,7 +15,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// ✅ 메타데이터는 준수님이 작성하신 그대로 유지됩니다.
 export const metadata: Metadata = {
   title: "The Saju | Love is Intuition, Saju is a Blueprint",
   description: "Map your Five-Element energy with a 1,000-year-old Korean framework. Reveal your hidden dynamics for just $3.99.",
@@ -49,7 +50,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        {/* 🚀 구글 광고 태그 (gtag.js) 추가 */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-17942691969"
           strategy="afterInteractive"
@@ -59,7 +59,6 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-
             gtag('config', 'AW-17942691969');
           `}
         </Script>
@@ -68,8 +67,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        
+        {/* 2. Vercel Analytics 컴포넌트 추가 */}
+        <Analytics />
 
-        {/* ✅ 검로드 오버레이 스크립트 */}
         <Script src="https://gumroad.com/js/gumroad.js" strategy="lazyOnload" />
       </body>
     </html>

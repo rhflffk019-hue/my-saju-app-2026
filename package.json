@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
+    "@vercel/analytics": "^1.6.1",
     "@vercel/kv": "^3.0.0",
     "html2canvas": "^1.4.1",
     "lunar-javascript": "^1.7.7",
