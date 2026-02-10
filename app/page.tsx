@@ -9,6 +9,9 @@ export default function Home() {
   const [step, setStep] = useState(1);
   const resultRef = useRef<HTMLDivElement>(null); 
 
+  // ✅ [추가] 샘플 팝업 상태 관리
+  const [showSample, setShowSample] = useState(false);
+
   const [relationshipType, setRelationshipType] = useState('lover'); 
   const [myData, setMyData] = useState({ 
     firstName: '', lastName: '', gender: '', 
@@ -80,25 +83,19 @@ export default function Home() {
   useEffect(() => {
     const query = new URLSearchParams(window.location.search);
     
-    // ✅ URL에서 saju_id를 먼저 가져오고, 없으면 localStorage에서 가져옵니다.
     const urlSajuId = query.get('saju_id');
     const localSajuId = localStorage.getItem('currentSessionId');
     const finalId = urlSajuId || localSajuId;
 
     if ((query.get('paid') === 'true' || query.get('success') === 'true') && finalId) {
       console.log(`🚀 결제 확인! 결과 페이지로 이동: ${finalId}`);
-      
-      // 혹시 모르니 가져온 ID를 다시 저장해둡니다.
       localStorage.setItem('currentSessionId', finalId);
-      
-      // 결과 페이지로 이동
       router.push(`/share/${finalId}`);
     }
   }, [router]);
 
   // ✅ [수정됨] 검로드 오버레이 결제 로직
   const handlePaymentClick = async () => {
-    // 1. 에러 체크
     const newErrors = {
       my: {
         firstName: !myData.firstName,
@@ -128,7 +125,6 @@ export default function Home() {
     setLoading(true);
 
     try {
-      // 2. 서버 예약 및 세션 ID 발급
       const res = await fetch('/api/reserve', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -137,16 +133,8 @@ export default function Home() {
       const { sessionId } = await res.json();
       localStorage.setItem('currentSessionId', sessionId);
 
-      // 3. ✅ 검로드 상품 주소 설정 (가장 중요한 부분!)
-      // TODO: 아래 주소를 준수님의 실제 검로드 상품 URL로 교체하세요.
       const GUMROAD_PRODUCT_URL = "https://rhflffk.gumroad.com/l/ixxuyp"; 
-
-      // 4. 검로드 오버레이 실행
-      // ?wanted=true: 즉시 구매창 띄우기
-      // &saju_id=... : 웹훅으로 전달할 커스텀 데이터 (session_id 역할)
       const checkoutUrl = `${GUMROAD_PRODUCT_URL}?wanted=true&saju_id=${sessionId}`;
-      
-      // layout.tsx에 스크립트가 있다면, 이 코드가 실행될 때 자동으로 팝업이 뜹니다.
       window.location.href = checkoutUrl;
 
     } catch (e) {
@@ -156,7 +144,6 @@ export default function Home() {
     }
   };
 
-  // 색상 헬퍼
   const getElementColor = (element: string) => {
     const el = element ? element.toLowerCase() : "";
     if (el === 'wood') return '#4ade80'; if (el === 'fire') return '#f87171';
@@ -187,6 +174,31 @@ export default function Home() {
                 <p style={{ marginBottom: '15px' }}>
                   Your story begins at birth. We analyze your <b>Birth Year, Month, Day, and Time</b> using <b>Korean Saju (Four Pillars)</b> patterns to map your <b>Five-Element traits</b>—and highlight relationship dynamics you can explore together.
                 </p>
+
+                {/* ✅ [추가] 샘플 보기 버튼 */}
+                <button 
+                  onClick={() => setShowSample(true)}
+                  style={{ 
+                    width: '100%', 
+                    padding: '12px', 
+                    backgroundColor: '#fff', 
+                    color: '#ff69b4', 
+                    border: '2px solid #ff69b4', 
+                    borderRadius: '12px', 
+                    fontSize: '14px', 
+                    fontWeight: 'bold', 
+                    cursor: 'pointer', 
+                    marginBottom: '20px', 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    gap: '8px',
+                    boxShadow: '0 4px 12px rgba(255,105,180,0.1)'
+                  }}
+                >
+                  👀 See a Sample Report (13 Chapters)
+                </button>
+
                 <p style={{ marginBottom: '15px' }}>
                   Saju is a traditional cultural framework in Korea. This experience generates a <b>personalized compatibility report</b> for <b>fun, reflection, and conversation</b>.
                 </p>
@@ -229,7 +241,6 @@ export default function Home() {
                 )}
               </button>
 
-            {/* ✅ [수정됨] 즉시 확인 + 이메일 백업 안내 문구 */}
               <div style={{ marginTop: '15px', textAlign: 'center', fontSize: '12px', color: '#555', lineHeight: '1.5', padding: '12px', backgroundColor: '#fff', borderRadius: '12px', border: '1px solid #eee', boxShadow: '0 2px 8px rgba(0,0,0,0.03)' }}>
                 <div style={{display:'flex', alignItems:'center', justifyContent:'center', gap:'6px', marginBottom:'4px'}}>
                   <span style={{ fontSize: '14px' }}>⚡️</span>
@@ -280,35 +291,37 @@ export default function Home() {
             <h2 style={{ color: '#d63384', fontSize:'22px' }}>Generating Your Report...</h2>
             <p style={{ color: '#666', fontSize:'15px' }}>Running the compatibility calculation...</p>
 
-            <div
-              style={{
-                margin: '22px auto 0',
-                maxWidth: 360,
-                background: '#f0f9ff',
-                border: '1px solid #bce3eb',
-                borderRadius: 14,
-                padding: '14px 14px',
-                color: '#0369a1',
-                textAlign: 'left',
-                lineHeight: 1.45,
-                boxShadow: '0 6px 18px rgba(0,0,0,0.06)',
-              }}
-            >
-              <div style={{ fontSize: 13, fontWeight: 900, marginBottom: 6 }}>
-                Important: Please stay on this page.
-              </div>
-              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>
-                Please don’t leave or refresh this page.
-              </div>
+            <div style={{ margin: '22px auto 0', maxWidth: 360, background: '#f0f9ff', border: '1px solid #bce3eb', borderRadius: 14, padding: '14px 14px', color: '#0369a1', textAlign: 'left', lineHeight: 1.45, boxShadow: '0 6px 18px rgba(0,0,0,0.06)' }}>
+              <div style={{ fontSize: 13, fontWeight: 900, marginBottom: 6 }}>Important: Please stay on this page.</div>
+              <div style={{ fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Please don’t leave or refresh this page.</div>
               <div style={{ fontSize: 12, fontWeight: 700 }}>
                 Your premium report is being generated automatically.<br/>
                 It may take up to 3 minutes.
               </div>
-              {/* ✅ [추가됨] 로딩 중 이메일 안내 추가 */}
               <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px dashed #bce3eb', fontSize: 12, fontWeight: 500, color: '#0284c7' }}>
                  📧 <b>Don't worry!</b> A permanent link to the result will also be sent to your email.
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ✅ [추가] 샘플 팝업 모달 (Iframe) */}
+        {showSample && (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', backdropFilter: 'blur(5px)' }}>
+            <div style={{ width: '100%', maxWidth: '450px', display: 'flex', justifyContent: 'flex-end', marginBottom: '10px' }}>
+              <button 
+                onClick={() => setShowSample(false)} 
+                style={{ backgroundColor: '#fff', border: 'none', borderRadius: '50%', width: '36px', height: '36px', fontWeight: 'bold', fontSize: '18px', cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >✕</button>
+            </div>
+            <div style={{ width: '100%', maxWidth: '450px', height: '80vh', backgroundColor: '#fff', borderRadius: '25px', overflow: 'hidden', position: 'relative', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
+              <iframe 
+                src="https://www.mythesaju.com/share/0182d432-1396-4de4-9000-bdeb57f72ed9" 
+                style={{ width: '100%', height: '100%', border: 'none' }}
+                title="Sample Report Preview"
+              />
+            </div>
+            <p style={{ color: '#fff', marginTop: '15px', fontSize: '14px', fontWeight: '500', opacity: 0.8 }}>Close to start your own analysis</p>
           </div>
         )}
 
@@ -319,13 +332,10 @@ export default function Home() {
             <span style={{ margin: '0 10px', color: '#ccc' }}>|</span>
             <a href="/terms" style={footerLinkStyle}>Terms of Service</a>
           </div>
-          
           <div style={{ fontSize: '13px', color: '#999', lineHeight: '1.6' }}>
             <p style={{ margin: '5px 0' }}>Support: <a href="mailto:mythesaju@gmail.com" style={{ color: '#ff69b4', textDecoration: 'none' }}>mythesaju@gmail.com</a></p>
             <p style={{ margin: '5px 0' }}>© 2026 The Saju. All rights reserved.</p>
-            <p style={{ fontSize: '11px', marginTop: '10px', opacity: 0.8 }}>
-              This service is for entertainment purposes only.
-            </p>
+            <p style={{ fontSize: '11px', marginTop: '10px', opacity: 0.8 }}>This service is for entertainment purposes only.</p>
           </div>
         </footer>
 
@@ -444,7 +454,7 @@ const BRANCH_MAP: any = {
   "子": { metaphor: "Rat", element: "water" }, "丑": { metaphor: "Ox", element: "earth" },
   "寅": { metaphor: "Tiger", element: "wood" }, "卯": { metaphor: "Rabbit", element: "wood" },
   "辰": { metaphor: "Dragon", element: "earth" }, "巳": { metaphor: "Snake", element: "fire" },
-  "午": { metaphor: "Horse", element: "fire" }, "未": { metaphor: "Goat", element: "earth" },
+  "午": { metaphor: "Horse", element: "fire" }, "미": { metaphor: "Goat", element: "earth" },
   "申": { metaphor: "Monkey", element: "metal" }, "酉": { metaphor: "Rooster", element: "metal" },
   "戌": { metaphor: "Dog", element: "earth" }, "亥": { metaphor: "Pig", element: "water" }
 };
