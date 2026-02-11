@@ -2,20 +2,12 @@ import { kv } from "@vercel/kv";
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Solar, Lunar } from 'lunar-javascript';
-import nodemailer from 'nodemailer'; // 📧 이메일 모듈
+import { Resend } from 'resend'; // ✅ Nodemailer 대신 Resend 사용
 
 // 1. API 키 설정
 const API_KEY = process.env.GEMINI_API_KEY;
-
-// 📧 이메일 전송 설정 (Gmail)
-const transporter = nodemailer.createTransport({
-  service: 'gmail',
-  auth: {
-    user: 'mythesaju@gmail.com', 
-    // ⚠️ 환경변수 지우고, 앱 비밀번호 16자리를 '공백 없이' 따옴표 안에 직접 넣으세요.
-    pass: 'derpzhalftskhtrx' 
-  }
-});
+// ✅ Resend 초기화 (Vercel 환경변수에 RESEND_API_KEY 추가 필수)
+const resend = new Resend(process.env.RESEND_API_KEY); 
 
 export async function POST(req: Request) {
   try {
@@ -73,34 +65,31 @@ export async function POST(req: Request) {
             console.log(`✅ [Gumroad Webhook] 분석 완료 및 저장 성공: ${sessionId}`);
 
             // ====================================================
-            // 📧 [NEW] 고객에게 결과 링크 이메일 발송
+            // 📧 [NEW] Resend로 이메일 발송 (안정성 100%)
             // ====================================================
             if (userEmail) {
-                // ✅ 메인 페이지(?paid=true)를 거치지 않고 바로 결과 페이지(/share/ID)로 보냅니다.
                 const resultLink = `https://www.mythesaju.com/share/${sessionId}`;
                 
-                const mailOptions = {
-                    from: '"The Saju Master" <mythesaju@gmail.com>',
-                    to: userEmail,
-                    subject: '🔮 [The Saju] Your Premium Destiny Report is Ready!',
-                    html: `
-                        <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-                            <h2 style="color: #4F46E5;">Your Saju Analysis is Complete.</h2>
-                            <p>You can view your full report by clicking the button below:</p>
-                            <br>
-                            <a href="${resultLink}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">👉 View My Report</a>
-                            <br><br>
-                            <p style="font-size: 13px; color: #666;">This link is valid for 30 days. Please save your report.</p>
-                        </div>
-                    `
-                };
-
-                // 이메일 발송 (에러가 나도 웹훅은 성공시켜야 함)
                 try {
-                    await transporter.sendMail(mailOptions);
-                    console.log(`📧 이메일 발송 성공: ${userEmail}`);
+                    // ✅ 보내는 사람을 인증된 도메인 주소로 설정
+                    const emailData = await resend.emails.send({
+                        from: 'The Saju Master <hello@mythesaju.com>', 
+                        to: [userEmail], 
+                        subject: '🔮 [The Saju] Your Premium Destiny Report is Ready!',
+                        html: `
+                            <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+                                <h2 style="color: #4F46E5;">Your Saju Analysis is Complete.</h2>
+                                <p>You can view your full report by clicking the button below:</p>
+                                <br>
+                                <a href="${resultLink}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">👉 View My Report</a>
+                                <br><br>
+                                <p style="font-size: 13px; color: #666;">This link is valid for 30 days. Please save your report.</p>
+                            </div>
+                        `
+                    });
+                    console.log(`📧 Resend 이메일 발송 성공: ID ${emailData.data?.id}`);
                 } catch (emailError) {
-                    console.error("❌ 이메일 발송 실패:", emailError);
+                    console.error("❌ Resend 이메일 발송 실패:", emailError);
                 }
             }
 
@@ -122,7 +111,7 @@ export async function POST(req: Request) {
 }
 
 // =========================================================
-// 🧠 AI 분석 로직 (프롬프트: 조후/억부 적용 & 점수 변별력 강화)
+// 🧠 AI 분석 로직 (프롬프트: 조후/억부 적용 & 점수 변별력 강화) - 기존 유지
 // =========================================================
 async function performAIAnalysis(dataFromKV: any) {
   // 키 확인
@@ -297,6 +286,18 @@ function calculateSaju(data: any) {
 
   const fullName = `${data.firstName} ${data.lastName}`.trim();
 
+  const unknownHourPillar = {
+    stem_hanja: "?",
+    stem_hangul: "?",
+    stem_meaning: "Unknown",
+    stem_element: "unknown",
+    branch_hanja: "?",
+    branch_hangul: "?",
+    branch_meaning: "Unknown",
+    branch_element: "unknown",
+    position: "Hour",
+  };
+
   return {
     name: fullName,
     englishName: data.firstName,
@@ -305,7 +306,7 @@ function calculateSaju(data: any) {
       translatePillar(ganji.year, "Year"),
       translatePillar(ganji.month, "Month"),
       translatePillar(ganji.day, "Day"),
-      data.unknownTime ? { stem_hanja: "?", position: "Hour" } : translatePillar(ganji.time, "Hour"),
+      data.unknownTime ? unknownHourPillar : translatePillar(ganji.time, "Hour"),
     ],
   };
 }
