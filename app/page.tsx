@@ -164,13 +164,22 @@ export default function Home() {
         {step === 1 && (
           <div>
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '20px', marginBottom: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)', border: '1px solid #fff' }}>
-              <div style={{fontSize: '11px', fontWeight: 'bold', color: '#ff69b4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>Korean Tradition • Modern Report</div>
+              
+              {/* ✅ [수정됨] 마케팅 훅 + 감성 문구의 조화 */}
+              <div style={{fontSize: '11px', fontWeight: 'bold', color: '#ff69b4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>The Korean Secret to Success</div>
               <h3 style={{ margin:'0 0 15px 0', color:'#333', fontSize:'22px', lineHeight:'1.3', fontWeight:'800' }}>
                 Love is Intuition,<br/>Saju is a Blueprint.
               </h3>
+
               <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#555' }}>
+                {/* 1. 가격 앵커링 (강력한 훅) - 원래 문구 아래에 배치하여 설득력 강화 */}
                 <p style={{ marginBottom: '15px' }}>
-                  Your story begins at birth. We analyze your <b>Birth Year, Month, Day, and Time</b> using <b>Korean Saju (Four Pillars)</b> patterns to map your <b>Five-Element traits</b>—and highlight relationship dynamics you can explore together.
+                  In Korea, this isn't just a game. Before marriage or big business deals, people consult a Master. It typically costs <b>$50–$100 per session</b>.
+                </p>
+
+                {/* 2. 서비스 가치 설명 */}
+                <p style={{ marginBottom: '15px' }}>
+                  Why? Because Saju analyzes the <b>energy of your birth time</b> to predict chemistry with scary accuracy. We digitized this premium analysis for you.
                 </p>
 
                 {/* ✅ 샘플 보기 버튼 */}
@@ -181,11 +190,9 @@ export default function Home() {
                   👀 See a Sample Report (13 Chapters)
                 </button>
 
-                <p style={{ marginBottom: '15px' }}>
-                  Saju is a traditional cultural framework in Korea. This experience generates a <b>personalized compatibility report</b> for <b>fun, reflection, and conversation</b>.
-                </p>
+                {/* 3. 가격 제안 */}
                 <p style={{ margin: 0, fontWeight:'600', color:'#333' }}>
-                  We digitized this long-standing framework into a modern, shareable <b>compatibility report</b>. Get your report for a limited-time launch price of <b>$3.99</b> (Regular $4.99).
+                  Unlock your full <b>13-chapter compatibility report</b> instantly for just <b>$3.99</b> (Launch Price).
                 </p>
               </div>
             </div>
