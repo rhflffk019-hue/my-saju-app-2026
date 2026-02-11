@@ -2,15 +2,21 @@ import { kv } from "@vercel/kv";
 import { NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Solar, Lunar } from 'lunar-javascript';
-import { Resend } from 'resend'; // ✅ Nodemailer 대신 Resend 사용
+import { Resend } from 'resend'; 
 
 // 1. API 키 설정
 const API_KEY = process.env.GEMINI_API_KEY;
-// ✅ Resend 초기화 (Vercel 환경변수에 RESEND_API_KEY 추가 필수)
-const resend = new Resend(process.env.RESEND_API_KEY); 
+
+// ⚠️ [중요] Resend 초기화를 함수 밖에서 하지 말고 안에서 합니다.
+// const resend = new Resend(process.env.RESEND_API_KEY); <--- 이거 지움
 
 export async function POST(req: Request) {
   try {
+    // ✅ [Resend 초기화 위치 이동]
+    // 여기에 아까 발급받은 're_'로 시작하는 키를 따옴표 안에 직접 붙여넣으세요!
+    // 예: new Resend('re_123456789...'); 
+    const resend = new Resend('re_DEyjcd2H_PyMNYLfuwtWGhSL1imy2zcZR'); 
+
     // ✅ [데이터 수신] 검로드 데이터 안전하게 받기
     const rawBody = await req.text();
     const params = new URLSearchParams(rawBody);
@@ -65,13 +71,12 @@ export async function POST(req: Request) {
             console.log(`✅ [Gumroad Webhook] 분석 완료 및 저장 성공: ${sessionId}`);
 
             // ====================================================
-            // 📧 [NEW] Resend로 이메일 발송 (안정성 100%)
+            // 📧 [NEW] Resend로 이메일 발송
             // ====================================================
             if (userEmail) {
                 const resultLink = `https://www.mythesaju.com/share/${sessionId}`;
                 
                 try {
-                    // ✅ 보내는 사람을 인증된 도메인 주소로 설정
                     const emailData = await resend.emails.send({
                         from: 'The Saju Master <hello@mythesaju.com>', 
                         to: [userEmail], 
@@ -110,9 +115,8 @@ export async function POST(req: Request) {
   }
 }
 
-// =========================================================
-// 🧠 AI 분석 로직 (프롬프트: 조후/억부 적용 & 점수 변별력 강화) - 기존 유지
-// =========================================================
+// ... (나머지 calculateSaju, performAIAnalysis 함수들은 기존과 동일하게 유지)
+// 여기 아래는 아까 드린 코드 그대로 두시면 됩니다!
 async function performAIAnalysis(dataFromKV: any) {
   // 키 확인
   if (!API_KEY) throw new Error("API Key not found in server");
