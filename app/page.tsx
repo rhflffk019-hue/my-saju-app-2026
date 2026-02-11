@@ -305,11 +305,11 @@ export default function Home() {
               >✕</button>
             </div>
             <div style={{ width: '100%', maxWidth: '480px', height: '85vh', backgroundColor: '#fff', borderRadius: '20px', overflow: 'hidden', position: 'relative', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
-              <iframe 
-                src="https://www.mythesaju.com/share/0182d432-1396-4de4-9000-bdeb57f72ed9" 
-                style={{ width: '100%', height: '100%', border: 'none' }}
-                title="Sample Report Preview"
-              />
+            <iframe 
+              src="/sample-report" // 주소를 간단하게 바꿉니다.
+              style={{ width: '100%', height: '100%', border: 'none' }}
+              title="Sample Report Preview"
+            />
             </div>
             <p style={{ color: '#fff', marginTop: '10px', fontSize: '13px', fontWeight: '500', opacity: 0.8 }}>Close to start your own analysis</p>
           </div>

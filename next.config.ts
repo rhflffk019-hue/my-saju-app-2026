@@ -1,7 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  async rewrites() {
+    return [
+      {
+        // 사용자가 브라우저에서 보는 주소
+        source: '/sample-report',
+        // 실제로 서버가 몰래 가져와서 보여줄 진짜 주소
+        destination: '/share/0182d432-1396-4de4-9000-bdeb57f72ed9',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
