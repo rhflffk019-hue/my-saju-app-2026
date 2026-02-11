@@ -165,21 +165,22 @@ export default function Home() {
           <div>
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '20px', marginBottom: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)', border: '1px solid #fff' }}>
               
-              {/* ✅ [수정됨] 마케팅 훅 + 감성 문구의 조화 */}
+              {/* ✅ [최종 수정된 텍스트] 원본의 논리 + 마케팅 훅의 조화 */}
               <div style={{fontSize: '11px', fontWeight: 'bold', color: '#ff69b4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>The Korean Secret to Success</div>
               <h3 style={{ margin:'0 0 15px 0', color:'#333', fontSize:'22px', lineHeight:'1.3', fontWeight:'800' }}>
                 Love is Intuition,<br/>Saju is a Blueprint.
               </h3>
 
               <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#555' }}>
-                {/* 1. 가격 앵커링 (강력한 훅) - 원래 문구 아래에 배치하여 설득력 강화 */}
+                
+                {/* 1. [원본 부활] 사주의 원리 설명 (신뢰도 확보) */}
                 <p style={{ marginBottom: '15px' }}>
-                  In Korea, this isn't just a game. Before marriage or big business deals, people consult a Master. It typically costs <b>$50–$100 per session</b>.
+                  Your story begins at birth. We analyze your <b>Birth Year, Month, Day, and Time</b> using <b>Korean Saju (Four Pillars)</b> patterns to map your <b>Five-Element traits</b>—and highlight relationship dynamics you can explore together.
                 </p>
 
-                {/* 2. 서비스 가치 설명 */}
+                {/* 2. [마케팅 훅] 사회적 증명 및 가격 앵커링 */}
                 <p style={{ marginBottom: '15px' }}>
-                  Why? Because Saju analyzes the <b>energy of your birth time</b> to predict chemistry with scary accuracy. We digitized this premium analysis for you.
+                  In Korea, <b>this isn't just a game.</b> Before marriage or big business deals, people consult a Master to verify compatibility. It typically costs <b>$50–$100 per session</b>.
                 </p>
 
                 {/* ✅ 샘플 보기 버튼 */}
@@ -190,9 +191,9 @@ export default function Home() {
                   👀 See a Sample Report (13 Chapters)
                 </button>
 
-                {/* 3. 가격 제안 */}
+                {/* 3. 클로징 제안 */}
                 <p style={{ margin: 0, fontWeight:'600', color:'#333' }}>
-                  Unlock your full <b>13-chapter compatibility report</b> instantly for just <b>$3.99</b> (Launch Price).
+                  We digitized this premium master-level analysis. Unlock your <b>13-chapter report</b> instantly for just <b>$3.99</b> (Launch Price).
                 </p>
               </div>
             </div>
