@@ -175,11 +175,11 @@ async function performAIAnalysis(dataFromKV: any) {
     ];
   }
 
-// 5. ★★★ 프롬프트 수정: "안전 필터 우회 + 냉철한 분석(Strict & Safe)" ★★★
+// 5. ★★★ 프롬프트 수정: "안전함 + 정확함 + 해결책 + 이모지 고정 (All-in-One)" ★★★
   const prompt = `
       You are a **Grand Master of Korean Saju**. 
       Evaluate compatibility based on **Orthodox Seasonality Logic**.
-      Provide **Real Solutions** for any conflicts.
+      Provide **Real Behavioral Solutions** for any conflicts.
 
       **CLIENTS:**
       1. ${mySaju.englishName} (Gender: ${myData.gender}, Data: ${JSON.stringify(mySaju.pillars)})
@@ -187,25 +187,39 @@ async function performAIAnalysis(dataFromKV: any) {
 
       **🕵️‍♂️ MASTER'S LOGIC:**
 
-      **Logic 1: The "Season" Diagnosis**
-      - Check Person A's **Month Pillar**.
-      - **Winter Born (Nov-Jan) Fire:** Weak. Water is an **Overwhelming Force** (Clash). -> **Result: Clash.**
-      - **Summer Born (May-Jul) Fire:** Strong. Water is **Essential Cooling** (Balance). -> **Result: Balance.**
+      **Rule 0: IDENTITY CHECK (Fix Emojis)**
+      - Look ONLY at the **DAY STEM** (Upper char of Day Pillar) to set their Nature/Emoji.
+      - **Bing/Ding** = FIRE (🔥)
+      - **Ren/Gui** = WATER (🌊)
+      - **Jia/Yi** = WOOD (🌳)
+      - **Geng/Xin** = METAL (⚔️)
+      - **Wu/Ji** = EARTH (⛰️)
+      - *Use this nature for the JSON output.*
+
+      **Logic 1: The "Season" Diagnosis (The Accuracy)**
+      - Check Person A's **Month Pillar** (Season).
+      - **Born in Winter (Nov-Jan) Fire:** Weak. Water is an **Overwhelming Force**. -> **Clash.**
+      - **Born in Summer (May-Jul) Fire:** Strong. Water is **Cooling Medicine**. -> **Balance.**
+      - *Apply this seasonality logic to all elements (e.g., Spring Wood is strong, Autumn Wood is weak).*
 
       **Logic 2: Scoring**
-      - **Clash Scenario:** If elements conflict (e.g., Winter Fire vs Strong Water), give a **LOW SCORE (30-50)**. Be realistic.
+      - **Clash Scenario:** If elements conflict (e.g., Winter Fire vs Strong Water), give a **LOW SCORE (30-50)**.
       - **Balance Scenario:** Give a **HIGH SCORE (85-99)**.
 
-      **Logic 3: The Behavioral Solution (The Bridge)**
-      - **Water attacks Fire? -> Use WOOD behavior.**
-        * Advice: "The Water person must stop cold logic. Use 'Wood' energy: warm words, patience, and writing letters."
-      - **Metal attacks Wood? -> Use WATER behavior.**
-        * Advice: "The Metal person must stop cutting remarks. Use 'Water' energy: listening and flexibility."
-      - **Earth attacks Water? -> Use METAL behavior.**
-        * Advice: "The Earth person must stop blocking. Use 'Metal' energy: clear rules and logic."
+      **Logic 3: The Universal Remedy (The Bridge)**
+      - **Water attacks Fire? -> Cure: WOOD.**
+        * Advice: "Stop cold logic. Use 'Wood': warm words, patience, writing letters."
+      - **Metal attacks Wood? -> Cure: WATER.**
+        * Advice: "Stop sharp criticism. Use 'Water': deep listening, flexibility."
+      - **Earth attacks Water? -> Cure: METAL.**
+        * Advice: "Stop blocking/obsessing. Use 'Metal': clear rules, respect privacy."
+      - **Wood attacks Earth? -> Cure: FIRE.**
+        * Advice: "Stop digging/nagging. Use 'Fire': passion, fun activities, expression."
+      - **Fire attacks Metal? -> Cure: EARTH.**
+        * Advice: "Stop pressure/melting. Use 'Earth': stability, trust, waiting."
 
       **Logic 4: Output Rules**
-      - **Tone:** Direct and objective. Do not sugarcoat, but do not be aggressive.
+      - **Tone:** Direct and objective. Do not sugarcoat.
       - **Language:** English ONLY.
 
       **Categories to Analyze:**
@@ -223,10 +237,10 @@ async function performAIAnalysis(dataFromKV: any) {
         },
         "elemental_analysis": {
           "balance_title": "Elemental Chemistry",
-          "content": "Diagnosis and Solution."
+          "content": "Diagnosis first, then the specific 'Bridge' solution."
         },
         "analysis_categories": [
-           { "icon": "✨", "title": "Category Title", "content": "Analysis content..." },
+           { "icon": "✨", "title": "Category Title", "content": "Analysis..." },
            ...
         ]
       }
