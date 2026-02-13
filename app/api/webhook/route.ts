@@ -175,7 +175,7 @@ async function performAIAnalysis(dataFromKV: any) {
     ];
   }
 
-// 5. ★★★ 프롬프트 수정: "3줄 요약 제한 + 한 화면 핏" ★★★
+// 5. ★★★ 프롬프트 수정: "인스타(짧게) + 상세분석(길게) + 해시태그(다양하게) + 오행(자연스럽게)" ★★★
   const prompt = `
       You are a **Grand Master of Korean Saju**. 
       Evaluate compatibility based on **Orthodox Seasonality Logic**.
@@ -197,24 +197,36 @@ async function performAIAnalysis(dataFromKV: any) {
       **Logic 1: The "Season" Diagnosis (Accuracy)**
       - **Winter Fire vs Water:** Clash (Weak Fire dies). -> **Score 30-50**.
       - **Summer Fire vs Water:** Balance (Hot Fire cools). -> **Score 85-99**.
+      - *Apply similar logic to all element pairs based on Month/Season.*
 
       **Logic 2: The Universal Remedy (The Bridge Concept)**
       - **Calculate the 'Bridge Element' internally, but DO NOT mention the element name in the advice.**
 
-      **Logic 3: WRITING RULES FOR 13 CATEGORIES (STRICT)**
-      - **🚫 FORBIDDEN WORDS:** Do NOT use words like "Fire energy", "Water element", "Metal nature" inside the 13 categories.
-      - **✅ TRANSLATION GUIDE (Counselor Tone):**
-        * Instead of "Use Wood": Say "Be gentle, patient, and write handwritten letters."
-        * (Apply to all elements...)
-      
-      **Logic 4: HASHTAG GENERATION (Make it Viral)**
-      - Create 4-5 **Unique & Witty Hashtags**.
-      - **If Score LOW (30-50):** #FireAndIce, #SurvivalMode, #DangerousLove, #NeedsPatience.
-      - **If Score HIGH (85-100):** #Soulmates, #WrittenInStars, #PerfectMatch.
+      **Logic 3: WRITING RULES FOR 13 CATEGORIES (PREMIUM DEPTH)**
+      - **⚠️ CRITICAL:** The content for these 13 categories must be **DETAILED** (approx. 3-5 sentences each).
+      - **🚫 FORBIDDEN WORDS:** Do NOT use words like "Fire energy", "Water element", "Metal nature" inside the analysis.
+      - **✅ STRUCTURE (Must follow this):**
+        1. **The Insight:** Explain *why* they feel this way based on their nature.
+        2. **The Scenario:** Give a specific, real-life example (e.g., "When you argue, he might go silent...").
+        3. **The Solution:** Give specific behavioral advice (e.g., "Instead of pushing him, write a note...").
+      - **Goal:** Make the user feel "Wow, how did you know?"
 
-      **Logic 5: Output Tone (COMPACT)**
-      - **CAPTION RULE:** The 'caption' in insta_card MUST be **SHORT and PUNCHY**.
-      - **MAX LENGTH:** 2 sentences or 25 words. Do NOT write a paragraph.
+      **Logic 4: DYNAMIC HASHTAG GENERATION (Creative & Context-Aware)**
+      - Create 4-5 **Unique & Witty Hashtags** based on the **Specific Elements** and **Score**.
+      - **Step 1: Check the Score Range**
+        * **Low (30-50):** Vibe = Dangerous, Warning. -> Examples: #RedFlagButHot, #SurvivalMode, #LoveIsWar.
+        * **Mid (51-84):** Vibe = Realistic, Effort. -> Examples: #WorkInProgress, #RealLove, #FriendsToLovers, #GrowingTogether.
+        * **High (85-100):** Vibe = Destiny, Perfect. -> Examples: #WrittenInTheStars, #TwinFlames, #Soulmates.
+      - **Step 2: Check the Elements (Mix this into the tags)**
+        * Fire & Water -> #FireAndIce, #SteamAlert
+        * Metal & Wood -> #SharpLove, #ToughLove
+        * Earth & Water -> #MuddyLove, #BlockedFlow
+        * Wood & Fire -> #BurningPassion, #FuelTheFire
+      - **GOAL:** Mix Step 1 & Step 2 to create viral-worthy tags. Do NOT copy examples strictly.
+
+      **Logic 5: Output Tone**
+      - **Insta Card Caption:** VERY SHORT (Max 2 sentences). Punchy.
+      - **Deep Dive Categories:** LONG, DETAILED, EMPATHETIC.
       - Language: English ONLY.
 
       **Categories to Analyze:**
@@ -227,15 +239,15 @@ async function performAIAnalysis(dataFromKV: any) {
           "title": "Headline",
           "person_a_emoji": "🔥", "person_a_nature": "Flickering Winter Candle", 
           "person_b_emoji": "🌊", "person_b_nature": "Frozen Tsunami",        
-          "hashtags": ["#FireAndIce", "#DangerousLove", "#SurvivalMode"], 
-          "caption": "Short summary (Max 2 sentences)." // AI will keep this short now
+          "hashtags": ["#FireAndIce", "#LoveIsWar", "#SteamAlert"], // AI generates unique tags based on Logic 4
+          "caption": "Short summary (Max 2 sentences)." 
         },
         "elemental_analysis": {
           "balance_title": "Elemental Chemistry",
-          "content": "Explanation of the chemistry..."
+          "content": "Briefly explain the 'Clash' or 'Balance' theory here using element names."
         },
         "analysis_categories": [
-           { "icon": "✨", "title": "Category Title", "content": "Analysis..." },
+           { "icon": "✨", "title": "Category Title", "content": "Detailed analysis (Insight + Scenario + Solution)..." },
            ...
         ]
       }
