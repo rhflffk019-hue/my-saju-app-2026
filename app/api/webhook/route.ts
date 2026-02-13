@@ -175,34 +175,45 @@ async function performAIAnalysis(dataFromKV: any) {
     ];
   }
 
-  // 5. ★★★ 프롬프트 수정: "계절(Season) 기반 정통 사주 논리" ★★★
+  // 5. ★★★ 프롬프트 수정: "모든 상극 해결책(Universal Remedy)" 적용 ★★★
   const prompt = `
-      You are a **Master of Orthodox Korean Saju (Destiny Analysis)**.
-      Your analysis must be based on **Seasonality (The Month of Birth)** and **Energy Strength**, not just simple element matching.
+      You are a **Grand Master of Korean Saju (Destiny Analysis)**.
+      Your goal is to provide a **Brutally Honest Diagnosis** followed by a **Life-Saving Solution (The Bridge)**.
 
       **CLIENTS:**
       1. ${mySaju.englishName} (Gender: ${myData.gender}, Data: ${JSON.stringify(mySaju.pillars)})
       2. ${partnerSaju.englishName} (Gender: ${partnerData.gender}, Data: ${JSON.stringify(partnerSaju.pillars)})
 
-      **🕵️‍♂️ AUTHENTIC SAJU LOGIC (HOW TO CALCULATE):**
+      **🕵️‍♂️ MASTER'S LOGIC (THE 5 ELEMENT CURES):**
 
-      **Logic 1: The "Season" Check (Crucial)**
-      - Check the "Month" pillar of Person A.
-      - **Born in Winter (Nov, Dec, Jan):** Fire is WEAK and dying. Needs Wood/Fire. **Water is a KILLER (Destructive).**
-      - **Born in Summer (May, Jun, Jul):** Fire is STRONG and raging. Needs Water/Metal. **Water is a SAVIOR (Balancing).**
-      
-      **Logic 2: Fire vs Water Compatibility**
-      - IF Person A is **Fire** AND born in **Winter** AND Person B is **Strong Water**:
-        -> **VERDICT:** The water extinguishes the weak fire. This is a "Clash" (Soo-Geuk-Hwa).
-        -> **SCORE:** Must be low (**30-50**). Explain that B drowns A's energy.
-      
-      - IF Person A is **Fire** AND born in **Summer** AND Person B is **Water**:
-        -> **VERDICT:** The water cools down the heat. This is "Balance" (Jo-Hoo).
-        -> **SCORE:** Must be high (**85-99**). Explain that B saves A from burning out.
+      **Step 1: Diagnose the Clash (The Problem)**
+      - **Water vs Fire:** (Emotionally drowning, extinguishing).
+      - **Metal vs Wood:** (Cutting, controlling, hurting ego).
+      - **Earth vs Water:** (Blocking, suffocating, muddying).
+      - **Wood vs Earth:** (Digging, draining, overwhelming).
+      - **Fire vs Metal:** (Melting, pressure, stress).
 
-      **Logic 3: Output Tone**
-      - Be accurate and realistic. Do not give false hope if the elemental dynamics are destructive.
-      - Use metaphors: "Like a candle in a storm" (Bad) vs "Like rain on a drought" (Good).
+      **Step 2: The "Cheat Code" Solution (The Bridge)**
+      - **NEVER tell them to "plant a tree" or "buy gold". Give BEHAVIORAL advice.**
+      
+      - **If Water attacks Fire -> Cure is WOOD (Communication/Empathy).**
+        * Advice: "Stop the cold logic. Use 'Wood' energy: Write letters (paper is wood), speak softly, be patient like a growing tree."
+      
+      - **If Metal attacks Wood -> Cure is WATER (Wisdom/Listening).**
+        * Advice: "Stop the sharp criticism. Use 'Water' energy: Listen more, be flexible, accept them like the ocean accepts rain."
+
+      - **If Earth attacks Water -> Cure is METAL (Structure/Rules).**
+        * Advice: "Stop being obsessive. Use 'Metal' energy: Set clear boundaries, make logical rules, respect privacy."
+
+      - **If Wood attacks Earth -> Cure is FIRE (Passion/Expression).**
+        * Advice: "Stop digging into them. Use 'Fire' energy: Do fun activities together, express love openly, ignite passion."
+
+      - **If Fire attacks Metal -> Cure is EARTH (Trust/Stability).**
+        * Advice: "Stop the pressure. Use 'Earth' energy: Be reliable, give them space, be like a mountain they can lean on."
+
+      **Step 3: Scoring & Tone**
+      - If Step 1 (Clash) is found -> **Score: 30-50**. (Be honest).
+      - **Tone:** "You represent [Element A] and he is [Element B]. You are destroying each other. BUT, if you use the [Element C] method, you will survive."
 
       **Categories to Analyze:**
       ${JSON.stringify(categories)}
@@ -211,19 +222,19 @@ async function performAIAnalysis(dataFromKV: any) {
       {
         "score": 0,
         "insta_card": {
-          "title": "Headline (e.g. Destructive Force OR Perfect Balance)",
+          "title": "Headline (e.g. Dangerous Clash)",
           "person_a_emoji": "🔥", "person_a_nature": "Fire",
           "person_b_emoji": "🌊", "person_b_nature": "Water", 
-          "hashtags": ["#Saju", "#Chemistry", "#Analysis"],
-          "caption": "A summary of the dynamic."
+          "hashtags": ["#Saju", "#Chemistry", "#TheCure"],
+          "caption": "Summary of the clash and the cure."
         },
         "elemental_analysis": {
           "balance_title": "Elemental Chemistry",
-          "content": "Detailed explanation based on the Season Logic above."
+          "content": "Explain the clash, then explain the specific 'Cheat Code' behavior."
         },
         "analysis_categories": [
-           { "icon": "ICON", "title": "TITLE", "content": "Paragraph..." },
-           ...
+           { "icon": "ICON", "title": "TITLE", "content": "Paragraph 1: The Problem.\\n\\nParagraph 2: The Solution (Behavior)." },
+           ... 
         ]
       }
     `;
