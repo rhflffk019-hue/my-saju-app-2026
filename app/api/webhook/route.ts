@@ -175,7 +175,7 @@ async function performAIAnalysis(dataFromKV: any) {
     ];
   }
 
-// 5. ★★★ 프롬프트 수정: "모든 오행 용어 금지 + 100% 심리 상담 말투" ★★★
+// 5. ★★★ 프롬프트 수정: "오행 용어 금지 + 해시태그 맛집 + 상담가 말투" ★★★
   const prompt = `
       You are a **Grand Master of Korean Saju**. 
       Evaluate compatibility based on **Orthodox Seasonality Logic**.
@@ -199,10 +199,10 @@ async function performAIAnalysis(dataFromKV: any) {
       - **Summer Fire vs Water:** Balance (Hot Fire cools). -> **Score 85-99**.
 
       **Logic 2: The Universal Remedy (The Bridge Concept)**
-      - **Calculate the 'Bridge Element' internally (e.g., Wood for Water-Fire clash), but DO NOT mention the element name in the advice.**
+      - **Calculate the 'Bridge Element' internally, but DO NOT mention the element name in the advice.**
 
       **Logic 3: WRITING RULES FOR 13 CATEGORIES (STRICT)**
-      - **🚫 FORBIDDEN WORDS:** Do NOT use words like "Fire energy", "Water element", "Metal nature", "Earth quality", "Wood vibration" inside the 13 categories.
+      - **🚫 FORBIDDEN WORDS:** Do NOT use words like "Fire energy", "Water element", "Metal nature", "Earth quality" inside the 13 categories.
       - **✅ TRANSLATION GUIDE (How to speak):**
         * Instead of "Use **Wood**": Say "Be gentle, patient, and write handwritten letters."
         * Instead of "Use **Fire**": Say "Express passion, be spontaneous, and show excitement."
@@ -212,7 +212,13 @@ async function performAIAnalysis(dataFromKV: any) {
       
       - **Goal:** The advice must sound like a **Human Relationship Counselor**.
 
-      **Logic 4: Output Tone**
+      **Logic 4: HASHTAG GENERATION (Make it Viral)**
+      - Create 4-5 **Unique & Witty Hashtags** based on the score.
+      - **DO NOT** use generic tags like #Saju, #Chemistry.
+      - **If Score is LOW (30-50):** Use tags like #FireAndIce, #SurvivalMode, #DangerousLove, #NeedsPatience.
+      - **If Score is HIGH (85-100):** Use tags like #Soulmates, #WrittenInStars, #PerfectMatch.
+
+      **Logic 5: Output Tone**
       - Direct, Insightful, and Metaphorical (in the Summary only).
       - Language: English ONLY.
 
@@ -226,7 +232,7 @@ async function performAIAnalysis(dataFromKV: any) {
           "title": "Headline",
           "person_a_emoji": "🔥", "person_a_nature": "Flickering Winter Candle", 
           "person_b_emoji": "🌊", "person_b_nature": "Frozen Tsunami",        
-          "hashtags": ["#Saju", "#Chemistry", "#Advice"],
+          "hashtags": ["#FireAndIce", "#DangerousLove", "#SurvivalMode"], // AI generates dynamic tags here
           "caption": "Summary string."
         },
         "elemental_analysis": {
