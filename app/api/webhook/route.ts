@@ -175,38 +175,34 @@ async function performAIAnalysis(dataFromKV: any) {
     ];
   }
 
-  // 5. ★★★ 프롬프트 수정: "진짜 사주 논리(조후/억부)" 적용 ★★★
+  // 5. ★★★ 프롬프트 수정: "계절(Season) 기반 정통 사주 논리" ★★★
   const prompt = `
-      You are a **True Master of Korean Saju (Destiny Analysis)**.
-      Your goal is to evaluate the **chemical reaction** between two people, not just compare their Day Masters.
+      You are a **Master of Orthodox Korean Saju (Destiny Analysis)**.
+      Your analysis must be based on **Seasonality (The Month of Birth)** and **Energy Strength**, not just simple element matching.
 
       **CLIENTS:**
       1. ${mySaju.englishName} (Gender: ${myData.gender}, Data: ${JSON.stringify(mySaju.pillars)})
       2. ${partnerSaju.englishName} (Gender: ${partnerData.gender}, Data: ${JSON.stringify(partnerSaju.pillars)})
 
-      **🕵️‍♂️ DEEP ANALYSIS LOGIC (THINK BEFORE SCORING):**
+      **🕵️‍♂️ AUTHENTIC SAJU LOGIC (HOW TO CALCULATE):**
+
+      **Logic 1: The "Season" Check (Crucial)**
+      - Check the "Month" pillar of Person A.
+      - **Born in Winter (Nov, Dec, Jan):** Fire is WEAK and dying. Needs Wood/Fire. **Water is a KILLER (Destructive).**
+      - **Born in Summer (May, Jun, Jul):** Fire is STRONG and raging. Needs Water/Metal. **Water is a SAVIOR (Balancing).**
       
-      **Step 1: Analyze Individual Strength (Wang-Soe & Temperature)**
-      - Is Person A's chart too Hot (Fire/Summer)? Then they NEED Water/Metal.
-      - Is Person A's chart too Cold (Water/Winter)? Then they NEED Fire/Earth.
-      - Is Person A's Day Master too Weak? They need support (Mother element).
-      - Is Person A's Day Master too Strong? They need to release energy (Output element).
+      **Logic 2: Fire vs Water Compatibility**
+      - IF Person A is **Fire** AND born in **Winter** AND Person B is **Strong Water**:
+        -> **VERDICT:** The water extinguishes the weak fire. This is a "Clash" (Soo-Geuk-Hwa).
+        -> **SCORE:** Must be low (**30-50**). Explain that B drowns A's energy.
+      
+      - IF Person A is **Fire** AND born in **Summer** AND Person B is **Water**:
+        -> **VERDICT:** The water cools down the heat. This is "Balance" (Jo-Hoo).
+        -> **SCORE:** Must be high (**85-99**). Explain that B saves A from burning out.
 
-      **Step 2: Check Compatibility (The Chemistry)**
-      - **Good Match (80-100):** Person B HAS what Person A LACKS. (e.g., A is hot/dry, B is cool/wet). The balance is restored.
-      - **Bad Match (30-50):** Person B makes Person A's problems WORSE. (e.g., A is already freezing, B brings more ice/snow). The imbalance is amplified.
-      - **Average Match (55-75):** Neutral interaction. No major harm, no major help.
-
-      **Step 3: Determine the Score**
-      - Do NOT stay in the safe zone (60-70).
-      - If the "Chemistry" is bad (Step 2), be brave and give **35-48**.
-      - If the "Chemistry" is perfect, give **90-98**.
-      - **CRITICAL:** Use the *Full Range* (30 to 100) based on the logic above.
-
-      **CRITICAL WRITING RULES (FOR WESTERN AUDIENCE):**
-      1. **METAPHORS ONLY:** Do not say "You need Fire." Say "You are like a frozen lake, and ${partnerSaju.englishName} acts as the warm Sun that melts the ice."
-      2. **BE SPECIFIC:** Explain WHY the score is low or high based on this "filling the void" concept.
-      3. **NO HANJA:** English ONLY. Use "The Sun", "The Ocean", "The Mountain", etc.
+      **Logic 3: Output Tone**
+      - Be accurate and realistic. Do not give false hope if the elemental dynamics are destructive.
+      - Use metaphors: "Like a candle in a storm" (Bad) vs "Like rain on a drought" (Good).
 
       **Categories to Analyze:**
       ${JSON.stringify(categories)}
@@ -215,19 +211,19 @@ async function performAIAnalysis(dataFromKV: any) {
       {
         "score": 0,
         "insta_card": {
-          "title": "Headline (e.g. The Perfect Balance)",
+          "title": "Headline (e.g. Destructive Force OR Perfect Balance)",
           "person_a_emoji": "🔥", "person_a_nature": "Fire",
-          "person_b_emoji": "💧", "person_b_nature": "Water", 
-          "hashtags": ["#Complementary", "#Healing", "#Destiny"],
-          "caption": "A summary of their dynamic."
+          "person_b_emoji": "🌊", "person_b_nature": "Water", 
+          "hashtags": ["#Saju", "#Chemistry", "#Analysis"],
+          "caption": "A summary of the dynamic."
         },
         "elemental_analysis": {
           "balance_title": "Elemental Chemistry",
-          "content": "Detailed explanation of how they balance (or imbalance) each other."
+          "content": "Detailed explanation based on the Season Logic above."
         },
         "analysis_categories": [
-          { "icon": "ICON", "title": "TITLE", "content": "Paragraph 1...\\n\\nParagraph 2..." },
-          ... (Make sure there are exactly 13 items)
+           { "icon": "ICON", "title": "TITLE", "content": "Paragraph..." },
+           ...
         ]
       }
     `;
