@@ -13,24 +13,27 @@ export default function Home() {
   const [showSample, setShowSample] = useState(false);
 
   const [relationshipType, setRelationshipType] = useState('lover'); 
+  
+  // ✅ [수정] firstName, lastName -> name 하나로 통합
   const [myData, setMyData] = useState({ 
-    firstName: '', lastName: '', gender: '', 
+    name: '', gender: '', 
     birthDate: '', birthTime: '', unknownTime: false, timezone: '-5' 
   });
   const [partnerData, setPartnerData] = useState({ 
-    firstName: '', lastName: '', gender: '', 
+    name: '', gender: '', 
     birthDate: '', birthTime: '', unknownTime: false, timezone: '-5' 
   });
   
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
 
+  // ✅ [수정] 에러 체크도 name 하나만 확인
   const [errors, setErrors] = useState<any>({
-    my: { firstName: false, gender: false, birthDate: false, birthTime: false },
-    partner: { firstName: false, gender: false, birthDate: false, birthTime: false }
+    my: { name: false, gender: false, birthDate: false, birthTime: false },
+    partner: { name: false, gender: false, birthDate: false, birthTime: false }
   });
 
-  // 1. 이미지 저장 함수
+  // 1. 이미지 저장 함수 (원본 유지)
   const downloadResultImage = async () => {
     if (resultRef.current) {
       const canvas = await html2canvas(resultRef.current, { scale: 2, useCORS: true });
@@ -42,7 +45,7 @@ export default function Home() {
     }
   };
 
-  // 2. 사주 계산 함수
+  // 2. 사주 계산 함수 (원본 유지 + 이름 로직만 수정)
   const calculateSaju = (data: any) => {
     if (!data.birthDate) return null;
     let [year, month, day] = data.birthDate.split('-').map(Number);
@@ -66,11 +69,10 @@ export default function Home() {
       time: data.unknownTime ? "?" : lunar.getTimeInGanZhi()
     };
 
-    const fullName = `${data.firstName} ${data.lastName}`.trim();
-
+    // ✅ [수정] 이름 로직 단순화 (First Name만 사용)
     return {
-      name: fullName,
-      englishName: data.firstName, 
+      name: data.name,
+      englishName: data.name, 
       pillars: [
         translatePillar(ganji.year, 'Year'),
         translatePillar(ganji.month, 'Month'),
@@ -94,15 +96,16 @@ export default function Home() {
   }, [router]);
 
   const handlePaymentClick = async () => {
+    // ✅ [수정] 에러 체크 로직 변경 (firstName -> name)
     const newErrors = {
       my: {
-        firstName: !myData.firstName,
+        name: !myData.name,
         gender: !myData.gender,
         birthDate: !myData.birthDate,
         birthTime: !myData.unknownTime && !myData.birthTime
       },
       partner: {
-        firstName: !partnerData.firstName,
+        name: !partnerData.name,
         gender: !partnerData.gender,
         birthDate: !partnerData.birthDate,
         birthTime: !partnerData.unknownTime && !partnerData.birthTime
@@ -112,8 +115,8 @@ export default function Home() {
     setErrors(newErrors);
 
     const hasError = 
-      newErrors.my.firstName || newErrors.my.gender || newErrors.my.birthDate || newErrors.my.birthTime ||
-      newErrors.partner.firstName || newErrors.partner.gender || newErrors.partner.birthDate || newErrors.partner.birthTime;
+      newErrors.my.name || newErrors.my.gender || newErrors.my.birthDate || newErrors.my.birthTime ||
+      newErrors.partner.name || newErrors.partner.gender || newErrors.partner.birthDate || newErrors.partner.birthTime;
 
     if (hasError) {
       window.scrollTo({ top: 150, behavior: 'smooth' });
@@ -165,25 +168,20 @@ export default function Home() {
           <div>
             <div style={{ backgroundColor: '#fff', padding: '25px', borderRadius: '20px', marginBottom: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.08)', border: '1px solid #fff' }}>
               
-              {/* ✅ [최종 수정된 텍스트] 원본의 논리 + 마케팅 훅의 조화 */}
               <div style={{fontSize: '11px', fontWeight: 'bold', color: '#ff69b4', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '10px'}}>The Korean Secret to Success</div>
               <h3 style={{ margin:'0 0 15px 0', color:'#333', fontSize:'22px', lineHeight:'1.3', fontWeight:'800' }}>
                 Love is Intuition,<br/>Saju is a Blueprint.
               </h3>
 
               <div style={{ fontSize: '15px', lineHeight: '1.7', color: '#555' }}>
-                
-                {/* 1. [원본 부활] 사주의 원리 설명 (신뢰도 확보) */}
                 <p style={{ marginBottom: '15px' }}>
                   Your story begins at birth. We analyze your <b>Birth Year, Month, Day, and Time</b> using <b>Korean Saju (Four Pillars)</b> patterns to map your <b>Five-Element traits</b>—and highlight relationship dynamics you can explore together.
                 </p>
 
-                {/* 2. [마케팅 훅] 사회적 증명 및 가격 앵커링 */}
                 <p style={{ marginBottom: '15px' }}>
                   In Korea, <b>this isn't just a game.</b> Before marriage or big business deals, people consult a Master to verify compatibility. It typically costs <b>$50–$100 per session</b>.
                 </p>
 
-                {/* ✅ 샘플 보기 버튼 */}
                 <button 
                   onClick={() => setShowSample(true)}
                   style={{ width: '100%', padding: '12px', backgroundColor: '#fff', color: '#ff69b4', border: '2px solid #ff69b4', borderRadius: '12px', fontSize: '14px', fontWeight: 'bold', cursor: 'pointer', marginBottom: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', boxShadow: '0 4px 12px rgba(255,105,180,0.1)' }}
@@ -191,7 +189,6 @@ export default function Home() {
                   👀 See a Sample Report (13 Chapters)
                 </button>
 
-                {/* 3. 클로징 제안 */}
                 <p style={{ margin: 0, fontWeight:'600', color:'#333' }}>
                   We digitized this premium master-level analysis. Unlock your <b>13-chapter report</b> instantly for just <b>$3.99</b> (Launch Price).
                 </p>
@@ -295,7 +292,7 @@ export default function Home() {
           </div>
         )}
 
-        {/* ✅ 샘플 팝업 모달 (모바일 최적화 수정) */}
+        {/* 샘플 팝업 모달 */}
         {showSample && (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.85)', zIndex: 9999, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '10px', backdropFilter: 'blur(5px)' }}>
             <div style={{ width: '100%', maxWidth: '480px', display: 'flex', justifyContent: 'flex-end', marginBottom: '8px' }}>
@@ -306,7 +303,7 @@ export default function Home() {
             </div>
             <div style={{ width: '100%', maxWidth: '480px', height: '85vh', backgroundColor: '#fff', borderRadius: '20px', overflow: 'hidden', position: 'relative', boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
             <iframe 
-              src="/sample-report" // 주소를 간단하게 바꿉니다.
+              src="/sample-report" 
               style={{ width: '100%', height: '100%', border: 'none' }}
               title="Sample Report Preview"
             />
@@ -341,6 +338,7 @@ export default function Home() {
 
 // ---------------- Helper Components ----------------
 
+// ✅ [수정] 입력 컴포넌트 간소화 (Name 하나만 받음)
 const PersonInput = ({ label, data, setData, errorState }: any) => (
   <div style={{ marginBottom: '20px' }}>
     <label style={{display:'block', fontSize:'11px', fontWeight:'bold', color:'#999', marginBottom:'8px', letterSpacing:'1px', textTransform:'uppercase'}}>{label}</label>
@@ -365,18 +363,18 @@ const PersonInput = ({ label, data, setData, errorState }: any) => (
     </div>
     {errorState.gender && <div style={errorTextStyle}>⚠️ Please select gender.</div>}
 
-    <div style={{ display: 'flex', gap: '8px', marginBottom: '4px' }}>
+    {/* ✅ [수정] First/Last Name -> Single Name Input */}
+    <div style={{ marginBottom: '4px' }}>
       <input 
-        placeholder="First Name" 
-        value={data.firstName} 
-        onChange={(e) => setData({...data, firstName: e.target.value})} 
-        style={{...inputStyle, flex: 1, minWidth: 0, borderColor: errorState.firstName ? '#ff4d4d' : '#e0e0e0'}} 
+        placeholder="Name" 
+        value={data.name} 
+        onChange={(e) => setData({...data, name: e.target.value})} 
+        style={{...inputStyle, width: '100%', borderColor: errorState.name ? '#ff4d4d' : '#e0e0e0', boxSizing: 'border-box'}} 
       />
-      <input placeholder="Last Name" value={data.lastName} onChange={(e) => setData({...data, lastName: e.target.value})} style={{...inputStyle, flex: 1, minWidth: 0}} />
     </div>
-    {errorState.firstName && <div style={errorTextStyle}>⚠️ First name is required.</div>}
+    {errorState.name && <div style={errorTextStyle}>⚠️ Name is required.</div>}
 
-    <div style={{ display: 'flex', gap: '8px', marginBottom: '6px', marginTop: '4px' }}>
+    <div style={{ display: 'flex', gap: '8px', marginBottom: '6px', marginTop: '10px' }}>
       <div style={{ flex: 2, minWidth: 0, fontSize: 11, fontWeight: 900, color: '#999', letterSpacing: '0.5px' }}>Birth Date</div>
       {!data.unknownTime && <div style={{ flex: 1, minWidth: 0, fontSize: 11, fontWeight: 900, color: '#999', letterSpacing: '0.5px' }}>Birth Time</div>}
     </div>
@@ -449,7 +447,7 @@ const BRANCH_MAP: any = {
   "戌": { metaphor: "Dog", element: "earth" }, "亥": { metaphor: "Pig", element: "water" }
 };
 
-const inputStyle = { padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '16px', outline: 'none', backgroundColor:'#fcfcfc', color:'#333', transition: 'border 0.2s' };
+const inputStyle = { padding: '14px', borderRadius: '10px', border: '1px solid #e0e0e0', fontSize: '16px', outline: 'none', backgroundColor:'#fcfcfc', color:'#333', transition: 'border 0.2s', boxSizing: 'border-box' as const };
 const buttonStyle = { width: '100%', padding: '16px', backgroundColor: '#d63384', color: 'white', border: 'none', borderRadius: '15px', fontSize: '16px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px', boxShadow:'0 8px 20px rgba(214, 51, 132, 0.25)', transition: 'transform 0.1s' };
 const errorTextStyle = { color: '#ff4d4d', fontSize: '11px', marginTop: '4px', fontWeight: '600' as const };
 const footerLinkStyle = { fontSize: '13px', color: '#666', textDecoration: 'none', fontWeight: '500' as const };
