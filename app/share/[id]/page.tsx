@@ -69,14 +69,14 @@ export default async function SharePage({
   const elemental = data.elemental_analysis || {};
   const categories: any[] = Array.isArray(data.analysis_categories) ? data.analysis_categories : [];
 
-  const personAEmoji = insta.person_a_emoji || "🌊";
-  const personBEmoji = insta.person_b_emoji || "⛰️";
-  const personANature = insta.person_a_nature || "Ocean";
-  const personBNature = insta.person_b_nature || "Mountain";
-  const instaTitle = insta.title || "The Unseen Destiny";
+  const personAEmoji = insta.person_a_emoji || "🔥";
+  const personBEmoji = insta.person_b_emoji || "🌊";
+  const personANature = insta.person_a_nature || "Fire";
+  const personBNature = insta.person_b_nature || "Water";
+  const instaTitle = insta.title || "The Destiny";
   const instaCaption = insta.caption || "";
-  const hashtags: string[] = Array.isArray(insta.hashtags) ? insta.hashtags : [];
-
+  // 해시태그 변수는 존재하지만 렌더링하지 않음 (공간 절약)
+  
   const balanceTitle = elemental.balance_title || "The Core Dynamic";
   const elementalContent = elemental.content || "";
 
@@ -89,39 +89,41 @@ export default async function SharePage({
 
   return (
     <div style={pageStyle}>
-      {/* Header */}
+      {/* Header (높이 축소됨) */}
       <div style={headerStyle}>
-        <div style={{ fontSize: 36, marginBottom: 5 }}>🔮</div>
-        <h1 style={{ margin: 0, fontSize: 32, fontWeight: 900, letterSpacing: "-0.5px" }}>
+        <div style={{ fontSize: 28, marginBottom: 2 }}>🔮</div>
+        <h1 style={{ margin: 0, fontSize: 24, fontWeight: 900, letterSpacing: "-0.5px" }}>
           The Saju
         </h1>
-        <p style={{ margin: "8px 0 0", fontSize: 14, opacity: 0.95, fontWeight: 500 }}>
+        <p style={{ margin: "4px 0 0", fontSize: 12, opacity: 0.9 }}>
           Korean Destiny & Love Chemistry
         </p>
       </div>
 
       <div style={containerStyle}>
-        {/* Top Summary Card */}
+        
+        {/* ★★★ ULTRA COMPACT INSTA CARD (NO HASHTAGS) ★★★ */}
         <div style={cardStyle}>
+          
+          {/* 1. Emoji Row (패딩 축소) */}
           <div
             style={{
               display: "flex",
               justifyContent: "center",
               alignItems: "center",
-              padding: "25px 15px 10px 15px",
+              padding: "25px 10px 5px 10px",
             }}
           >
-            <div style={{ textAlign: "center", width: "35%" }}>
-              <div style={{ fontSize: 50, lineHeight: 1 }}>{personAEmoji}</div>
-              <div style={{ fontSize: 14, fontWeight: "bold", color: "#333", marginTop: 8 }}>
+            <div style={{ textAlign: "center", width: "40%" }}>
+              <div style={{ fontSize: 42, lineHeight: 1, marginBottom: 4 }}>{personAEmoji}</div>
+              <div style={{ fontSize: 11, fontWeight: "bold", color: "#333", lineHeight: 1.2 }}>
                 {personANature}
               </div>
-              <div style={{ fontSize: 10, color: "#888" }}>Energy</div>
             </div>
 
             <div
               style={{
-                fontSize: 24,
+                fontSize: 20,
                 fontWeight: 900,
                 color: "#ff69b4",
                 width: "10%",
@@ -132,19 +134,19 @@ export default async function SharePage({
               VS
             </div>
 
-            <div style={{ textAlign: "center", width: "35%" }}>
-              <div style={{ fontSize: 50, lineHeight: 1 }}>{personBEmoji}</div>
-              <div style={{ fontSize: 14, fontWeight: "bold", color: "#333", marginTop: 8 }}>
+            <div style={{ textAlign: "center", width: "40%" }}>
+              <div style={{ fontSize: 42, lineHeight: 1, marginBottom: 4 }}>{personBEmoji}</div>
+              <div style={{ fontSize: 11, fontWeight: "bold", color: "#333", lineHeight: 1.2 }}>
                 {personBNature}
               </div>
-              <div style={{ fontSize: 10, color: "#888" }}>Energy</div>
             </div>
           </div>
 
-          <div style={{ padding: "5px 0", textAlign: "center" }}>
+          {/* 2. Score Row (폰트 사이즈 68로 축소) */}
+          <div style={{ textAlign: "center", padding: "10px 0" }}>
             <div
               style={{
-                fontSize: 12,
+                fontSize: 10,
                 color: "#d63384",
                 fontWeight: "bold",
                 letterSpacing: "1px",
@@ -156,65 +158,43 @@ export default async function SharePage({
 
             <div style={scoreStyle}>
               {clamp(score, 0, 100)}
-              <span style={{ fontSize: 20, marginLeft: 2 }}>%</span>
+              <span style={{ fontSize: 24, marginLeft: 2 }}>%</span>
             </div>
 
-            <div style={{ marginTop: 10, padding: "0 25px" }}>
+            <div style={{ marginTop: 5, padding: "0 35px" }}>
               <ProgressBar value={clamp(score, 0, 100)} />
             </div>
           </div>
 
-          <div style={{ padding: "15px 25px 25px 25px", textAlign: "center" }}>
-            <div style={{ fontSize: 13, fontWeight: 800, color: "#ff69b4", marginBottom: 6 }}>
+          {/* 3. Text Section (해시태그 삭제됨) */}
+          <div style={{ padding: "15px 25px 20px 25px", textAlign: "center" }}>
+            <div style={{ fontSize: 14, fontWeight: 800, color: "#ff69b4", marginBottom: 8 }}>
               {instaTitle}
             </div>
 
-            {instaCaption ? (
-              <p
-                style={{
-                  color: "#444",
-                  lineHeight: 1.4,
-                  margin: 0,
-                  fontSize: 15,
-                  fontWeight: 600,
-                  fontStyle: "italic",
-                }}
-              >
-                “{instaCaption}”
-              </p>
-            ) : (
-              <p style={{ color: "#666", lineHeight: 1.4, margin: 0, fontSize: 14 }}>
-                Your premium destiny report is ready.
-              </p>
-            )}
+            <p
+              style={{
+                color: "#444",
+                lineHeight: 1.4,
+                margin: 0,
+                fontSize: 13,
+                fontWeight: 600,
+                fontStyle: "italic",
+              }}
+            >
+              “{instaCaption}”
+            </p>
 
-            {hashtags.length > 0 && (
-              <div
-                style={{
-                  marginTop: 10,
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 8,
-                  justifyContent: "center",
-                }}
-              >
-                {hashtags.slice(0, 12).map((tag: string, idx: number) => (
-                  <span key={`${tag}-${idx}`} style={tagStyle}>
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
+            {/* ✅ [수정] 해시태그 섹션 삭제됨 (공간 확보) */}
 
-            {/* ✅ [수정] 간격을 확 줄여서 캡처할 때 무조건 찍히게 만듭니다! */}
+            {/* ✅ [수정] 하단 URL 섹션 (간격 최소화) */}
             <div style={{ 
-                marginTop: 15,      // (기존 25px -> 15px로 축소)
+                marginTop: 15, 
                 borderTop: "1px solid #ffe4ef",
-                paddingTop: 10,     // (기존 12px -> 10px로 축소)
-                paddingBottom: 2    // (하단 여백 최소화)
+                paddingTop: 10,
             }}>
                 <div style={{ 
-                    fontSize: 13,   // (살짝 작게 해서 더 오밀조밀하게)
+                    fontSize: 11, 
                     fontWeight: 900, 
                     color: "#d63384", 
                     letterSpacing: "-0.5px",
@@ -232,11 +212,11 @@ export default async function SharePage({
             marginTop: -10, 
             marginBottom: 20, 
             textAlign: "center",
-            fontSize: 12, 
+            fontSize: 11, 
             color: "#999", 
             fontWeight: 500 
         }}>
-            📸 Screenshot this card to share on Story
+            📸 Fits perfectly! Screenshot & Share
         </div>
 
         {/* Key Dynamic */}
@@ -459,7 +439,6 @@ function PillarChart({ info, getElementColor }: any) {
                 borderRadius: "8px 8px 0 0",
               }}
             >
-              {/* ✅ 여기가 핵심 수정! hanja 대신 hangul을 먼저 찾게 변경 */}
               <div style={{ fontSize: "18px", fontWeight: "bold" }}>
                 {p.stem_hangul || p.stem_hanja || p.hanja}
               </div>
@@ -478,7 +457,6 @@ function PillarChart({ info, getElementColor }: any) {
                 opacity: 0.9,
               }}
             >
-              {/* ✅ 여기도 hangul 우선으로 변경 */}
               <div style={{ fontSize: "18px", fontWeight: "bold" }}>
                 {p.branch_hangul || p.branch_hanja || p.hanja}
               </div>
@@ -506,49 +484,50 @@ function clamp(v: number, min: number, max: number) {
   return v;
 }
 
-// ---------------- Styles ----------------
+// ---------------- Styles (COMPACT VERSION) ----------------
 
 const pageStyle: React.CSSProperties = {
   minHeight: "100vh",
   backgroundColor: "#fff0f5",
   fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-  paddingBottom: "60px",
+  paddingBottom: "40px",
   boxSizing: "border-box",
 };
 
 const headerStyle: React.CSSProperties = {
   background: "linear-gradient(135deg, #ff69b4, #ff8da1)",
-  padding: "30px 20px",
+  padding: "20px 15px", // ✅ 패딩 축소
   textAlign: "center",
   color: "white",
-  borderRadius: "0 0 30px 30px",
-  boxShadow: "0 4px 20px rgba(255,105,180,0.3)",
+  borderRadius: "0 0 25px 25px", // ✅ 둥글기 축소
+  boxShadow: "0 4px 15px rgba(255,105,180,0.3)",
 };
 
-// ✅ [수정 완료] 이제 카드가 헤더를 가리지 않고 아래에 예쁘게 위치합니다.
 const containerStyle: React.CSSProperties = {
   maxWidth: "480px",
   margin: "0 auto",
-  padding: "20px",
-  marginTop: "10px", // 기존 -25px에서 수정됨
+  padding: "15px",
+  marginTop: "10px", 
 };
 
+// ★★★ COMPACT CARD STYLE ★★★
 const cardStyle: React.CSSProperties = {
   background: "linear-gradient(135deg, #ffffff, #fff0f5)",
-  borderRadius: "25px",
+  borderRadius: "20px",
   overflow: "hidden",
-  boxShadow: "0 10px 30px rgba(0,0,0,0.1)",
-  marginBottom: "20px",
+  boxShadow: "0 8px 25px rgba(0,0,0,0.08)",
+  marginBottom: "15px",
   textAlign: "center",
   border: "2px solid #ffdeeb",
 };
 
 const scoreStyle: React.CSSProperties = {
-  fontSize: 80,
+  fontSize: 68, // ✅ 80 -> 68로 축소 (한 줄 핏)
   fontWeight: 900,
   color: "#ff69b4",
   lineHeight: "1",
-  textShadow: "3px 3px 0px #fff",
+  textShadow: "2px 2px 0px #fff",
+  marginBottom: "2px",
 };
 
 const panelStyle: React.CSSProperties = {
@@ -568,19 +547,11 @@ const categoryCardStyle: React.CSSProperties = {
   border: "1px solid #ffe4ef",
 };
 
-const tagStyle: React.CSSProperties = {
-  backgroundColor: "#fff0f7",
-  border: "1px solid #ffd6e6",
-  color: "#d63384",
-  fontWeight: 800,
-  padding: "6px 10px",
-  borderRadius: "999px",
-  fontSize: 11,
-};
+// ✅ tagStyle 삭제 (사용 안 함)
 
 const progressWrapStyle: React.CSSProperties = {
   width: "100%",
-  height: 10,
+  height: 8, // ✅ 10 -> 8로 축소
   backgroundColor: "#ffe4ef",
   borderRadius: 999,
   overflow: "hidden",
@@ -596,12 +567,12 @@ const progressFillStyle: React.CSSProperties = {
 
 const ctaButtonStyle: React.CSSProperties = {
   width: "100%",
-  padding: "16px",
+  padding: "14px", // ✅ 16 -> 14로 축소
   background: "linear-gradient(45deg, #ff69b4, #ff8da1)",
   color: "white",
   border: "none",
   borderRadius: "15px",
-  fontSize: "16px",
+  fontSize: "15px",
   fontWeight: "bold",
   cursor: "pointer",
   boxShadow: "0 6px 15px rgba(255,105,180,0.4)",
