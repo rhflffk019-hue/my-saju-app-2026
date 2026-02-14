@@ -212,11 +212,11 @@ export default async function SharePage({
             marginTop: -10, 
             marginBottom: 20, 
             textAlign: "center",
-            fontSize: 11, 
+            fontSize: 12, 
             color: "#999", 
             fontWeight: 500 
         }}>
-            📸 Fits perfectly! Screenshot & Share
+            📸 Screenshot this card & Share on Story
         </div>
 
         {/* Key Dynamic */}
